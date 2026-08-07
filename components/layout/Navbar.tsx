@@ -58,7 +58,7 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden lg:block">
-            <Button>Ücretsiz Analiz</Button>
+            <Button href="/analysis">Ücretsiz Analiz</Button>
           </div>
 
           <button
@@ -86,7 +86,7 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              <Button onClick={() => setIsMenuOpen(false)}>
+              <Button href="/analysis" onClick={() => setIsMenuOpen(false)}>
                 Ücretsiz Analiz
               </Button>
             </div>

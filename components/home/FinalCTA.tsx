@@ -15,7 +15,7 @@ export default function FinalCTA() {
           Fitness kararlarını bilimle destekle.
         </h2>
         <div className="mt-8">
-          <CTAButton href="/calculators/protein">
+          <CTAButton href="/analysis">
             Ücretsiz Analizini Başlat <ArrowRight aria-hidden="true" className="ml-2 size-4" />
           </CTAButton>
         </div>

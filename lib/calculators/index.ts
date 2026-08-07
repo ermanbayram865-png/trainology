@@ -1,3 +1,4 @@
+export * from "./bmi";
 export * from "./calorie";
 export * from "./constants";
 export * from "./ffmi";

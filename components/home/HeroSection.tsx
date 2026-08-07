@@ -29,7 +29,7 @@ export default function HeroSection() {
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <CTAButton href="/calculators/protein">
+          <CTAButton href="/analysis">
             Ücretsiz Analizini Başlat <ArrowRight aria-hidden="true" className="ml-2 size-4" />
           </CTAButton>
           <CTAButton href="/calculators" variant="secondary">

@@ -1,6 +1,7 @@
 import Card from "@/components/ui/Card";
 
 type ArticleMetadataProps = {
+  evidenceLevel: string;
   publishedDate: string;
   updatedDate: string;
   readingTime: string;
@@ -18,6 +19,7 @@ function formatDate(date: string) {
 }
 
 export default function ArticleMetadata({
+  evidenceLevel,
   publishedDate,
   updatedDate,
   readingTime,
@@ -25,6 +27,7 @@ export default function ArticleMetadata({
   reviewedBy,
 }: ArticleMetadataProps) {
   const entries = [
+    { label: "Kanıt seviyesi", value: evidenceLevel },
     { label: "Yayın tarihi", value: formatDate(publishedDate) },
     { label: "Güncelleme", value: formatDate(updatedDate) },
     { label: "Okuma süresi", value: readingTime },
