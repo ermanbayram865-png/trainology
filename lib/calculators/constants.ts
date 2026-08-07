@@ -75,6 +75,12 @@ export const PROTEIN_ACTIVITY_LEVELS: readonly CalculatorOption[] = [
   { label: "Çok aktif", value: "veryActive" },
 ] as const;
 
+export const WATER_ACTIVITY_LEVELS: readonly CalculatorOption[] = [
+  { label: "Düşük", value: "low" },
+  { label: "Orta", value: "moderate" },
+  { label: "Yüksek", value: "high" },
+] as const;
+
 export const PROTEIN_GOALS: readonly CalculatorOption[] = [
   { label: "Genel sağlık", value: "generalHealth" },
   { label: "Kas kazanımı", value: "muscleGain" },

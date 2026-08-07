@@ -15,6 +15,8 @@ export type ProteinGoal = "generalHealth" | "muscleGain" | "fatLoss";
 
 export type ProteinActivityLevel = "low" | "moderate" | "active" | "veryActive";
 
+export type WaterActivityLevel = "low" | "moderate" | "high";
+
 export type MacroProteinPreference = "standard" | "highProtein";
 
 export type MacroActivityLevel = "low" | "moderate" | "high";
