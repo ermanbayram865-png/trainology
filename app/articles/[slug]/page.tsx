@@ -40,10 +40,16 @@ export async function generateMetadata({
   return {
     title: article.title,
     description: removeInlineCitationMarkers(article.summary),
+    alternates: {
+      canonical: `/articles/${article.slug}`,
+    },
     openGraph: {
       title: article.title,
       description: removeInlineCitationMarkers(article.summary),
       type: "article",
+      url: absoluteUrl(`/articles/${article.slug}`),
+      siteName: siteConfig.name,
+      locale: "tr_TR",
       publishedTime: article.publishedDate,
       modifiedTime: article.updatedDate,
       authors: [article.author],

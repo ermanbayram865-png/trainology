@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
+
 import SupplementGrid from "@/components/supplements/SupplementGrid";
 import SupplementHeader from "@/components/supplements/SupplementHeader";
 import FeatureGrid from "@/components/ui/FeatureGrid";
 import Section from "@/components/ui/Section";
 import { supplements } from "@/data/supplements/supplements";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/supplements",
+  },
+};
 
 const supplementPrinciples = [
   {

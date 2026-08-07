@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import Badge from "@/components/ui/Badge";
@@ -11,6 +12,18 @@ import type { EvidenceLevel } from "@/lib/supplements/types";
 type SupplementDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: SupplementDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  return {
+    alternates: {
+      canonical: `/supplements/${slug}`,
+    },
+  };
+}
 
 const evidenceVariants: Record<
   EvidenceLevel,

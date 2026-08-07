@@ -4,24 +4,46 @@ import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
 
 const principles = [
-  { title: "Kanıta dayalı bilgiler", icon: <BookOpenCheck aria-hidden="true" /> },
-  { title: "Bilimsel kaynaklar", icon: <ShieldCheck aria-hidden="true" /> },
-  { title: "Abartısız yaklaşım", icon: <Waves aria-hidden="true" /> },
-  { title: "Kullanıcı odaklı sistem", icon: <UsersRound aria-hidden="true" /> },
+  {
+    title: "Kanıta Dayalı Bilgi",
+    description:
+      "Antrenman, beslenme ve supplement konularını güncel bilimsel kanıtlar üzerinden değerlendiririz.",
+    icon: <BookOpenCheck aria-hidden="true" />,
+  },
+  {
+    title: "Bilimsel Editörlük",
+    description:
+      "İçerikler doğruluk, kaynak kalitesi ve bilimsel standartlar gözetilerek hazırlanır.",
+    icon: <ShieldCheck aria-hidden="true" />,
+  },
+  {
+    title: "Abartısız Yaklaşım",
+    description:
+      "Hızlı sonuç vaatleri yerine sürdürülebilir ve gerçekçi çözümler sunarız.",
+    icon: <Waves aria-hidden="true" />,
+  },
+  {
+    title: "Kullanıcı Odaklı Sistem",
+    description:
+      "Karmaşık fitness bilgisini herkesin uygulayabileceği sistemlere dönüştürürüz.",
+    icon: <UsersRound aria-hidden="true" />,
+  },
 ];
 
 export default function TrustSection() {
   return (
     <Section
+      subtitle="YAKLAŞIMIMIZ"
       title="Neden Trainology?"
-      subtitle="Yaklaşımımız"
-      description="Fitness kararlarını daha güvenilir ve uygulanabilir hale getiren ilkeler."
+      description="Fitness bilgisini daha güvenilir, anlaşılır ve uygulanabilir hale getiren bilimsel yaklaşım."
+      contentClassName="mt-8"
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {principles.map((principle) => (
           <Card
             key={principle.title}
             title={principle.title}
+            description={principle.description}
             icon={principle.icon}
             variant="subtle"
             className="p-6"

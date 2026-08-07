@@ -1,6 +1,5 @@
 import { Brain, Dumbbell, FlaskConical, Sigma } from "lucide-react";
 
-import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
 
@@ -35,12 +34,9 @@ export default function ValueProposition() {
   return (
     <Section
       title="Fitness hedeflerin için bilimsel araçlar ve güvenilir bilgiler."
-      subtitle="Trainology platformu"
+      subtitle="TRAINOLOGY PLATFORMU"
       description="Karar vermeyi kolaylaştıran, birbirini tamamlayan araçlar ve içerikler."
     >
-      <div className="mb-6">
-        <Badge variant="gold">Tek platform, net başlangıç</Badge>
-      </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {values.map((value) => (
           <Card key={value.title} {...value} variant="subtle" />

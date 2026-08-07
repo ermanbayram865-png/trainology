@@ -1,63 +1,58 @@
-import { Calculator, Dumbbell, Ruler, Trophy, Utensils } from "lucide-react";
+import { Calculator, ChartBar, Scale } from "lucide-react";
 
-import CalculatorCard from "@/components/ui/CalculatorCard";
+import Card from "@/components/ui/Card";
+import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
 
 const tools = [
   {
-    title: "Protein Calculator",
-    description: "Hedefine uygun günlük protein aralığını öğren.",
-    category: "Beslenme",
-    status: "active" as const,
-    href: "/calculators/protein",
-    icon: <Dumbbell aria-hidden="true" />,
-  },
-  {
-    title: "Calorie Calculator",
-    description: "Günlük enerji ihtiyacını hedeflerine göre analiz et.",
-    category: "Beslenme",
-    status: "active" as const,
+    title: "Kalori Hesaplayıcı",
+    description:
+      "Günlük enerji ihtiyacını ve hedeflerine uygun kalori seviyeni belirle.",
+    icon: <Calculator size={30} strokeWidth={1.5} />,
     href: "/calculators/calorie",
-    icon: <Calculator aria-hidden="true" />,
   },
   {
-    title: "Macro Calculator",
-    description: "Kalori hedefin için makro dağılımı oluştur.",
-    category: "Beslenme",
-    status: "active" as const,
+    title: "Makro Hesaplayıcı",
+    description:
+      "Protein, karbonhidrat ve yağ dağılımını hedeflerine göre planla.",
+    icon: <Scale size={30} strokeWidth={1.5} />,
     href: "/calculators/macro",
-    icon: <Utensils aria-hidden="true" />,
   },
   {
-    title: "FFMI Calculator",
-    description: "Yağsız vücut kütleni boyuna göre değerlendir.",
-    category: "Vücut Kompozisyonu",
-    status: "active" as const,
-    href: "/calculators/ffmi",
-    icon: <Ruler aria-hidden="true" />,
-  },
-  {
-    title: "1RM Calculator",
-    description: "Tahmini maksimum kuvvetini hesapla.",
-    category: "Performans",
-    status: "active" as const,
-    href: "/calculators/1rm",
-    icon: <Trophy aria-hidden="true" />,
+    title: "Performans Analizi",
+    description: "Vücut ve antrenman verilerini daha bilinçli takip et.",
+    icon: <ChartBar size={30} strokeWidth={1.5} />,
+    href: "/calculators/performance",
   },
 ];
 
 export default function ToolsShowcase() {
   return (
     <Section
-      className="bg-[#080808]"
-      title="Bilimsel Fitness Araçları"
-      subtitle="Analiz merkeziniz"
-      description="İhtiyacın olan analizi seç, net ve anlaşılır sonuçlarla başlangıç yap."
+      subtitle="TOOLS"
+      title="Fitness kararlarını bilimsel verilerle destekle."
+      description="Kalori, makro ve performans verilerini analiz ederek daha bilinçli kararlar vermeni sağlayan araçlar."
+      contentClassName="mt-8"
     >
-      <div className="grid gap-5 md:grid-cols-2 lg:gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {tools.map((tool) => (
-          <CalculatorCard key={tool.title} {...tool} />
+          <Card
+            key={tool.title}
+            title={tool.title}
+            description={tool.description}
+            icon={tool.icon}
+            href={tool.href}
+            variant="subtle"
+            className="p-5"
+          />
         ))}
+      </div>
+
+      <div className="mt-10 flex justify-center">
+        <CTAButton href="/calculators" variant="secondary">
+          Tüm Araçları Keşfet
+        </CTAButton>
       </div>
     </Section>
   );

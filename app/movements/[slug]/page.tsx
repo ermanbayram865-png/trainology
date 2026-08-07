@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import Badge from "@/components/ui/Badge";
@@ -10,6 +11,18 @@ import { getMovementBySlug } from "@/data/movements/movements";
 type MovementDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: MovementDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  return {
+    alternates: {
+      canonical: `/movements/${slug}`,
+    },
+  };
+}
 
 export default async function MovementDetailPage({
   params,

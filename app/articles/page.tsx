@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
+
 import ArticleGrid from "@/components/articles/ArticleGrid";
 import ArticleHeader from "@/components/articles/ArticleHeader";
 import Section from "@/components/ui/Section";
 import { articles } from "@/data/articles/articles";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/articles",
+  },
+};
 
 export default function ArticlesPage() {
   return (

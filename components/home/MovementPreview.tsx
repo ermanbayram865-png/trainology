@@ -1,44 +1,61 @@
-import MovementCard from "@/components/movements/MovementCard";
+import { Activity, Dumbbell, Move } from "lucide-react";
+
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
 import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
 import { movements } from "@/data/movements/movements";
-import type { Movement } from "@/lib/movements/types";
 
-const featuredSlugs = [
-  "barbell-bench-press",
-  "barbell-back-squat",
-  "deadlift",
-  "pull-up",
-];
+const featuredMovements = [
+  {
+    slug: "barbell-bench-press",
+    icon: <Dumbbell size={30} strokeWidth={1.5} />,
+  },
+  {
+    slug: "barbell-back-squat",
+    icon: <Activity size={30} strokeWidth={1.5} />,
+  },
+  {
+    slug: "lat-pulldown",
+    icon: <Move size={30} strokeWidth={1.5} />,
+  },
+]
+  .map((featuredMovement) => {
+    const movement = movements.find(
+      (item) => item.slug === featuredMovement.slug,
+    );
 
-const featuredMovements = featuredSlugs
-  .map((slug) => movements.find((movement) => movement.slug === slug))
-  .filter((movement): movement is Movement => Boolean(movement));
+    return movement ? { ...movement, icon: featuredMovement.icon } : null;
+  })
+  .filter((movement) => movement !== null);
 
 export default function MovementPreview() {
   return (
     <Section
-      title="Hareketleri doğru öğren."
-      subtitle="Hareket kütüphanesi"
-      description="Temel hareketleri teknik, kas grubu ve ekipman bilgileriyle keşfet."
+      subtitle="MOVEMENT LIBRARY"
+      title="Hareketleri doğru teknikle öğren."
+      description="Egzersizlerin hedef kaslarını, teknik detaylarını ve uygulama noktalarını bilimsel bilgilerle keşfet."
+      contentClassName="mt-8"
     >
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {featuredMovements.map((movement) => (
-          <MovementCard
+          <Card
             key={movement.id}
             title={movement.name}
-            category={movement.category}
-            muscleGroup={movement.muscleGroup}
-            equipment={movement.equipment}
-            difficulty={movement.difficulty}
-            image={movement.image}
-            href={`/movements/${movement.slug}`}
             description={movement.description}
-          />
+            icon={movement.icon}
+            href={`/movements/${movement.slug}`}
+            variant="subtle"
+            className="p-6"
+          >
+            <Badge variant="neutral">
+              {movement.muscleGroup} • {movement.category}
+            </Badge>
+          </Card>
         ))}
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 flex justify-center">
         <CTAButton href="/movements" variant="secondary">
           Tüm Hareketleri Keşfet
         </CTAButton>
