@@ -21,6 +21,7 @@ const calculatorPaths = [
   "/calculators/macro",
   "/calculators/ffmi",
   "/calculators/1rm",
+  "/calculators/performance",
   "/calculators/water",
   "/calculators/healthy-weight",
 ] as const;

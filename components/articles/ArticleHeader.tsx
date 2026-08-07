@@ -1,16 +1,10 @@
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
+import type { ArticleCategory } from "@/lib/articles/types";
 
-type ArticleHeaderProps = { count: number };
+type ArticleHeaderProps = { count: number; categories: readonly ArticleCategory[] };
 
-const categories = [
-  "Training Science",
-  "Nutrition Science",
-  "Supplement Science",
-  "Movement Science",
-] as const;
-
-export default function ArticleHeader({ count }: ArticleHeaderProps) {
+export default function ArticleHeader({ count, categories }: ArticleHeaderProps) {
   return (
     <div>
       <PageHeader
@@ -18,12 +12,7 @@ export default function ArticleHeader({ count }: ArticleHeaderProps) {
         title="Trainology Scientific Library"
         description="Bilimsel literatür ve kanıt temelli fitness rehberleri."
       />
-      <div className="mt-6 flex flex-wrap items-center gap-2" aria-label="Makale kategorileri">
-        {categories.map((category) => (
-          <Badge key={category} variant="neutral">{category}</Badge>
-        ))}
-        <span className="ml-1 text-sm text-neutral-500">{count} rehber</span>
-      </div>
+      <p className="mt-6 text-sm text-neutral-500">{categories.length} kategori · {count} rehber</p>
     </div>
   );
 }

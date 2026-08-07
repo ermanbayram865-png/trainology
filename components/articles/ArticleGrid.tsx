@@ -1,7 +1,7 @@
 import ArticleCard from "@/components/articles/ArticleCard";
-import type { Article } from "@/lib/articles/types";
+import type { ArticleListItem } from "@/lib/articles/discovery";
 
-type ArticleGridProps = { articles: readonly Article[] };
+type ArticleGridProps = { articles: readonly ArticleListItem[] };
 
 export default function ArticleGrid({ articles }: ArticleGridProps) {
   return (
@@ -13,6 +13,8 @@ export default function ArticleGrid({ articles }: ArticleGridProps) {
           category={article.category}
           evidenceLevel={article.evidenceLevel}
           readingTime={article.readingTime}
+          publishedDate={article.publishedDate}
+          updatedDate={article.updatedDate}
           summary={article.summary}
           image={article.image}
           href={`/articles/${article.slug}`}

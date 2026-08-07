@@ -5,6 +5,7 @@ import ArticleEvidenceBadge from "@/components/articles/ArticleEvidenceBadge";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import { removeInlineCitationMarkers } from "@/lib/articles/formatters";
+import { formatArticleDate } from "@/lib/articles/discovery";
 import type { ArticleCategory, ArticleEvidenceLevel } from "@/lib/articles/types";
 
 type ArticleCardProps = {
@@ -14,6 +15,8 @@ type ArticleCardProps = {
   readingTime: string;
   summary: string;
   image: string;
+  publishedDate: string;
+  updatedDate: string;
   href: string;
 };
 
@@ -24,6 +27,8 @@ export default function ArticleCard({
   readingTime,
   summary,
   image,
+  publishedDate,
+  updatedDate,
   href,
 }: ArticleCardProps) {
   const hasImage = image.trim().length > 0;
@@ -69,6 +74,11 @@ export default function ArticleCard({
           {readingTime} okuma
         </span>
       </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-neutral-500">
+        <span>Yayınlandı: {formatArticleDate(publishedDate)}</span>
+        {updatedDate !== publishedDate && <span>Güncellendi: {formatArticleDate(updatedDate)}</span>}
+      </div>
+      <span className="text-sm font-semibold text-[#C9A14A]">Makaleyi Oku</span>
     </Card>
   );
 }

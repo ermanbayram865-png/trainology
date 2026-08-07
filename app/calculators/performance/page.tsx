@@ -1,28 +1,24 @@
 import type { Metadata } from "next";
 
-import Card from "@/components/ui/Card";
-import Section from "@/components/ui/Section";
+import CalculatorLayout from "@/components/calculators/CalculatorLayout";
+import PerformanceAnalysis from "@/features/performance-analysis/PerformanceAnalysis";
 
 export const metadata: Metadata = {
+  title: "Performans Analizi",
+  description:
+    "Antrenman performansını, tahmini 1RM değerlerini ve kuvvet dağılımını tek yerde analiz et.",
   alternates: { canonical: "/calculators/performance" },
-  robots: { index: false, follow: true },
 };
 
 export default function PerformanceCalculatorPage() {
   return (
-    <main className="min-h-screen">
-      <Section
-        subtitle="BİLİMSEL HESAPLAYICILAR"
-        title="Performans Analizi"
-        description="Fitness hedeflerin için kalori, makro ve performans verilerini analiz eden araçlar."
-        contentClassName="max-w-2xl"
-      >
-        <Card
-          title="Performans analiz aracı hazırlanıyor."
-          description="Vücut ve antrenman verilerini daha bilinçli takip etmene yardımcı olacak analiz aracı yakında burada olacak."
-          variant="subtle"
-        />
-      </Section>
-    </main>
+    <CalculatorLayout
+      title="Performans Analizi"
+      description="Antrenman performansını, tahmini 1RM değerlerini ve kuvvet dağılımını tek yerde analiz et."
+      seoPath="/calculators/performance"
+      disclaimer="Bu araç eğitim ve genel bilgilendirme amacıyla tahmin sunar. Sonuçlar kullanılan yük, teknik, ölçüm koşulları ve bireysel faktörlere göre değişebilir."
+    >
+      <PerformanceAnalysis />
+    </CalculatorLayout>
   );
 }

@@ -6,16 +6,20 @@ import ArticleEvidenceBadge from "@/components/articles/ArticleEvidenceBadge";
 import ArticleFaq from "@/components/articles/ArticleFaq";
 import ArticleMetadata from "@/components/articles/ArticleMetadata";
 import ArticleRelatedContent from "@/components/articles/ArticleRelatedContent";
+import ReadingProgress from "@/components/articles/ReadingProgress";
+import ShareActions from "@/components/articles/ShareActions";
 import ArticleSection from "@/components/articles/ArticleSection";
 import ArticleSources from "@/components/articles/ArticleSources";
 import ArticleTableOfContents from "@/components/articles/ArticleTableOfContents";
 import ArticleTrust from "@/components/articles/ArticleTrust";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import CTAButton from "@/components/ui/CTAButton";
 import PageHeader from "@/components/ui/PageHeader";
 import Section from "@/components/ui/Section";
 import { articles, getArticleBySlug } from "@/data/articles/articles";
 import { removeInlineCitationMarkers } from "@/lib/articles/formatters";
+import { getRelatedArticles } from "@/lib/articles/getRelatedArticles";
 import { absoluteUrl, siteConfig } from "@/lib/seo";
 
 type ArticlePageProps = {
@@ -124,9 +128,7 @@ export default async function ArticlePage({
     };
   };
 
-  const relatedArticles = articles
-    .filter((item) => item.slug !== article.slug && item.category === article.category)
-    .slice(0, 3);
+  const relatedArticles = getRelatedArticles(article, articles);
 
   const defaultContentSectionTitles = [
     "Bilimsel çerçeve",
@@ -268,6 +270,7 @@ export default async function ArticlePage({
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
+      <ReadingProgress />
       <Section className="bg-[#050505]" contentClassName="space-y-16">
         <script
           type="application/ld+json"
@@ -295,6 +298,8 @@ export default async function ArticlePage({
           author={article.author}
           reviewedBy={article.reviewedBy}
         />
+
+        <ShareActions title={article.title} url={absoluteUrl(`/articles/${article.slug}`)} />
 
         <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="space-y-16">
@@ -374,6 +379,10 @@ export default async function ArticlePage({
                 reviewedBy={article.reviewedBy}
               />
             </ArticleSection>
+
+            <div className="pt-2">
+              <CTAButton href="/articles" variant="secondary">Kütüphaneye Dön</CTAButton>
+            </div>
           </div>
 
           <aside className="xl:pt-1">

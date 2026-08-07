@@ -15,6 +15,8 @@ export default function ArticleRelatedContent({ articles }: ArticleRelatedConten
           category={article.category}
           evidenceLevel={article.evidenceLevel}
           readingTime={article.readingTime}
+          publishedDate={article.publishedDate}
+          updatedDate={article.updatedDate}
           summary={article.summary}
           image={article.image}
           href={`/articles/${article.slug}`}
