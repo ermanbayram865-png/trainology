@@ -85,6 +85,7 @@ export default function WaterCalculatorPage() {
   return (
     <CalculatorLayout
       title="Su İhtiyacı Hesaplayıcı"
+      seoPath="/calculators/water"
       description="Vücut ağırlığın ve aktivite seviyene göre günlük tahmini su ihtiyacını genel bilgilendirme amacıyla incele."
       info={
         <p>

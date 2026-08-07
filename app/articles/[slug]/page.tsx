@@ -16,6 +16,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Section from "@/components/ui/Section";
 import { articles, getArticleBySlug } from "@/data/articles/articles";
 import { removeInlineCitationMarkers } from "@/lib/articles/formatters";
+import { absoluteUrl, siteConfig } from "@/lib/seo";
 
 type ArticlePageProps = {
   params: Promise<{
@@ -37,7 +38,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${article.title} | Trainology`,
+    title: article.title,
     description: removeInlineCitationMarkers(article.summary),
     openGraph: {
       title: article.title,
@@ -46,7 +47,7 @@ export async function generateMetadata({
       publishedTime: article.publishedDate,
       modifiedTime: article.updatedDate,
       authors: [article.author],
-      images: [{ url: article.image, alt: article.title }],
+      images: [{ url: absoluteUrl(article.image), alt: article.title }],
     },
   };
 }
@@ -246,7 +247,17 @@ export default async function ArticlePage({
     dateModified: article.updatedDate,
     author: { "@type": "Organization", name: article.author },
     reviewedBy: { "@type": "Organization", name: article.reviewedBy },
-    image: article.image,
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: {
+        "@type": "ImageObject",
+        url: absoluteUrl("/images/logo.png"),
+      },
+    },
+    mainEntityOfPage: absoluteUrl(`/articles/${article.slug}`),
+    image: absoluteUrl(article.image),
   };
 
   return (

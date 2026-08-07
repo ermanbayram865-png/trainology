@@ -145,6 +145,7 @@ export default function CalorieCalculatorPage() {
   return (
     <CalculatorLayout
       title="Kalori Hesaplayıcı"
+      seoPath="/calculators/calorie"
       description="Mifflin–St Jeor denklemi ve aktivite seviyene göre günlük enerji ihtiyacını analiz et."
       info={
         <>

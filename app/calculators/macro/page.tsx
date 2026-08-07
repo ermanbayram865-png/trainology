@@ -124,6 +124,7 @@ export default function MacroCalculatorPage() {
   return (
     <CalculatorLayout
       title="Macro Hesaplayıcı"
+      seoPath="/calculators/macro"
       description="Günlük kalori hedefin, amacın ve tercihlerin için önerilen makro dağılımını incele."
       info={
         <>

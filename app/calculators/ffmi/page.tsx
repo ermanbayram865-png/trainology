@@ -101,6 +101,7 @@ export default function FFMICalculatorPage() {
   return (
     <CalculatorLayout
       title="FFMI Hesaplayıcı"
+      seoPath="/calculators/ffmi"
       description="Boyun, kilon ve yağ oranına göre yağsız vücut kütleni ve FFMI değerini incele."
       info={
         <>

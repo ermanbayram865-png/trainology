@@ -108,6 +108,7 @@ export default function ProteinCalculatorPage() {
   return (
     <CalculatorLayout
       title="Protein Hesaplayıcı"
+      seoPath="/calculators/protein"
       description="Hedefin ve aktivite seviyene göre günlük protein ihtiyacını hesapla."
       info={
         <>

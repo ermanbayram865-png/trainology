@@ -102,6 +102,7 @@ export default function OneRepMaxCalculatorPage() {
   return (
     <CalculatorLayout
       title="1RM Hesaplayıcı"
+      seoPath="/calculators/1rm"
       description="Bir harekette kaldırdığın ağırlık ve tekrar sayısından tahmini maksimum gücünü hesapla."
       info={
         <>

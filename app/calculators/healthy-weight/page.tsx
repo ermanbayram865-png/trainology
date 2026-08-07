@@ -64,6 +64,7 @@ export default function HealthyWeightCalculatorPage() {
   return (
     <CalculatorLayout
       title="Sağlıklı Ağırlık Aralığı Hesaplayıcı"
+      seoPath="/calculators/healthy-weight"
       description="Boyuna göre tahmini sağlıklı ağırlık aralığını genel bir referans olarak incele."
       info={
         <p>

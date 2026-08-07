@@ -7,6 +7,7 @@ type CardProps = {
   title?: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
+  media?: ReactNode;
   href?: string;
   onClick?: () => void;
   variant?: CardVariant;
@@ -25,6 +26,7 @@ export default function Card({
   title,
   description,
   icon,
+  media,
   href,
   onClick,
   variant = "default",
@@ -33,6 +35,8 @@ export default function Card({
 }: CardProps) {
   const content = (
     <>
+      {media && <div className="mb-6">{media}</div>}
+
       {icon && <div className="mb-6 text-3xl text-[#C9A14A]">{icon}</div>}
 
       {title && <h3 className="text-2xl font-semibold text-white">{title}</h3>}

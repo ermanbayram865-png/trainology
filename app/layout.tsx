@@ -4,6 +4,7 @@ import "./globals.css";
 
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
+import { absoluteUrl, siteConfig } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +17,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trainology",
-  description: "Türkiye'nin Bilimsel Fitness Platformu",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: "Trainology | Bilimsel Fitness Platformu",
+    template: "%s | Trainology",
+  },
+  description:
+    "Kanıt temelli fitness rehberleri, hesaplayıcılar ve bilimsel antrenman içerikleri.",
+  openGraph: {
+    title: "Trainology | Bilimsel Fitness Platformu",
+    description:
+      "Kanıt temelli fitness rehberleri, hesaplayıcılar ve bilimsel antrenman içerikleri.",
+    type: "website",
+    locale: "tr_TR",
+    siteName: siteConfig.name,
+    url: absoluteUrl("/"),
+    images: [
+      {
+        url: absoluteUrl(siteConfig.defaultOpenGraphImage),
+        alt: "Trainology Bilimsel Fitness Platformu",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trainology | Bilimsel Fitness Platformu",
+    description:
+      "Kanıt temelli fitness rehberleri, hesaplayıcılar ve bilimsel antrenman içerikleri.",
+    images: [absoluteUrl(siteConfig.defaultOpenGraphImage)],
+  },
 };
 
 export default function RootLayout({
