@@ -42,6 +42,8 @@ export default function Footer() {
 
               <Link href="/supplements">Supplementler</Link>
 
+              <Link href="/articles">Scientific Library</Link>
+
             </div>
           </div>
 

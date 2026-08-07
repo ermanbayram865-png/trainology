@@ -12,6 +12,7 @@ const menuItems = [
   { title: "Ana Sayfa", href: "/" },
   { title: "Hesaplayıcılar", href: "/calculators" },
   { title: "Hareket Kütüphanesi", href: "/movements" },
+  { title: "Science", href: "/articles" },
   { title: "Supplementler", href: "/supplements" },
   { title: "AI Coach", href: "/ai-coach" },
   { title: "Hakkımızda", href: "/about" },

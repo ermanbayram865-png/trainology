@@ -2,6 +2,7 @@ import { Apple, BookOpenText, FlaskConical } from "lucide-react";
 
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
 
 const topics = [
@@ -28,14 +29,20 @@ export default function SciencePreview() {
       className="bg-[#080808]"
       title="Bilimsel Fitness Bilgileri"
       subtitle="İçerik kütüphanesi"
-      description="Gelecek içerik merkezi için temel konu başlıkları."
+      description="Antrenman, beslenme, supplement ve hareket bilimine dair kanıta dayalı rehberleri keşfet."
     >
       <div className="grid gap-6 md:grid-cols-3">
         {topics.map((topic) => (
           <Card key={topic.title} {...topic} variant="subtle">
-            <Badge variant="neutral">Yakında</Badge>
+            <Badge variant="gold">Bilimsel rehber</Badge>
           </Card>
         ))}
+      </div>
+
+      <div className="mt-10">
+        <CTAButton href="/articles" variant="secondary">
+          Bilimsel İçerikleri Keşfet
+        </CTAButton>
       </div>
     </Section>
   );
