@@ -37,21 +37,27 @@ export default function ArticleCard({
       className="group h-full border-white/10 hover:border-[#C9A14A]/45"
       media={
         hasImage ? (
-          <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-white/10 bg-black">
+          <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.02)]">
             <Image
               src={image}
               alt={`${title} görseli`}
               fill
               sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
-              className="object-cover opacity-75 transition duration-500 group-hover:scale-105"
+              className="object-cover opacity-75 transition duration-700 group-hover:scale-105 group-hover:opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/70 via-transparent to-transparent" />
           </div>
         ) : (
           <div
             aria-hidden="true"
-            className="aspect-[16/9] rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(201,161,74,.22),transparent_45%),linear-gradient(135deg,#151515,#090909)]"
-          />
+            className="relative flex aspect-[16/9] items-end overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(201,161,74,.22),transparent_45%),linear-gradient(135deg,#151515,#090909)] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.02)]"
+          >
+            <div className="absolute -right-10 -top-10 size-36 rounded-full border border-[#C9A14A]/20" />
+            <div className="absolute -bottom-14 right-12 size-32 rounded-full border border-white/10" />
+            <span className="relative text-[0.625rem] font-semibold uppercase tracking-[0.22em] text-[#C9A14A]/75">
+              Trainology Scientific Library
+            </span>
+          </div>
         )
       }
     >

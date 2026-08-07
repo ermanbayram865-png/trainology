@@ -18,19 +18,27 @@ export default function Section({
   contentClassName,
 }: SectionProps) {
   return (
-    <section className={`px-6 py-24 ${className ?? ""}`}>
+    <section className={`px-6 py-20 sm:py-24 lg:py-28 ${className ?? ""}`}>
       <div className="mx-auto max-w-7xl">
         {(title || subtitle || description) && (
-          <header className="mb-14 max-w-2xl">
+          <header className="mb-12 max-w-3xl sm:mb-16">
             {subtitle && (
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#C9A14A]">
                 {subtitle}
               </p>
             )}
 
-            {title && <h2 className="mt-4 text-4xl font-semibold text-white">{title}</h2>}
+            {title && (
+              <h2 className="mt-5 text-4xl font-semibold tracking-[-0.03em] text-white sm:text-5xl">
+                {title}
+              </h2>
+            )}
 
-            {description && <p className="mt-4 text-neutral-400">{description}</p>}
+            {description && (
+              <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-400 sm:text-lg">
+                {description}
+              </p>
+            )}
           </header>
         )}
 

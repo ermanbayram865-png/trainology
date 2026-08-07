@@ -54,7 +54,7 @@ export default function ToolsShowcase() {
       subtitle="Analiz merkeziniz"
       description="İhtiyacın olan analizi seç, net ve anlaşılır sonuçlarla başlangıç yap."
     >
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:gap-6 xl:grid-cols-3">
         {tools.map((tool) => (
           <CalculatorCard key={tool.title} {...tool} />
         ))}

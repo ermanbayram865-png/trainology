@@ -31,7 +31,7 @@ export default function SciencePreview() {
       subtitle="İçerik kütüphanesi"
       description="Antrenman, beslenme, supplement ve hareket bilimine dair kanıta dayalı rehberleri keşfet."
     >
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-3 lg:gap-6">
         {topics.map((topic) => (
           <Card key={topic.title} {...topic} variant="subtle">
             <Badge variant="gold">Bilimsel rehber</Badge>
@@ -39,7 +39,8 @@ export default function SciencePreview() {
         ))}
       </div>
 
-      <div className="mt-10">
+      <div className="mt-12 flex items-center gap-5">
+        <div className="hidden h-px flex-1 bg-gradient-to-r from-[#C9A14A]/35 to-transparent sm:block" />
         <CTAButton href="/articles" variant="secondary">
           Bilimsel İçerikleri Keşfet
         </CTAButton>
