@@ -29,7 +29,7 @@ export type Movement = {
   description: string;
   instructions: string[];
   commonMistakes: string[];
-  tags: string[];
+  tags: readonly string[];
   image: string;
 };
 

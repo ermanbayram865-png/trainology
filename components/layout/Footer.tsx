@@ -60,6 +60,7 @@ export default function Footer() {
         <div className="flex flex-col gap-4 border-t border-white/5 py-7 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Trainology</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <a href="https://www.instagram.com/trainologyfit/" target="_blank" rel="noreferrer" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">Instagram · @trainologyfit</a>
             <span>Gizlilik Politikası</span>
             <span>Kullanım Koşulları</span>
           </div>

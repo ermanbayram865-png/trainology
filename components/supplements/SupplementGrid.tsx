@@ -14,7 +14,9 @@ export default function SupplementGrid({ supplements }: SupplementGridProps) {
           name={supplement.name}
           category={supplement.category}
           evidenceLevel={supplement.evidenceLevel}
-          description={supplement.description}
+          purpose={supplement.evidenceContent.oneLiner}
+          slug={supplement.slug}
+          image={supplement.image}
           href={`/supplements/${supplement.slug}`}
         />
       ))}

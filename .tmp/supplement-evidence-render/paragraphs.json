@@ -1,0 +1,842 @@
+﻿[
+    {
+        "Style":  "Başlık 1",
+        "Text":  "Trainology Supplement Evidence Database v1.0 — Final Araştırma ve Codex Teslim Paketi"
+    },
+    {
+        "Style":  "Başlık 2",
+        "Text":  "Teslim paketi ve yayın durumu"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Dokuz supplementin tamamı için araştırmayı 8 Ağustos 2026 bilimsel kapanış tarihiyle tamamladım ve içeriği tek bir yayın sistemine dönüştürdüm. Araştırmada NIH Office of Dietary Supplements, Endocrine Society, IOC, Australian Institute of Sport gibi kurumsal kaynaklar; position stand\u0027ler; sistematik derleme ve meta-analizler; gerektiğinde güncel randomize kontrollü çalışmalar esas alındı. IOC, performans supplementlerinin yalnız küçük bir bölümünün iyi desteklenmiş ergogenik etkilere sahip olduğunu ve ürün kontaminasyonunun sporcular için ayrıca değerlendirilmesi gerektiğini vurguluyor; AIS de kreatin, kafein ve beta-alanin gibi performans supplementlerini, izole protein ve elektrolit ürünlerini kanıt-temelli kullanım çerçevesinde sınıflandırıyor. [1]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "İçerik tarafı artık publish-ready. Buradaki “publish-ready”, dokuz supplement için site metni, claim-specific evidence değerlendirmesi, araştırmalarda kullanılan doz/protokoller, zamanlama, form seçimi, yan etkiler, güvenlik, etkileşimler, kimler için anlamlı olduğu, kimler için düşük öncelik olduğu, yaygın mitler, Trainology Verdict ve kaynak setinin tamamlanmış olduğu anlamına geliyor. Üretim sitesindeki son yayın ise repo mapping, gerçek slug\u0027lar, reference integrity, responsive QA ve lint/typecheck/build kontrollerinden sonra yapılmalı."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Hazırladığım ana dosyalar:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Trainology Supplement Evidence Database v1.0 — Publish-Ready Word Master"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu, Codex\u0027e tek dosya vereceksen kullanacağın ana doküman. Bilimsel araştırmanın tamamı, kullanıcıya gösterilecek metinler, kaynaklar, sayfa mimarisi, TypeScript referans modeli, validation yaklaşımı ve Codex master prompt aynı Word dosyasının içinde."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Machine-Readable Supplement Evidence JSON"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu dosya dokuz supplementin içeriklerini yapılandırılmış biçimde içeriyor. Codex\u0027in metinleri Word\u0027den tekrar yorumlayıp yanlış aktarmaması için özellikle hazırladım. Claim → reference ID bütünlük kontrolü çalıştırıldı ve eksik reference ID = 0."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Codex Supplement Detail Integration Master Prompt"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu ise doğrudan Codex\u0027e verilecek uygulama talimatı. Mevcut repository\u0027yi önce audit etmesini, gerçek slug ve schema\u0027yı source-of-truth kabul etmesini, ardından JSON içeriğini mevcut modele map etmesini söylüyor."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Teknik olarak en temiz teslim şekli Codex\u0027e üç dosyayı birlikte vermek. Word bilimsel/editoryal master, JSON veri kaynağı, Markdown dosyası uygulama talimatı olarak kullanılacak."
+    },
+    {
+        "Style":  "Başlık 2",
+        "Text":  "Araştırma standardı ve Trainology kanıt modeli"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "En önemli değişiklik, supplementleri tek bir etikete indirgememek oldu. Bilimsel olarak “Creatine = Strong” veya “Vitamin D = Moderate” demek discovery kartı için kullanılabilir; fakat detay sayfasında asıl otorite claim-specific evidence olmalı. Bunun nedeni aynı maddenin farklı sonuçlar için çok farklı kanıt düzeylerine sahip olabilmesi. IOC\u0027nin yaklaşımı da supplement etkisinin belirli kullanım koşulu, spor ve hedef sonuç bağlamında değerlendirilmesi gerektiğini destekliyor. [2]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Word ve JSON içinde dört düzey kullandım:"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Kanıt düzeyi"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Trainology anlamı"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Strong"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Birden fazla yüksek kaliteli sentez, position stand veya kılavuz tarafından tutarlı biçimde destekleniyor."
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Moderate"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Genel sinyal destekleyici fakat etki küçük, heterojen veya belirli popülasyon/koşullara bağlı."
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Limited"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Bulgular karışık, çalışma sayısı az, kesinlik düşük veya pratik anlamı belirsiz."
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Not Supported"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Kontrollü kanıt, ilgili popüler iddiayı desteklemiyor veya tekrar eden nötr sonuçlar var."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu nedenle örneğin Vitamin D\u0027nin kemik/mineral metabolizmasındaki rolü ve gerçek yetersizliğin düzeltilmesi güçlü bir bilimsel temele sahipken, yeterli D vitamini durumundaki sporcuya fazladan supplement vermenin genel kuvvet/performansı artırması tutarlı biçimde gösterilmiş değil. 2024 Endocrine Society kılavuzu da sağlıklı 75 yaş altı yetişkinlerin özel bir endikasyon olmaksızın rutin olarak RDA\u0027nın üzerinde D vitamini almasını önermiyor; güncel sporcu meta-analizi serum 25(OH)D\u0027nin yükseldiğini fakat yeterli düzeye ulaşıldığında genel kuvvet artışının garanti edilemediğini bildiriyor. [3]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Aynı mantık magnezyuma uygulandı. Magnezyum temel bir mineraldir, fakat yeterli magnezyum durumuna sahip aktif kişilerde ek supplementin kas performansını düzenli biçimde yükselttiği gösterilmemiştir. 2018 sentezi, çoğu atlet ve fiziksel olarak aktif kişide yeterli magnezyum durumunda kas fitness\u0027ına ek faydayı desteklemiyor. [4]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu, Trainology\u0027nin detail page\u0027ini klasik supplement satış sayfalarından ayıran ana özellik olacak:"
+    },
+    {
+        "Style":  "Öbek Metni",
+        "Text":  "“Bu supplement işe yarıyor mu?” yerine “Hangi sonuç için, ne kadar güçlü kanıtla, kimde ve hangi koşulda işe yarayabilir?”"
+    },
+    {
+        "Style":  "Başlık 2",
+        "Text":  "Dokuz supplement için nihai bilimsel karar"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Creatine Monohydrate"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Strong Evidence"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kreatin monohidrat; tekrarlanan kısa-yüksek yoğunluklu egzersiz, direnç antrenmanı kapasitesi ve antrenmanla birlikte kuvvet/yağsız kütle adaptasyonları açısından paketteki en güçlü seçeneklerden biri. Kreatin monohidrat, diğer kreatin formlarından çok daha geniş bir araştırma tabanına sahip ve IOC tarafından da kanıtı en güçlü performans supplementleri arasında gösteriliyor. [5]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Word\u0027de iki araştırma protokolü ayrı biçimde veriliyor: hızlı doyurma için yaklaşık 0,3 g/kg/gün 5–7 gün ardından 3–5 g/gün; yükleme istemeyen kullanıcı için ise 3–5 g/gün düzenli kullanım. Buradaki önemli mesaj yüklemenin zorunlu olmadığı, yalnızca kas kreatin depolarının daha hızlı yükselmesini sağladığıdır. Bu dozlar “kişisel reçete” değil araştırmalarda kullanılan protokoller olarak gösterilecek. [6]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Güvenlik tarafını 2026\u0027ya kadar güncelledim. 2026 randomize kontrollü çalışma meta-analizi kreatin kullanımında serum kreatinininde ortalama küçük bir artış buldu, fakat üre veya eGFR açısından kontrol grubuna göre anlamlı bozulma saptamadı; araştırmacılar uzun dönem, özellikle bir yılı aşan RCT verisinin yine de geliştirilmesi gerektiğini belirtiyor. Dolayısıyla sayfada “kreatinin yükselebilir ≠ otomatik böbrek hasarı” ayrımı açık biçimde anlatılıyor. [7]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Biliş alanını özellikle fazla pazarlamadım. 2024\u0027te bir meta-analiz bazı bellek, dikkat ve işlem hızı sonuçlarında fayda sinyalleri bildirirken başka bir sistematik derleme sonuçların genel olarak eşdeğer/karışık olduğunu belirtiyor. Bu nedenle cognition, Limited / emerging secondary evidence olarak ele alındı; kreatinin ana satış claim\u0027i yapılmadı. [8]"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Whey Protein"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Strong Evidence"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Whey\u0027i “kas yapan sihirli toz” olarak değil, yüksek kaliteli toplam protein alımını pratik biçimde tamamlayan bir protein kaynağı olarak konumlandırdım. Protein supplementation + direnç antrenmanı üzerine büyük meta-analizde, günlük toplam protein yaklaşık 1,6 g/kg/gün düzeyine kadar ek kazanım görülürken bu seviyenin üzerinde ortalama yağsız kütle kazanımında ilave katkı belirginleşmiyor; bu değer bireysel “sert tavan” değil, meta-regresyon ortalamasıdır. [9]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "ISSN egzersiz yapan kişiler için yaklaşık 1,4–2,0 g/kg/gün toplam protein aralığını destekliyor; Word\u0027de pratik tek-porsiyon araştırma çerçevesi ~0,25 g/kg veya yaklaşık 20–40 g yüksek kaliteli protein olarak veriliyor. Bunlar yalnız whey için zorunlu doz değil, toplam protein planlaması bağlamında kullanılacak. [10]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ayrıca dar “30 dakikalık anabolic window” miti kaldırıldı. Protein egzersize yakın kullanıldığında pratiktir, ancak toplam günlük alım ve gün içine dağılım daha yüksek önceliğe sahiptir; literatürde post-workout zamanlamanın katı bir birkaç dakikalık pencere olarak değerlendirilmesi desteklenmiyor. [11]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Whey\u0027in soy gibi diğer yeterli kaliteli proteinlere her koşulda üstün olduğu iddiasını da kullanmadım. Direnç antrenmanı bağlamında whey ve soy karşılaştırmalarında anlamlı strength farkı bulunmayan meta-analitik veriler var. [12]"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Caffeine"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Strong Evidence"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kafein özellikle aerobik dayanıklılıkta güçlü; takım sporları, tekrarlanan sprint, kuvvet ve güç gibi bazı alanlarda da çoğunlukla küçük ama anlamlı akut etkiler gösterebiliyor. ISSN\u0027nin position stand\u0027i kafeinin geniş performans kanıtını destekliyor. [13]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ana protokol yaklaşık 3–6 mg/kg olacak fakat site “daha çok = daha iyi” demeyecek. 2025 ağ meta-analizi yaklaşık 3 mg/kg düşük doz kapsül stratejisini incelenen yöntemler arasında özellikle etkili buldu; 2026 bisiklet meta-analizinde de ≤3 mg/kg düşük doz alt grubunda anlamlı performans sinyali görüldü. [14]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kullanıcı tarafında asıl fark güvenlik ve uyku anlatımı olacak. Yüksek dozun gereksiz yan etki maliyeti, huzursuzluk, anksiyete, çarpıntı ve uyku bozulması açıkça gösterilecek; kafeinin sonraki gece uykusunu etkileyebildiğine ilişkin sistematik derleme verileri de bu temkini destekliyor. [15]"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Omega-3"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Moderate Evidence"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Omega-3 için sağlık/beslenme rolünü, atletik claim\u0027lerden ayırdım. EPA ve DHA için spor recovery ve kuvvet açısından bazı olumlu sinyaller var; örneğin 2024 meta-analizi omega-3 + direnç antrenmanıyla bazı kuvvet kazanımları bildirdi. Fakat kas kütlesi, doğrudan performans ve recovery sonuçları heterojen ve diğer sentezlerde iyileşmenin net olmadığı görülüyor. [16]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu nedenle sayfada “omega-3 kas yapar” claim\u0027i yok. Recovery/DOMS alanı Limited, bazı kuvvet sonuçları Moderate / context-dependent olarak verildi. AIS de fish oil\u0027u güçlü performans supplementleriyle aynı gruba değil, emerging/mixed evidence içeren Group B\u0027ye yerleştiriyor. [17]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Güvenlikte önemli ayrım yapıldı: NIH ODS, FDA ve EFSA değerlendirmelerine dayanarak toplam EPA+DHA\u0027nın yaklaşık 5 g/gün düzeyine kadar güvenlik verisi bulunduğunu aktarıyor; bu değer önerilen günlük hedef değildir. Yüksek trigliserid için 4 g/gün reçeteli omega-3 ise ayrı, hekim yönetimli bir tedavi bağlamıdır. Yüksek kardiyovasküler riskli kişilerde uzun süreli yüksek doz çalışmalarında atriyal fibrilasyon riskinde küçük artış da raporlanmıştır. [18]"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Vitamin D"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Moderate Evidence / context-dependent"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Vitamin D\u0027de “eksiklik düzeltme” ile “performans artırma” tamamen ayrıldı. 2024 Endocrine Society kılavuzu genel sağlıklı 75 yaş altı yetişkinlerde özel endikasyon yoksa RDA\u0027nın üzerindeki rutin ampirik supplement kullanımına karşı; ayrıca genel sağlıklı yetişkinlerde rutin 25(OH)D taramasını da önermiyor. [19]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Yetişkinlerde temel referans alım Word içinde 600 IU (15 µg); 70 yaş üstünde 800 IU (20 µg) şeklinde veriliyor. Yetişkin UL değeri 4.000 IU (100 µg)/gün; Word açık biçimde “UL = hedef doz değildir” diyor. [20]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Sporcu tarafında güncel meta-analiz, supplementin serum düzeyini yükseltebildiğini fakat yeterli serum düzeyine ulaşan atletlerde genel kas kuvvetini güvenilir biçimde artırdığını göstermiyor. Bu nedenle Trainology\u0027de D vitamini bir “strength booster” olmayacak. [21]"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Magnesium"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Moderate Evidence / context-dependent"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Magnezyum enerji metabolizması, sinir sistemi ve kas fonksiyonu için temel bir mineral; fakat fizyolojik gereksinimi karşılamak ile ekstra magnezyumun ergogenik olması aynı iddia değil. Yeterli magnezyum durumundaki aktif kişilerde kas fitness\u0027ına ek fayda genel olarak desteklenmiyor. [22]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Recovery ve kas ağrısı alanında 2024 sistematik derleme bazı olumlu bulgular bildiriyor; çalışma sayısı ve protokoller sınırlı olduğu için Word bunu Limited / emerging olarak tutuyor, güçlü recovery claim\u0027ine dönüştürmüyor. [23]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "NIH ODS\u0027ye göre supplement/ilaç kaynaklı magnezyum için yetişkin UL 350 mg/gün; bu sınır gıdalardan gelen magnezyumu kapsamıyor. Yüksek supplement dozlarının en tipik sorunları ishal, bulantı ve kramp; böbrek fonksiyon bozukluğunda ciddi toksisite riski daha önemli hale geliyor. [24]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ayrıca antibiyotikler ve oral bisfosfonatlar gibi ilaçlarla emilim etkileşimleri nedeniyle güvenlik section\u0027ı gerçek bir referans bölümü halinde hazırlandı. [25]"
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Citrulline"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Limited Evidence"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Sitrülin, “mekanizması mantıklı olduğuna göre kesin işe yarar” tuzağına düşülmeden yazıldı. L-sitrülin → arginin → nitrik oksit biyolojisi anlamlıdır, fakat performans sonuçları kreatin/kafein düzeyinde tutarlı değildir. NIH ODS de sitrülin/sitrülin malat için performans kanıtının sınırlı ve çelişkili olduğunu değerlendiriyor. [26]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "En olumlu sonuç direnç egzersizi repetition performance tarafında. 2021 meta-analizinde 6–8 g sitrülin malatın egzersizden 40–60 dakika önce alınması, plaseboya kıyasla ortalama yaklaşık 3 ± 5 ek tekrar ve küçük bir etki büyüklüğü sağladı. [27]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Buna karşılık 2022 kas kuvveti meta-analizi sağlıklı/direnç antrenmanlı bireylerde sitrülin malatın maksimal kas kuvvetini artırmadığı sonucuna vardı; aerobik egzersiz meta-analizi de genel aerobik performans faydasını desteklemedi. [28]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu yüzden detail page\u0027de:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Repetition performance → Moderate\u000bMax strength → Limited / not supported\u000bAerobic performance → Not supported\u000bPump/vasodilation → Limited"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "şeklinde ayrım yapıldı."
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Beta-Alanine"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Moderate Evidence"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Beta-alanini akut pre-workout uyarıcısı gibi değil, kronik kas karnosin yükleme stratejisi olarak yazdım. ISSN position stand\u0027i yaklaşık 4–6 g/gün kullanımın kas karnosinini artırdığını ve en anlamlı performans alanının yaklaşık 1–4 dakika süren yüksek yoğunluklu egzersizler olduğunu bildiriyor. [29]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Sistematik derleme/meta-analizlerde en belirgin fayda yaklaşık 60–240 saniye süreli eforlarda ortaya çıkıyor; çok kısa efor ve uzun dayanıklılık görevlerinde etki daha az tutarlı. [30]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "En önemli UX mesajı:"
+    },
+    {
+        "Style":  "Öbek Metni",
+        "Text":  "Karıncalanma = performans etkisi değildir."
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Parestezi bir yan etkidir; beta-alaninin asıl mekanizması haftalar içinde kas karnosininin yükselmesidir. Büyük tek doz yerine bölünmüş veya yavaş salımlı form paresteziyi azaltabilir. [29]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu nedenle global kart Moderate Evidence, fakat spesifik ~1–4 dk high-intensity capacity claim\u0027i detail page\u0027de daha güçlü gösteriliyor."
+    },
+    {
+        "Style":  "Başlık 3",
+        "Text":  "Electrolytes"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Kart etiketi: Moderate Evidence / context-dependent"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Elektrolit bölümünü “her workout\u0027ta elektrolit iç” pazarlamasından özellikle uzaklaştırdım. 2025 kapsamlı sporcu sodyum incelemesi, çoğu atletin sırf günlük hidrasyonu korumak için normal diyetin ötesinde rutin sodyum supplementine ihtiyaç duymadığını; kullanımın ter hızı, ter sodyumu, egzersiz süresi, ortam ve sıvı tüketimi gibi faktörlere göre bireyselleştirilmesi gerektiğini vurguluyor. [31]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "En güçlü kullanım alanları uzun süreli egzersiz, sıcak/nemli ortam, yüksek ter hızı ve önemli sıvı/sodyum kaybı. Hipotonik karbonhidrat-elektrolit içeceklerinin egzersiz sırasında hidrasyon için avantaj gösterebildiğine ilişkin meta-analitik veri de var. [32]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Word\u0027de eski/pratik ACSM yaklaşımındaki yaklaşık 300–600 mg sodyum/saat aralığı korunuyor, fakat bu evrensel doz reçetesi olarak değil, bireyselleştirilecek bir başlangıç referansı olarak etiketleniyor. Güncel yaklaşımın daha kişiselleştirilmiş olması özellikle belirtiliyor. [33]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ayrıca önemli bir güvenlik miti düzeltiliyor:"
+    },
+    {
+        "Style":  "Öbek Metni",
+        "Text":  "“Elektrolit alıyorsam istediğim kadar su içebilirim” yanlış."
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Egzersiz ilişkili hiponatreminin ana önleme ilkelerinden biri aşırı sıvı tüketiminden kaçınmaktır; elektrolit kullanmak aşırı içmeyi otomatik olarak güvenli hale getirmez. [34]"
+    },
+    {
+        "Style":  "Başlık 2",
+        "Text":  "Doz, güvenlik ve kullanıcıya gösterilecek dil"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Paketin önemli taraflarından biri sadece “ne işe yarıyor?” araştırması yapmamış olmam. Dozun nasıl ifade edileceği de bilimsel olarak tasarlandı."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kreatin, kafein, beta-alanin ve sitrülinde sayfa başlığı “Önerilen Doz” değil, “Araştırmalarda Kullanılan Protokoller” olacak. Böylece bir popülasyon araştırmasındaki dozu otomatik olarak kişiye özel tıbbi reçeteye çevirmiyoruz. Protein tarafında gramlar toplam günlük protein hedefi içinde gösteriliyor. Vitamin D ve magnezyumda RDA ile UL kesin biçimde ayrılıyor. Omega-3\u0027te yüksek trigliserid için reçeteli 4 g/gün kullanımı, normal balık yağı supplement önerisi olarak gösterilmiyor. Elektrolitte de sabit sodyum reçetesi yerine kişisel ter/süre/ortam bağlamı korunuyor. Bu ayrımlar ilgili resmî ve bilimsel kaynakların kullanım bağlamlarıyla uyumlu. [35]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Her supplementte güvenlik yapısı aynı:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Güvenlik özeti → Olası yan etkiler → Kimler dikkat etmeli → Etkileşimler → gerektiğinde klinik değerlendirme."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ayrıca dokuz sayfada ortak bir sağlık uyarısı bulunuyor. İçerikler tanı veya tedavi yerine geçmiyor; böbrek/karaciğer/kalp hastalığı, hipertansiyon, gebelik/emzirme, 18 yaş altı, düzenli ilaç kullanımı ve klinik besin eksikliği gibi durumlarda kişisel profesyonel değerlendirme gerektiği belirtiliyor."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Yarışan sporcular için ayrı bir ürün-kalitesi notu da var. IOC ve WADA, yanlış etiketlenmiş veya kontamine supplementlerin istemsiz doping riski oluşturabileceğini bildiriyor; bu nedenle Trainology belirli marka reklamına dönüşmeden güvenilir üçüncü taraf test programlarının tercih edilmesini önerecek. [36]"
+    },
+    {
+        "Style":  "Başlık 2",
+        "Text":  "Codex entegrasyon tasarımı"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Codex promptunda repo mimarisini tahmin etmesini yasakladım. Önce gerçek Supplement Library\u0027yi audit edecek ve mevcut:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Supplement type/interface, data source, evidence enum, card component, /supplements/[slug], metadata generator, sitemap, favorites, related logic, reference component ve image field yapısını bulacak."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ardından JSON\u0027daki bilimsel içeriği mevcut modele map edecek. JSON içindeki slug_hint bilinçli olarak gerçek slug değil; gerçek slug repository\u0027den bulunacak."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Detail page\u0027in nihai bilgi hiyerarşisi Word ve Codex promptunda şu mantığa kilitlendi:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Hero\u000bSupplement adı, tek cümlelik tanım, kategori, global evidence badge, favori/share ve PACK 03 görseli."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kısaca Ne İşe Yarar?\u000bÜç kısa taranabilir kullanım alanı."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bilimsel Kanıt Ne Kadar Güçlü?\u000bSayfanın ana Trainology özelliği. Her claim ayrı badge, sonuç, pratik yorum ve kaynaklarla gösterilecek."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Nedir?"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Nasıl Çalışır?"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kimler İçin Anlamlı Olabilir?"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kimler İçin Düşük Öncelik?"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kullanım ve Araştırma Protokolleri\u000bDoz + timing + form + editoryal uyarı."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Güvenlik ve Dikkat Edilmesi Gerekenler\u000bYan etki + caution + interactions."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Yaygın Yanlış Bilinenler"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Trainology Verdict"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kaynaklar"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Related Supplements"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu sistem için referans TypeScript modeli de Word ve Codex promptuna yerleştirildi. Ana yapı şu mantıkta:"
+    },
+    {
+        "Style":  "Verbatim Char",
+        "Text":  "type EvidenceGrade =\u000b  | \"strong\"\u000b  | \"moderate\"\u000b  | \"limited\"\u000b  | \"not_supported\";\u000b\u000binterface EvidenceClaim {\u000b  claim: string;\u000b  grade: EvidenceGrade;\u000b  conclusion: string;\u000b  practicalInterpretation?: string;\u000b  referenceIds: string[];\u000b}\u000b\u000binterface SupplementReference {\u000b  id: string;\u000b  citation: string;\u000b  url?: string;\u000b}\u000b\u000binterface SupplementEvidenceContent {\u000b  oneLiner: string;\u000b  whatIsIt: string;\u000b  mechanism: string;\u000b  quickUses: string[];\u000b\u000b  evidence: EvidenceClaim[];\u000b\u000b  whoMayBenefit?: string;\u000b  whoMayNotNeed?: string;\u000b\u000b  dosage?: {\u000b    researchProtocol: string;\u000b    timing?: string;\u000b    form?: string;\u000b    siteWording?: string;\u000b  };\u000b\u000b  safety?: string;\u000b  sideEffects?: string[];\u000b  cautions?: string[];\u000b  interactions?: string;\u000b\u000b  myths?: Array\u003c{\u000b    myth: string;\u000b    answer: string;\u000b  }\u003e;\u000b\u000b  verdict: string;\u000b  references: SupplementReference[];\u000b}"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Bu kod repo\u0027ya yeni paralel schema kurulması emri değil. Codex promptunda açıkça, mevcut model uygunsa onu genişletmesi; farklı evidence enum varsa duplicate enum üretmek yerine adapter kullanması isteniyor."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Kaynak bütünlüğü için ayrıca bir validation helper verdim:"
+    },
+    {
+        "Style":  "Verbatim Char",
+        "Text":  "export function validateSupplementEvidence(\u000b  content: SupplementEvidenceContent\u000b): string[] {\u000b  const errors: string[] = [];\u000b  const referenceIds = new Set(\u000b    content.references.map((ref) =\u003e ref.id)\u000b  );\u000b\u000b  for (const claim of content.evidence) {\u000b    for (const id of claim.referenceIds) {\u000b      if (!referenceIds.has(id)) {\u000b        errors.push(\u000b          `Missing reference ${id} for claim \"${claim.claim}\"`\u000b        );\u000b      }\u000b    }\u000b  }\u000b\u000b  if (!content.oneLiner.trim()) {\u000b    errors.push(\"Missing one-liner\");\u000b  }\u000b\u000b  if (!content.verdict.trim()) {\u000b    errors.push(\"Missing verdict\");\u000b  }\u000b\u000b  return errors;\u000b}"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Hazırladığım JSON\u0027un kendi claim-reference bütünlüğü zaten kontrol edildi ve 9/9 supplementte tüm claim reference ID\u0027leri çözümleniyor."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "PACK 03 mapping de dosyalarda kilitli:"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Cell"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Supplement"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R1C1"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Creatine Monohydrate"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R1C2"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Whey Protein"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R1C3"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Caffeine"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R2C1"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Omega-3"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R2C2"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Vitamin D"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R2C3"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Magnesium"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R3C1"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Citrulline"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R3C2"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Beta-Alanine"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "R3C3"
+    },
+    {
+        "Style":  "Compact",
+        "Text":  "Electrolytes"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Codex\u0027in görsele bakıp bu sıralamayı yeniden tahmin etmesine izin verilmiyor."
+    },
+    {
+        "Style":  "Başlık 2",
+        "Text":  "Yayın kapısı ve final durum"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "Bu aşamada bilimsel içerik açısından “research in progress” durumundan çıktık. Paket artık:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Creatine Monohydrate — tamamlandı\u000bWhey Protein — tamamlandı\u000bCaffeine — tamamlandı\u000bOmega-3 — tamamlandı\u000bVitamin D — tamamlandı\u000bMagnesium — tamamlandı\u000bCitrulline — tamamlandı\u000bBeta-Alanine — tamamlandı\u000bElectrolytes — tamamlandı"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "şeklinde 9/9 içerik tamamlanmış durumda."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Özellikle güncel literatüre göre bazı eski/popüler varsayımlar düzeltilmiş durumda: kreatin böbrek güvenliği 2026 meta-analizine kadar kontrol edildi; sitrülinin küçük repetition etkisi maksimal kuvvet/aerobik faydadan ayrıldı; Vitamin D\u0027de 2024 Endocrine Society guideline kullanıldı; magnezyumda “yeterliyken daha fazlası performans artırır” varsayımı reddedildi; omega-3\u0027te recovery iddiaları tıbbi/lipid kullanımından ayrıldı; elektrolitlerde 2025 kişiselleştirilmiş sodyum yaklaşımı esas alındı; kafein tarafında 2025–2026 düşük doz meta-analizleri dahil edildi. [37]"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bilimsel paketin yayın öncesi kalan kısmı yeni araştırma yapmak değil, kod entegrasyonunu doğrulamak. Codex promptu bu nedenle son aşamada:"
+    },
+    {
+        "Style":  "Verbatim Char",
+        "Text":  "npm run lint\u000bnpx tsc --noEmit --incremental false\u000bnpm run build"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "çalıştırmasını; 9/9 route, PACK 03 asset, evidence-reference integrity, favorites, related supplements, SEO/canonical/sitemap, 390 / 768 / 1280+ responsive görünüm, keyboard/focus ve boş section davranışını kontrol etmesini şart koşuyor."
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Dolayısıyla Codex\u0027e verilecek nihai set şudur:"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Ana Word — bilimsel araştırma + yayın metni + kod spesifikasyonu\u000bJSON — 9/9 machine-readable bilimsel içerik\u000bCodex Master Prompt — entegrasyon ve QA talimatı"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "Bu setten sonra Codex\u0027in görevi artık araştırma yapmak veya supplement içeriği uydurmak değil; hazırlanmış ve kaynaklandırılmış Trainology Supplement Evidence Database v1.0\u0027ı mevcut site mimarisine doğru biçimde entegre etmek."
+    },
+    {
+        "Style":  "Normal",
+        "Text":  "\u0001"
+    },
+    {
+        "Style":  "First Paragraph",
+        "Text":  "[1] [2] [36] https://bjsm.bmj.com/content/52/7/439"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://bjsm.bmj.com/content/52/7/439"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[3] [20] [35] https://www.endocrine.org/clinical-practice-guidelines/vitamin-d-for-prevention-of-disease"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://www.endocrine.org/clinical-practice-guidelines/vitamin-d-for-prevention-of-disease"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[4] https://pubmed.ncbi.nlm.nih.gov/29637897/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/29637897/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[5] [6] https://pubmed.ncbi.nlm.nih.gov/28615996/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/28615996/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[7] [37] https://pubmed.ncbi.nlm.nih.gov/42035842/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/42035842/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[8] https://pubmed.ncbi.nlm.nih.gov/39070254/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/39070254/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[9] https://pubmed.ncbi.nlm.nih.gov/28698222/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/28698222/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[10] https://pubmed.ncbi.nlm.nih.gov/28642676/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/28642676/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[11] https://pubmed.ncbi.nlm.nih.gov/23360586/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/23360586/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[12] https://pubmed.ncbi.nlm.nih.gov/29722584/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/29722584/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[13] https://pubmed.ncbi.nlm.nih.gov/27612937/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/27612937/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[14] https://pubmed.ncbi.nlm.nih.gov/41374083/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/41374083/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[15] https://pubmed.ncbi.nlm.nih.gov/36870101/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/36870101/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[16] https://pubmed.ncbi.nlm.nih.gov/38777432/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/38777432/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[17] https://www.ais.gov.au/nutrition/supplements/group_b"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://www.ais.gov.au/nutrition/supplements/group_b"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[18] https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[19] https://www.endocrine.org/news-and-advocacy/news-room/2024/endocrine-society-recommends-healthy-adults-take-the-recommended-daily-allowance-of-vitamin-d"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://www.endocrine.org/news-and-advocacy/news-room/2024/endocrine-society-recommends-healthy-adults-take-the-recommended-daily-allowance-of-vitamin-d"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[21] https://pubmed.ncbi.nlm.nih.gov/38860160/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/38860160/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[22] [24] [25] https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[23] https://pubmed.ncbi.nlm.nih.gov/38970118/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/38970118/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[26] https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-HealthProfessional%20/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-HealthProfessional%20/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[27] https://pubmed.ncbi.nlm.nih.gov/34010809/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/34010809/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[28] https://pubmed.ncbi.nlm.nih.gov/34176406/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/34176406/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[29] https://pubmed.ncbi.nlm.nih.gov/26175657/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/26175657/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[30] https://pubmed.ncbi.nlm.nih.gov/27797728/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/27797728/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[31] https://link.springer.com/article/10.1186/s44410-025-00011-9"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://link.springer.com/article/10.1186/s44410-025-00011-9"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[32] https://pubmed.ncbi.nlm.nih.gov/34716905/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pubmed.ncbi.nlm.nih.gov/34716905/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[33] https://pmc.ncbi.nlm.nih.gov/articles/PMC8955583/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pmc.ncbi.nlm.nih.gov/articles/PMC8955583/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "[34] https://pmc.ncbi.nlm.nih.gov/articles/PMC6735969/"
+    },
+    {
+        "Style":  "Gövde Metni",
+        "Text":  "https://pmc.ncbi.nlm.nih.gov/articles/PMC6735969/"
+    }
+]

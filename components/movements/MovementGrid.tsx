@@ -11,9 +11,10 @@ export default function MovementGrid({ movements }: MovementGridProps) {
       {movements.map((movement) => (
         <MovementCard
           key={movement.id}
+          slug={movement.slug}
+          tags={movement.tags}
           title={movement.name}
           description={movement.description}
-          category={movement.category}
           muscleGroup={movement.muscleGroup}
           equipment={movement.equipment}
           difficulty={movement.difficulty}

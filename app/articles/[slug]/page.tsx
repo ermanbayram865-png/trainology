@@ -2,20 +2,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import ArticleContent from "@/components/articles/ArticleContent";
-import ArticleEvidenceBadge from "@/components/articles/ArticleEvidenceBadge";
+import ArticleDetailHero from "@/components/articles/ArticleDetailHero";
 import ArticleFaq from "@/components/articles/ArticleFaq";
-import ArticleMetadata from "@/components/articles/ArticleMetadata";
 import ArticleRelatedContent from "@/components/articles/ArticleRelatedContent";
 import ReadingProgress from "@/components/articles/ReadingProgress";
-import ShareActions from "@/components/articles/ShareActions";
 import ArticleSection from "@/components/articles/ArticleSection";
 import ArticleSources from "@/components/articles/ArticleSources";
 import ArticleTableOfContents from "@/components/articles/ArticleTableOfContents";
 import ArticleTrust from "@/components/articles/ArticleTrust";
-import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import CTAButton from "@/components/ui/CTAButton";
-import PageHeader from "@/components/ui/PageHeader";
 import Section from "@/components/ui/Section";
 import { articles, getArticleBySlug } from "@/data/articles/articles";
 import { removeInlineCitationMarkers } from "@/lib/articles/formatters";
@@ -279,27 +275,7 @@ export default async function ArticlePage({
           }}
         />
 
-        <PageHeader
-          badge={
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="neutral">{article.category}</Badge>
-              <ArticleEvidenceBadge evidenceLevel={article.evidenceLevel} />
-            </div>
-          }
-          title={article.title}
-          description={removeInlineCitationMarkers(article.summary)}
-        />
-
-        <ArticleMetadata
-          evidenceLevel={article.evidenceLevel}
-          publishedDate={article.publishedDate}
-          updatedDate={article.updatedDate}
-          readingTime={article.readingTime}
-          author={article.author}
-          reviewedBy={article.reviewedBy}
-        />
-
-        <ShareActions title={article.title} url={absoluteUrl(`/articles/${article.slug}`)} />
+        <ArticleDetailHero article={article} />
 
         <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="space-y-16">

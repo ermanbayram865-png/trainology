@@ -1,6 +1,7 @@
 import type { Supplement } from "@/lib/supplements/types";
+import { supplementEvidenceBySlug } from "@/data/supplements/evidence";
 
-const image = "/images/hero/flask.png";
+export const supplementFallbackImage = "/images/hero/flask.png";
 
 export const supplements: readonly Supplement[] = [
   {
@@ -26,7 +27,8 @@ export const supplements: readonly Supplement[] = [
       "International Society of Sports Nutrition: creatine supplementation position stand.",
       "Kreider RB et al. Common questions and misconceptions about creatine supplementation.",
     ],
-    image,
+    image: "/images/supplements/creatine-monohydrate.webp",
+    evidenceContent: supplementEvidenceBySlug["creatine-monohydrate"],
   },
   {
     id: "caffeine",
@@ -51,7 +53,8 @@ export const supplements: readonly Supplement[] = [
       "International Society of Sports Nutrition: caffeine and exercise performance position stand.",
       "Guest NS et al. International society of sports nutrition position stand: caffeine and exercise performance.",
     ],
-    image,
+    image: "/images/supplements/caffeine.webp",
+    evidenceContent: supplementEvidenceBySlug.caffeine,
   },
   {
     id: "omega-3",
@@ -76,7 +79,164 @@ export const supplements: readonly Supplement[] = [
       "American Heart Association scientific advisories on omega-3 fatty acids.",
       "NIH Office of Dietary Supplements: Omega-3 Fatty Acids Fact Sheet.",
     ],
-    image,
+    image: "/images/supplements/omega-3.webp",
+    evidenceContent: supplementEvidenceBySlug["omega-3"],
+  },
+  {
+    id: "whey-protein",
+    name: "Whey Protein",
+    slug: "whey-protein",
+    category: "Recovery",
+    evidenceLevel: "Strong Evidence",
+    purpose: "Günlük protein gereksinimini beslenmeyle karşılamak zor olduğunda pratik bir protein kaynağı sağlamak.",
+    description: "Whey protein, süt kaynaklı ve temel amino asitleri içeren bir protein seçeneğidir; yararı toplam günlük protein alımı ve antrenman bağlamıyla birlikte değerlendirilir.",
+    benefits: [
+      "Direnç antrenmanıyla birlikte kas protein sentezini ve antrenman adaptasyonlarını destekleyen toplam protein alımına katkı sağlayabilir.",
+      "Öğünlerden yeterli protein alamayan kişiler için pratik bir seçenek olabilir.",
+      "Tam protein içeriği sayesinde temel amino asit alımına katkıda bulunur.",
+    ],
+    usage: "Miktar, günlük toplam protein alımı ve beslenme düzenindeki açığa göre belirlenmelidir. Tam gıdaların yerine otomatik olarak geçirilmemelidir.",
+    considerations: [
+      "Süt proteini alerjisi olan kişiler kullanmamalıdır; laktoz toleransı ürüne göre değişebilir.",
+      "Böbrek hastalığı veya protein alımını etkileyen bir sağlık durumu varsa uzman görüşü alınmalıdır.",
+      "İçerik listesi, porsiyon başına protein ve bağımsız kalite testi kontrol edilmelidir.",
+    ],
+    sources: [
+      "International Society of Sports Nutrition Position Stand: protein and exercise.",
+      "NIH Office of Dietary Supplements: Dietary Supplements for Exercise and Athletic Performance Fact Sheet.",
+    ],
+    image: "/images/supplements/whey-protein.webp",
+    evidenceContent: supplementEvidenceBySlug["whey-protein"],
+  },
+  {
+    id: "vitamin-d",
+    name: "Vitamin D",
+    slug: "vitamin-d",
+    category: "Health",
+    evidenceLevel: "Moderate Evidence",
+    purpose: "Beslenme, güneş maruziyeti ve bireysel durum nedeniyle yetersizlik riski olduğunda vitamin D alımını desteklemek.",
+    description: "Vitamin D; kemik, kas ve bağışıklık işlevlerinde rol alan yağda çözünen bir vitamindir. Supplement gereksinimi kişisel durum ve gerektiğinde laboratuvar değerlendirmesiyle ele alınmalıdır.",
+    benefits: [
+      "Yetersiz alım veya düşük vitamin D durumu bulunan kişilerde yeterli düzeye ulaşmayı destekleyebilir.",
+      "Kalsiyum emilimi ve normal kemik mineralizasyonunda rol oynar.",
+      "Normal kas ve bağışıklık işlevlerinin sürdürülmesine katkıda bulunur.",
+    ],
+    usage: "Kullanım kararı ve miktarı; beslenme, güneş maruziyeti, yaş, sağlık durumu ve gerektiğinde ölçülen vitamin D düzeyine göre sağlık uzmanıyla değerlendirilmelidir.",
+    considerations: [
+      "Gereksiz yüksek alım kalsiyum dengesini bozabilir ve toksisite riski oluşturabilir.",
+      "Bazı ilaçlar vitamin D metabolizması veya emilimiyle etkileşebilir.",
+      "Eksiklik şüphesinde yalnızca semptomlara dayanmak yerine uygun klinik değerlendirme gerekir.",
+    ],
+    sources: [
+      "NIH Office of Dietary Supplements: Vitamin D Fact Sheet for Health Professionals.",
+      "National Academies Dietary Reference Intakes for Calcium and Vitamin D.",
+    ],
+    image: "/images/supplements/vitamin-d.webp",
+    evidenceContent: supplementEvidenceBySlug["vitamin-d"],
+  },
+  {
+    id: "magnesium",
+    name: "Magnesium",
+    slug: "magnesium",
+    category: "Health",
+    evidenceLevel: "Moderate Evidence",
+    purpose: "Beslenmeyle yeterli alınamadığında veya yetersizlik riski bulunduğunda magnezyum alımını desteklemek.",
+    description: "Magnezyum; enerji üretimi, protein sentezi, sinir iletimi ve kas işlevi dahil çok sayıda biyokimyasal süreçte görev alan temel bir mineraldir.",
+    benefits: [
+      "Yetersiz alımı bulunan kişilerde günlük magnezyum gereksiniminin karşılanmasına yardımcı olabilir.",
+      "Normal kas ve sinir işlevlerinin sürdürülmesine katkıda bulunur.",
+      "Enerji metabolizması ve kemik sağlığında rol oynar.",
+    ],
+    usage: "Öncelik besin kaynaklarına verilmelidir. Supplement miktarı ürünün elementel magnezyum içeriği, beslenme alımı ve bireysel gereksinim dikkate alınarak değerlendirilmelidir.",
+    considerations: [
+      "Supplementlerden yüksek alım ishal, bulantı ve karın kramplarına yol açabilir.",
+      "Böbrek işlev bozukluğunda birikme riski nedeniyle uzman değerlendirmesi önemlidir.",
+      "Bazı antibiyotikler ve diğer ilaçlarla aynı zamanda alınması emilimi etkileyebilir.",
+    ],
+    sources: [
+      "NIH Office of Dietary Supplements: Magnesium Fact Sheet for Health Professionals.",
+      "National Academies Dietary Reference Intakes for Calcium, Phosphorus, Magnesium, Vitamin D, and Fluoride.",
+    ],
+    image: "/images/supplements/magnesium.webp",
+    evidenceContent: supplementEvidenceBySlug.magnesium,
+  },
+  {
+    id: "citrulline",
+    name: "Citrulline",
+    slug: "citrulline",
+    category: "Performance",
+    evidenceLevel: "Limited Evidence",
+    purpose: "Egzersiz performansı ve algılanan efor üzerindeki olası etkileri bağlamında değerlendirilmek.",
+    description: "Citrulline, nitrik oksit üretimiyle ilişkili arginin düzeylerini etkileyebilen bir amino asittir; egzersiz performansına ilişkin sonuçlar tutarlı değildir.",
+    benefits: [
+      "Bazı çalışmalarda belirli direnç egzersizi veya toparlanma sonuçlarında küçük etkiler bildirilmiştir.",
+      "Aerobik dayanıklılık ve kas kuvveti sonuçlarında belirgin ve tutarlı bir fayda gösterilmemiştir.",
+      "Olası etkiler ürün formuna, protokole ve egzersiz türüne göre değişebilir.",
+    ],
+    usage: "Standart ve her bağlama uygulanabilir bir kullanım protokolü belirlenmemiştir. Ürün formu ve bireysel tolerans dikkate alınmalıdır.",
+    considerations: [
+      "Araştırmalarda L-citrulline ve citrulline malate aynı ürün gibi değerlendirilmemelidir.",
+      "Mide-bağırsak rahatsızlığı görülebilir.",
+      "Tansiyon veya dolaşımı etkileyen ilaçlarla birlikte kullanım uzmanla değerlendirilmelidir.",
+    ],
+    sources: [
+      "NIH Office of Dietary Supplements: Dietary Supplements for Exercise and Athletic Performance Fact Sheet.",
+      "Viribay A et al. Effects of Citrulline Supplementation on Different Aerobic Exercise Performance Outcomes: A Systematic Review and Meta-Analysis.",
+    ],
+    image: "/images/supplements/citrulline.webp",
+    evidenceContent: supplementEvidenceBySlug.citrulline,
+  },
+  {
+    id: "beta-alanine",
+    name: "Beta-Alanine",
+    slug: "beta-alanine",
+    category: "Performance",
+    evidenceLevel: "Moderate Evidence",
+    purpose: "Özellikle yüksek yoğunluklu ve kısa-orta süreli egzersiz kapasitesini destekleme potansiyeli açısından değerlendirilmek.",
+    description: "Beta-alanine, kas içi carnosine sentezinde kullanılan bir amino asittir. Performans etkisi egzersizin süresi ve türüne göre değişir.",
+    benefits: [
+      "Bazı çalışmalarda yüksek yoğunluklu egzersiz kapasitesinde mütevazı iyileşmeler bildirilmiştir.",
+      "Etkiler özellikle yaklaşık bir dakikadan uzun yüksek yoğunluklu eforlarda daha belirgin olabilir.",
+      "Maksimal kuvvet veya her spor türü için aynı düzeyde fayda beklenmemelidir.",
+    ],
+    usage: "Araştırmalardaki protokoller düzenli kullanıma dayanır; kişisel kullanım kararı ürün etiketi, tolerans ve uzman görüşüyle değerlendirilmelidir.",
+    considerations: [
+      "Tek seferde yüksek miktar geçici karıncalanma hissine neden olabilir.",
+      "Ürünün toplam günlük içeriği ve çok bileşenli ürünlerdeki diğer maddeler kontrol edilmelidir.",
+      "Uzun dönem kullanım verileri kısa dönem çalışmalara göre daha sınırlıdır.",
+    ],
+    sources: [
+      "NIH Office of Dietary Supplements: Dietary Supplements for Exercise and Athletic Performance Fact Sheet.",
+      "International Society of Sports Nutrition Position Stand: Beta-Alanine.",
+    ],
+    image: "/images/supplements/beta-alanine.webp",
+    evidenceContent: supplementEvidenceBySlug["beta-alanine"],
+  },
+  {
+    id: "electrolytes",
+    name: "Electrolytes",
+    slug: "electrolytes",
+    category: "Recovery",
+    evidenceLevel: "Moderate Evidence",
+    purpose: "Uzun süren egzersiz, sıcak ortam veya yüksek ter kaybı sırasında sıvı ve elektrolit yerine koyma planını desteklemek.",
+    description: "Elektrolit ürünleri çoğunlukla sodyum ve farklı miktarlarda diğer mineralleri içerir. Gereksinim egzersiz süresi, ortam, terleme miktarı ve beslenmeye göre değişir.",
+    benefits: [
+      "Uzun süreli veya sıcak koşullardaki egzersizde terle kaybedilen sodyumun yerine konmasına yardımcı olabilir.",
+      "Uygun bir sıvı planının parçası olarak hidrasyonun sürdürülmesini destekleyebilir.",
+      "Kısa ve düşük ter kayıplı aktivitelerde yalnızca su ve normal beslenme çoğu kişi için yeterli olabilir.",
+    ],
+    usage: "Sıvı ve elektrolit planı egzersiz süresi, sıcaklık, bireysel terleme hızı ve ürünün sodyum içeriğine göre kişiselleştirilmelidir.",
+    considerations: [
+      "Aşırı sıvı tüketimi, elektrolit içerse bile güvenli değildir.",
+      "Böbrek, kalp veya kan basıncıyla ilgili bir durum varsa sodyum ve potasyum içeriği uzmanla değerlendirilmelidir.",
+      "Şeker, kafein ve diğer ek bileşenler ürünler arasında önemli ölçüde değişebilir.",
+    ],
+    sources: [
+      "American College of Sports Medicine Position Stand: Exercise and Fluid Replacement.",
+      "National Athletic Trainers' Association Position Statement: Fluid Replacement for the Physically Active.",
+    ],
+    image: "/images/supplements/electrolytes.webp",
+    evidenceContent: supplementEvidenceBySlug.electrolytes,
   },
 ] as const;
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import SupplementGrid from "@/components/supplements/SupplementGrid";
-import SupplementHeader from "@/components/supplements/SupplementHeader";
+import SupplementLibrary from "@/components/supplements/SupplementLibrary";
 import FeatureGrid from "@/components/ui/FeatureGrid";
 import Section from "@/components/ui/Section";
 import { supplements } from "@/data/supplements/supplements";
@@ -31,9 +31,9 @@ export default function SupplementsPage() {
   return (
     <main className="min-h-screen bg-[#050505] text-white">
       <Section className="bg-[#050505]" contentClassName="space-y-12">
-        <SupplementHeader count={supplements.length} />
-
-        <SupplementGrid supplements={supplements} />
+        <Suspense fallback={<div className="h-96" />}>
+          <SupplementLibrary supplements={supplements} />
+        </Suspense>
 
         <FeatureGrid items={supplementPrinciples} columns={3} />
       </Section>

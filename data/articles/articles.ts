@@ -124,7 +124,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "/movements/barbell-back-squat",
       "/movements/deadlift",
     ],
-    image,
+    image: "/images/articles/progressive-overload-nedir.webp",
   },
   {
     id: "protein-powder",
@@ -143,7 +143,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "Academy of Nutrition and Dietetics, Dietitians of Canada, and ACSM: Nutrition and Athletic Performance.",
     ],
     relatedTools: ["/calculators/protein", "/calculators/macro"],
-    image,
+    image: "/images/articles/protein-tozu.webp",
   },
   {
     id: "creatine-guide",
@@ -194,7 +194,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "/movements/barbell-back-squat",
       "/movements/deadlift",
     ],
-    image,
+    image: "/images/articles/kreatin-bilimsel-rehber.webp",
   },
   {
     id: "rir",
@@ -251,7 +251,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "American College of Sports Medicine resistance training guidance.",
     ],
     relatedTools: ["/calculators/1rm", "/movements"],
-    image,
+    image: "/images/articles/failure-training.webp",
   },
   {
     id: "training-volume",
@@ -270,7 +270,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "ACSM resistance training prescription guidance.",
     ],
     relatedTools: ["/calculators/1rm", "/movements"],
-    image,
+    image: "/images/articles/antrenman-hacmi.webp",
   },
   {
     id: "protein-needs",
@@ -319,7 +319,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "/articles/kalori-dengesi",
       "/supplements/whey-protein",
     ],
-    image,
+    image: "/images/articles/gunluk-protein-ihtiyaci.webp",
   },
   {
     id: "calorie-balance",
@@ -490,7 +490,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "Schoenfeld BJ, Grgic J. Effects of range of motion on muscle development and strength.",
     ],
     relatedTools: ["/movements", "/calculators/1rm"],
-    image,
+    image: "/images/articles/rom-nedir.webp",
   },
   {
     id: "exercise-technique",
@@ -528,7 +528,7 @@ const articleSeeds: readonly ArticleSeed[] = [
       "Schick EE et al. A comparison of muscle activation between a Smith machine and free weight bench press.",
     ],
     relatedTools: ["/movements", "/calculators/1rm"],
-    image,
+    image: "/images/articles/machines-vs-free-weights.webp",
   },
 ] as const;
 

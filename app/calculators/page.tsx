@@ -149,12 +149,37 @@ const categories: CalculatorCategory[] = [
   },
 ];
 
+const activeCalculators = [
+  ...categories.flatMap((category) =>
+    category.calculators.filter((calculator) => calculator.status === "active"),
+  ),
+  {
+    title: "Performans Analizi",
+    description: "Tahmini 1RM değerlerini ve kuvvet dağılımını tek yerde incele.",
+    category: "Performans",
+    status: "active" as const,
+    href: "/calculators/performance",
+    icon: <Activity aria-hidden="true" />,
+  },
+];
+
+const activeCalculatorOrder = [
+  "Kalori Hesaplayıcı",
+  "Macro Hesaplayıcı",
+  "Protein Hesaplayıcı",
+  "Su İhtiyacı Hesaplayıcı",
+  "1RM Hesaplayıcı",
+  "Performans Analizi",
+  "FFMI Hesaplayıcı",
+  "Sağlıklı Ağırlık Aralığı Hesaplayıcı",
+] as const;
+
 export default function CalculatorsPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
-      <Section className="bg-[#050505]" contentClassName="space-y-16">
+      <Section className="!py-10 sm:!py-12 lg:!py-14 bg-[#050505]" contentClassName="space-y-10 lg:space-y-12">
         <PageHeader
           badge={<Badge variant="gold">Bilimsel Araçlar</Badge>}
           title="Bilimsel Hesaplayıcılar"
@@ -170,7 +195,19 @@ export default function CalculatorsPage() {
           </p>
         )}
 
-        {categories.map((category) => (
+        <section aria-label="Aktif hesaplayıcılar">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {activeCalculators.toSorted(
+              (first, second) =>
+                activeCalculatorOrder.indexOf(first.title as typeof activeCalculatorOrder[number]) -
+                activeCalculatorOrder.indexOf(second.title as typeof activeCalculatorOrder[number]),
+            ).map((calculator) => (
+              <CalculatorCard key={calculator.title} {...calculator} compact />
+            ))}
+          </div>
+        </section>
+
+        {false && categories.map((category) => (
           <section key={category.title}>
             <div className="mb-8 flex items-center gap-4">
               <h2 className="text-2xl font-semibold text-white">{category.title}</h2>

@@ -48,7 +48,7 @@ export default function ArticleCard({
               alt={`${title} görseli`}
               fill
               sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
-              className="object-cover opacity-75 transition duration-700 group-hover:scale-105 group-hover:opacity-90"
+              className="object-contain opacity-75 transition duration-700 group-hover:scale-[1.02] group-hover:opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/70 via-transparent to-transparent" />
           </div>

@@ -8,6 +8,8 @@ type CardProps = {
   description?: ReactNode;
   icon?: ReactNode;
   media?: ReactNode;
+  mediaClassName?: string;
+  childrenClassName?: string;
   href?: string;
   onClick?: () => void;
   variant?: CardVariant;
@@ -28,6 +30,8 @@ export default function Card({
   description,
   icon,
   media,
+  mediaClassName,
+  childrenClassName,
   href,
   onClick,
   variant = "default",
@@ -36,7 +40,7 @@ export default function Card({
 }: CardProps) {
   const content = (
     <>
-      {media && <div className="mb-7">{media}</div>}
+      {media && <div className={`mb-7 ${mediaClassName ?? ""}`}>{media}</div>}
 
       {icon && <div className="mb-7 text-3xl text-[#C9A14A]">{icon}</div>}
 
@@ -52,7 +56,7 @@ export default function Card({
         </p>
       )}
 
-      {children && <div className="mt-6">{children}</div>}
+      {children && <div className={`mt-6 ${childrenClassName ?? ""}`}>{children}</div>}
     </>
   );
 
