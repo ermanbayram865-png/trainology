@@ -84,7 +84,7 @@ export default function KvkkAydinlatmaMetniPage() {
           <li>Yalnızca otomatik sistemlerle analiz sonucu aleyhe bir sonuca itiraz etme,</li>
           <li>Kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme</li>
         </LegalList>
-        <p>Ayrıntılı başvuru yöntemleri için <a className={legalLinkClass} href="/kvkk-basvuru">KVKK Başvurusu</a> sayfasını inceleyebilirsiniz.</p>
+        <p>KVKK’nın 11. maddesi kapsamındaki taleplerinizi, KVKK’nın 13. maddesi ve Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ’de belirtilen yöntemlere uygun olarak veri sorumlusuna iletebilirsiniz. Elektronik başvurular ve konuyla ilgili iletişim için kvkk@trainology.com.tr adresini kullanabilirsiniz. Normal e-posta yoluyla yapılan resmî başvurularda, daha önce Trainology’ye bildirdiğiniz ve sistemde kayıtlı bulunan e-posta adresinin kullanılması gerekir. Başvurular, talebin niteliğine göre mümkün olan en kısa sürede ve en geç 30 gün içinde ücretsiz olarak cevaplandırılır. İşlemin ayrıca maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulu tarafından belirlenen tarifedeki ücret uygulanabilir.</p>
       </LegalSection>
     </LegalPage>
   );

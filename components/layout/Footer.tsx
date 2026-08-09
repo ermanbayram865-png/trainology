@@ -19,7 +19,6 @@ const legalLinks = [
   { label: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
   { label: "Çerez ve Yerel Depolama", href: "/cerez-ve-yerel-depolama-politikasi" },
   { label: "Kullanım Koşulları", href: "/kullanim-kosullari" },
-  { label: "KVKK Başvurusu", href: "/kvkk-basvuru" },
   { label: "İletişim", href: "mailto:info@trainology.com.tr" },
 ];
 

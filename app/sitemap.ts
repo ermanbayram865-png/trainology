@@ -17,7 +17,6 @@ const staticPages: MetadataRoute.Sitemap = [
   { url: absoluteUrl("/gizlilik-politikasi"), changeFrequency: "yearly", priority: 0.3 },
   { url: absoluteUrl("/cerez-ve-yerel-depolama-politikasi"), changeFrequency: "yearly", priority: 0.3 },
   { url: absoluteUrl("/kullanim-kosullari"), changeFrequency: "yearly", priority: 0.3 },
-  { url: absoluteUrl("/kvkk-basvuru"), changeFrequency: "yearly", priority: 0.3 },
 ];
 
 const calculatorPaths = [
