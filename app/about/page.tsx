@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
+
 import Card from "@/components/ui/Card";
 import PageHeader from "@/components/ui/PageHeader";
 import Section from "@/components/ui/Section";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (

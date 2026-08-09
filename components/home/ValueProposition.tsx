@@ -1,4 +1,4 @@
-import { Brain, Dumbbell, FlaskConical, Sigma } from "lucide-react";
+import { Dumbbell, FlaskConical, Sigma } from "lucide-react";
 
 import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
@@ -22,12 +22,6 @@ const values = [
     icon: <FlaskConical aria-hidden="true" />,
     href: "/supplements",
   },
-  {
-    title: "AI Coach",
-    description: "Fitness kararlarını daha bilinçli hale getir.",
-    icon: <Brain aria-hidden="true" />,
-    href: "/ai-coach",
-  },
 ];
 
 export default function ValueProposition() {
@@ -37,7 +31,7 @@ export default function ValueProposition() {
       subtitle="TRAINOLOGY PLATFORMU"
       description="Karar vermeyi kolaylaştıran, birbirini tamamlayan araçlar ve içerikler."
     >
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {values.map((value) => (
           <Card key={value.title} {...value} variant="subtle" />
         ))}

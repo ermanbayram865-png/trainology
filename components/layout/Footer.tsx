@@ -7,12 +7,20 @@ const platformLinks = [
   { label: "Hesaplayıcılar", href: "/calculators" },
   { label: "Hareket Kütüphanesi", href: "/movements" },
   { label: "Supplementler", href: "/supplements" },
-  { label: "AI Coach", href: "/ai-coach" },
 ];
 
 const knowledgeLinks = [
   { label: "Scientific Library", href: "/articles" },
   { label: "Hakkımızda", href: "/about" },
+];
+
+const legalLinks = [
+  { label: "KVKK Aydınlatma Metni", href: "/kvkk-aydinlatma-metni" },
+  { label: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
+  { label: "Çerez ve Yerel Depolama", href: "/cerez-ve-yerel-depolama-politikasi" },
+  { label: "Kullanım Koşulları", href: "/kullanim-kosullari" },
+  { label: "KVKK Başvurusu", href: "/kvkk-basvuru" },
+  { label: "İletişim", href: "mailto:info@trainology.com.tr" },
 ];
 
 export default function Footer() {
@@ -40,10 +48,7 @@ export default function Footer() {
 
           <FooterLinkGroup title="Platform" links={platformLinks} />
           <FooterLinkGroup title="Bilgi Merkezi" links={knowledgeLinks} />
-          <FooterLinkGroup
-            title="Başlangıç"
-            links={[{ label: "Ücretsiz Analiz", href: "/analysis" }]}
-          />
+          <FooterLinkGroup title="Yasal ve İletişim" links={legalLinks} />
         </div>
 
         <div className="border-t border-white/5 py-8">
@@ -61,8 +66,8 @@ export default function Footer() {
           <p>© 2026 Trainology</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <a href="https://www.instagram.com/trainologyfit/" target="_blank" rel="noreferrer" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">Instagram · @trainologyfit</a>
-            <span>Gizlilik Politikası</span>
-            <span>Kullanım Koşulları</span>
+            <a href="mailto:info@trainology.com.tr" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">info@trainology.com.tr</a>
+            <a href="mailto:kvkk@trainology.com.tr" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">KVKK · kvkk@trainology.com.tr</a>
           </div>
         </div>
       </Container>
@@ -84,12 +89,11 @@ function FooterLinkGroup({ title, links }: FooterLinkGroupProps) {
       <ul className="space-y-3">
         {links.map((link) => (
           <li key={link.href}>
-            <Link
-              href={link.href}
-              className="text-sm text-neutral-400 transition-colors hover:text-[#C9A14A]"
-            >
-              {link.label}
-            </Link>
+            {link.href.startsWith("mailto:") ? (
+              <a href={link.href} className="text-sm text-neutral-400 transition-colors hover:text-[#C9A14A]">{link.label}</a>
+            ) : (
+              <Link href={link.href} className="text-sm text-neutral-400 transition-colors hover:text-[#C9A14A]">{link.label}</Link>
+            )}
           </li>
         ))}
       </ul>

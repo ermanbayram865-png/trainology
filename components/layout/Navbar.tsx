@@ -15,7 +15,6 @@ const menuItems = [
   { title: "Hareket Kütüphanesi", href: "/movements" },
   { title: "Science", href: "/articles" },
   { title: "Supplementler", href: "/supplements" },
-  { title: "AI Coach", href: "/ai-coach" },
   { title: "Hakkımızda", href: "/about" },
 ];
 

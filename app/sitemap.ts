@@ -13,6 +13,11 @@ const staticPages: MetadataRoute.Sitemap = [
   { url: absoluteUrl("/supplements"), changeFrequency: "weekly", priority: 0.9 },
   { url: absoluteUrl("/analysis"), changeFrequency: "monthly", priority: 0.8 },
   { url: absoluteUrl("/about"), changeFrequency: "yearly", priority: 0.5 },
+  { url: absoluteUrl("/kvkk-aydinlatma-metni"), changeFrequency: "yearly", priority: 0.3 },
+  { url: absoluteUrl("/gizlilik-politikasi"), changeFrequency: "yearly", priority: 0.3 },
+  { url: absoluteUrl("/cerez-ve-yerel-depolama-politikasi"), changeFrequency: "yearly", priority: 0.3 },
+  { url: absoluteUrl("/kullanim-kosullari"), changeFrequency: "yearly", priority: 0.3 },
+  { url: absoluteUrl("/kvkk-basvuru"), changeFrequency: "yearly", priority: 0.3 },
 ];
 
 const calculatorPaths = [

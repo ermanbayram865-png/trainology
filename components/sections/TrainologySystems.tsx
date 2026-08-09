@@ -16,13 +16,6 @@ const systems = [
     button: "İncele →",
   },
   {
-    title: "AI Coach",
-    description:
-      "Kişisel hedeflerine özel antrenman ve beslenme önerileri. Yakında.",
-    href: "/ai-coach",
-    button: "Yakında →",
-  },
-  {
     title: "Neden Trainology?",
     description:
       "Kanıta dayalı içerikler, güvenilir kaynaklar ve reklamlardan bağımsız yaklaşım.",
@@ -50,7 +43,7 @@ export default function TrainologySystems() {
 
         {/* Cards */}
 
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
 
           {systems.map((item) => (
             <div
