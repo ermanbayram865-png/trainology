@@ -26,7 +26,7 @@ export default function CerezVeYerelDepolamaPolitikasiPage() {
       </LegalSection>
 
       <LegalSection title="4. İletişim">
-        <p>Çerezler ve yerel depolama hakkında sorularınız için <a className={legalLinkClass} href="mailto:info@trainology.com.tr">info@trainology.com.tr</a> adresine yazabilirsiniz.</p>
+        <p>Çerezler ve yerel depolama hakkında sorularınız için <a className={legalLinkClass} href="mailto:trainology.fit@outlook.com">trainology.fit@outlook.com</a> adresine yazabilirsiniz.</p>
       </LegalSection>
     </LegalPage>
   );

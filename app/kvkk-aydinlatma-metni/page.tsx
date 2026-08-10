@@ -22,8 +22,7 @@ export default function KvkkAydinlatmaMetniPage() {
       <LegalSection title="1. Veri sorumlusu">
         <p>Kişisel veriler bakımından veri sorumlusu <strong className="text-white">Erman Bayram</strong>’dır. Trainology marka adıdır.</p>
         <p>
-          Genel iletişim: <a className={legalLinkClass} href="mailto:info@trainology.com.tr">info@trainology.com.tr</a><br />
-          KVKK başvuruları: <a className={legalLinkClass} href="mailto:kvkk@trainology.com.tr">kvkk@trainology.com.tr</a>
+          Genel iletişim ve KVKK başvuruları: <a className={legalLinkClass} href="mailto:trainology.fit@outlook.com">trainology.fit@outlook.com</a>
         </p>
       </LegalSection>
 
@@ -80,7 +79,7 @@ export default function KvkkAydinlatmaMetniPage() {
           <li>Yalnızca otomatik sistemlerle analiz sonucu aleyhe bir sonuca itiraz etme,</li>
           <li>Kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme</li>
         </LegalList>
-        <p>KVKK’nın 11. maddesi kapsamındaki taleplerinizi, KVKK’nın 13. maddesi ve Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ’de belirtilen yöntemlere uygun olarak veri sorumlusuna iletebilirsiniz. Elektronik başvurular ve konuyla ilgili iletişim için kvkk@trainology.com.tr adresini kullanabilirsiniz. Normal e-posta yoluyla yapılan resmî başvurularda, daha önce Trainology’ye bildirdiğiniz ve sistemde kayıtlı bulunan e-posta adresinin kullanılması gerekir. Başvurular, talebin niteliğine göre mümkün olan en kısa sürede ve en geç 30 gün içinde ücretsiz olarak cevaplandırılır. İşlemin ayrıca maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulu tarafından belirlenen tarifedeki ücret uygulanabilir.</p>
+        <p>KVKK’nın 11. maddesi kapsamındaki taleplerinizi, KVKK’nın 13. maddesi ve Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ’de belirtilen yöntemlere uygun olarak veri sorumlusuna iletebilirsiniz. Elektronik başvurular ve konuyla ilgili iletişim için <a className={legalLinkClass} href="mailto:trainology.fit@outlook.com">trainology.fit@outlook.com</a> adresini kullanabilirsiniz. Normal e-posta yoluyla yapılan resmî başvurularda, daha önce Trainology’ye bildirdiğiniz ve sistemde kayıtlı bulunan e-posta adresinin kullanılması gerekir. Başvurular, talebin niteliğine göre mümkün olan en kısa sürede ve en geç 30 gün içinde ücretsiz olarak cevaplandırılır. İşlemin ayrıca maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulu tarafından belirlenen tarifedeki ücret uygulanabilir.</p>
       </LegalSection>
     </LegalPage>
   );

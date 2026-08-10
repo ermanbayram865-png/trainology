@@ -14,7 +14,7 @@ const legalLinks = [
   { label: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
   { label: "Çerez ve Yerel Depolama", href: "/cerez-ve-yerel-depolama-politikasi" },
   { label: "Kullanım Koşulları", href: "/kullanim-kosullari" },
-  { label: "İletişim", href: "mailto:info@trainology.com.tr" },
+  { label: "İletişim", href: "mailto:trainology.fit@outlook.com" },
 ];
 
 export default function Footer() {
@@ -59,8 +59,7 @@ export default function Footer() {
           <p>© 2026 Trainology</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <a href="https://www.instagram.com/trainologyfit/" target="_blank" rel="noreferrer" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">Instagram · @trainologyfit</a>
-            <a href="mailto:info@trainology.com.tr" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">info@trainology.com.tr</a>
-            <a href="mailto:kvkk@trainology.com.tr" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">KVKK · kvkk@trainology.com.tr</a>
+            <a href="mailto:trainology.fit@outlook.com" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">trainology.fit@outlook.com</a>
           </div>
         </div>
       </Container>

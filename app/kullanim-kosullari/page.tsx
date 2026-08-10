@@ -49,7 +49,7 @@ export default function KullanimKosullariPage() {
 
       <LegalSection title="8. Uygulanacak hukuk ve iletişim">
         <p>Bu koşullar Türkiye Cumhuriyeti hukukuna tabidir; görevli ve yetkili mercilere ilişkin emredici hükümler saklıdır.</p>
-        <p>Sorularınız için <a className={legalLinkClass} href="mailto:info@trainology.com.tr">info@trainology.com.tr</a> adresine yazabilirsiniz.</p>
+        <p>Sorularınız için <a className={legalLinkClass} href="mailto:trainology.fit@outlook.com">trainology.fit@outlook.com</a> adresine yazabilirsiniz.</p>
       </LegalSection>
     </LegalPage>
   );

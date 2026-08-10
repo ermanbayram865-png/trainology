@@ -19,7 +19,6 @@ export default function GizlilikPolitikasiPage() {
           <li>Üyelik, hesap veya kullanıcı profili,</li>
           <li>İletişim formu ya da bülten aboneliği,</li>
           <li>Ödeme, satış veya ücretli abonelik,</li>
-          <li>AI Coach veya başka bir AI servisi,</li>
           <li>Kişiselleştirilmiş reklam, davranışsal takip veya pazarlama profili,</li>
           <li>Google Analytics, Meta Pixel, Clarity, Hotjar veya benzeri analiz araçları</li>
         </LegalList>
@@ -28,7 +27,7 @@ export default function GizlilikPolitikasiPage() {
 
       <LegalSection title="2. Oluşabilecek sınırlı veriler">
         <p>Siteye erişimde hosting altyapısında IP adresi, erişim zamanı, istenen sayfa, tarayıcı/cihaz bilgisi ve hata veya güvenlik kaydı gibi sınırlı teknik veriler oluşabilir.</p>
-        <p><a className={legalLinkClass} href="mailto:info@trainology.com.tr">info@trainology.com.tr</a> adresine e-posta gönderirseniz e-posta adresiniz, adınız, mesajınız ve eklediğiniz dosyalar mesajı yanıtlamak amacıyla işlenebilir.</p>
+        <p><a className={legalLinkClass} href="mailto:trainology.fit@outlook.com">trainology.fit@outlook.com</a> adresine kendi isteğinizle e-posta gönderirseniz e-posta adresiniz, adınız, mesajınız ve eklediğiniz dosyalar iletişimi yürütmek ve talebinizi yanıtlamak amacıyla işlenebilir.</p>
       </LegalSection>
 
       <LegalSection title="3. Hesaplayıcılar">
@@ -51,7 +50,7 @@ export default function GizlilikPolitikasiPage() {
       </LegalSection>
 
       <LegalSection title="7. İletişim">
-        <p>Genel gizlilik soruları için <a className={legalLinkClass} href="mailto:info@trainology.com.tr">info@trainology.com.tr</a>, KVKK başvuruları için <a className={legalLinkClass} href="mailto:kvkk@trainology.com.tr">kvkk@trainology.com.tr</a> adresini kullanabilirsiniz.</p>
+        <p>Genel iletişim, gizlilik soruları ve KVKK başvuruları için <a className={legalLinkClass} href="mailto:trainology.fit@outlook.com">trainology.fit@outlook.com</a> adresini kullanabilirsiniz.</p>
       </LegalSection>
     </LegalPage>
   );
