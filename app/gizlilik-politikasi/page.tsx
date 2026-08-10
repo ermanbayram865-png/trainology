@@ -31,9 +31,8 @@ export default function GizlilikPolitikasiPage() {
         <p><a className={legalLinkClass} href="mailto:info@trainology.com.tr">info@trainology.com.tr</a> adresine e-posta gönderirseniz e-posta adresiniz, adınız, mesajınız ve eklediğiniz dosyalar mesajı yanıtlamak amacıyla işlenebilir.</p>
       </LegalSection>
 
-      <LegalSection title="3. Hesaplayıcılar ve favoriler">
+      <LegalSection title="3. Hesaplayıcılar">
         <p>Hesaplayıcılara girilen boy, kilo, yaş, cinsiyet, aktivite ve performans bilgileri cihazınızda işlenir; sunucuya veya üçüncü tarafa gönderilmez ve kalıcı olarak saklanmaz.</p>
-        <p>Favoriler yalnızca seçilen hareket ve supplement slug/kimliklerini tarayıcının localStorage alanında tutar. Kayıtlar hesabınıza bağlanmaz, başka cihazlarla eşitlenmez ve tarayıcı verileri temizlendiğinde silinebilir.</p>
       </LegalSection>
 
       <LegalSection title="4. Paylaşım ve hizmet sağlayıcılar">

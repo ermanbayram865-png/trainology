@@ -55,24 +55,20 @@ export default function KvkkAydinlatmaMetniPage() {
         <p>Veriler; hosting ve sunucu altyapısında otomatik oluşabilecek teknik kayıtlar, kullanıcının kendi isteğiyle gönderdiği e-postalar ve KVKK başvurularında doğrudan iletilen bilgiler yoluyla elektronik ortamda toplanabilir.</p>
       </LegalSection>
 
-      <LegalSection title="5. Favoriler ve tarayıcıdaki yerel depolama">
-        <p>Favoriye eklenen hareket ve supplement içeriklerinin yalnızca slug/kimlik değerleri, aynı tarayıcıda hatırlanmak üzere localStorage alanında tutulur. Bu kayıtlar kullanıcı hesabı veya profil oluşturmaz; Trainology sunucusuna, veritabanına, analitiğe ya da üçüncü tarafa gönderilmez.</p>
-      </LegalSection>
-
-      <LegalSection title="6. Verilerin aktarılması">
+      <LegalSection title="5. Verilerin aktarılması">
         <p>Kişisel veriler yalnızca gerekli ölçüde; web hosting ve e-posta hizmetlerinin sunulmasını sağlayan hizmet sağlayıcılara ve hukuken zorunlu olması hâlinde yetkili kamu kurumları ile adli mercilere aktarılabilir.</p>
         <p>Hosting, uzak yedekler, e-posta altyapısı ve alt hizmet sağlayıcıların veri işleme ülkelerine ilişkin bilgiler sağlayıcılardan doğrulandıkça bu metin güncellenir. Doğrulanmamış bir yurt dışı aktarımı varmış veya hiç yokmuş gibi kesin bir beyanda bulunulmaz.</p>
       </LegalSection>
 
-      <LegalSection title="7. Saklama ve imha">
+      <LegalSection title="6. Saklama ve imha">
         <p>Veriler, amaç için gerekli süre ve uygulanabilir hukuki yükümlülükler dikkate alınarak saklanır. Saklama sebebi sona eren veriler, uygun yönteme göre silinir, yok edilir veya anonim hâle getirilir. Doğrulanmamış kesin bir log ya da e-posta saklama süresi taahhüt edilmez.</p>
       </LegalSection>
 
-      <LegalSection title="8. Özel nitelikli kişisel veriler">
+      <LegalSection title="7. Özel nitelikli kişisel veriler">
         <p>Trainology sağlık raporu, hastalık bilgisi, laboratuvar sonucu veya başka bir özel nitelikli kişisel veri talep etmez. E-postayla gereksiz sağlık verisi veya kimlik belgesi göndermeyin. Talep edilmeden iletilen bu tür veriler üzerinden kişisel teşhis ya da tıbbi değerlendirme yapılmaz; geçerli saklama sebebi bulunmayan gereksiz veriler silinir.</p>
       </LegalSection>
 
-      <LegalSection title="9. KVKK kapsamındaki haklarınız">
+      <LegalSection title="8. KVKK kapsamındaki haklarınız">
         <p>KVKK’nın 11. maddesi uyarınca:</p>
         <LegalList>
           <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme ve işlenmişse bilgi talep etme,</li>

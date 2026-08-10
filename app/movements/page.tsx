@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-import FavoritesStorageControls from "@/components/favorites/FavoritesStorageControls";
 import MovementFilter from "@/components/movements/MovementFilter";
 import MovementGrid from "@/components/movements/MovementGrid";
 import MovementHeader from "@/components/movements/MovementHeader";
@@ -48,8 +47,6 @@ export default function MovementsPage() {
     <main className="min-h-screen bg-[#050505] text-white">
       <Section className="bg-[#050505]" contentClassName="space-y-12">
         <MovementHeader count={movements.length} />
-
-        <FavoritesStorageControls kind="movements" itemLabel="hareket" />
 
         <MovementFilter
           movements={movements}

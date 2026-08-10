@@ -7,13 +7,13 @@ const principles = [
   {
     title: "Kanıta Dayalı Bilgi",
     description:
-      "Antrenman, beslenme ve supplement konularını güncel bilimsel kanıtlar üzerinden değerlendiririz.",
+      "Antrenman, beslenme ve performans hesaplarını güncel bilimsel yaklaşımlar üzerinden değerlendiririz.",
     icon: <BookOpenCheck aria-hidden="true" />,
   },
   {
     title: "Bilimsel Editörlük",
     description:
-      "İçerikler doğruluk, kaynak kalitesi ve bilimsel standartlar gözetilerek hazırlanır.",
+      "Araçlar ve açıklamalar doğruluk, yöntem kalitesi ve bilimsel standartlar gözetilerek hazırlanır.",
     icon: <ShieldCheck aria-hidden="true" />,
   },
   {

@@ -14,7 +14,7 @@ export default function KullanimKosullariPage() {
       <p>Bu koşullar, kanundan doğan ve sözleşmeyle sınırlandırılamayan tüketici veya kullanıcı haklarını ortadan kaldırmaz.</p>
 
       <LegalSection title="1. Platformun amacı">
-        <p>Trainology; egzersiz, antrenman bilimi, beslenme, supplementler ve sağlıklı yaşam hakkında genel bilgilendirme ve eğitim içeriği sunar. Mevcut sürümde üyelik, kişiye özel koçluk, tıbbi hizmet, ürün satışı, ödeme veya ücretli abonelik bulunmaz.</p>
+        <p>Trainology; egzersiz, antrenman bilimi, beslenme ve sağlıklı yaşam hakkında genel bilgilendirme araçları sunar. Mevcut sürümde üyelik, kişiye özel koçluk, tıbbi hizmet, ürün satışı, ödeme veya ücretli abonelik bulunmaz.</p>
       </LegalSection>
 
       <LegalSection title="2. Tıbbi hizmet sunulmaz">
@@ -22,7 +22,7 @@ export default function KullanimKosullariPage() {
         <p>Egzersiz ve beslenme kararlarında sağlık durumunuz, kullandığınız ilaçlar, gebelik, hastalık, yaralanma ve diğer bireysel koşullar dikkate alınmalıdır. Ağrı, yaralanma veya hastalık durumunda uygun profesyonel yardım alın; acil belirtilerde çevrim içi içeriğe dayanmak yerine acil sağlık hizmetine başvurun.</p>
       </LegalSection>
 
-      <LegalSection title="3. Hesaplayıcılar ve bilimsel içerik">
+      <LegalSection title="3. Hesaplayıcılar ve bilimsel yaklaşım">
         <LegalList>
           <li>Hesaplayıcı sonuçları genel bilgilendirme amaçlı tahminlerdir ve kesin sonuç garantisi vermez.</li>
           <li>Sonuçlar kişisel koşullar, ölçüm doğruluğu ve kullanılan yönteme göre değişebilir.</li>
@@ -31,8 +31,8 @@ export default function KullanimKosullariPage() {
         </LegalList>
       </LegalSection>
 
-      <LegalSection title="4. Egzersiz ve supplement güvenliği">
-        <p>Egzersizde deneyim düzeyinizi, teknik yeterliliğinizi, ekipmanı ve ortam güvenliğini dikkate alın. Ağrı veya olağandışı rahatsızlık hâlinde egzersizi durdurun. Supplement bilgileri genel niteliktedir; doz, ilaç etkileşimi, hastalıklar ve ürün kalitesi kişisel değerlendirme gerektirebilir.</p>
+      <LegalSection title="4. Egzersiz güvenliği">
+        <p>Egzersizde deneyim düzeyinizi, teknik yeterliliğinizi, ekipmanı ve ortam güvenliğini dikkate alın. Ağrı veya olağandışı rahatsızlık hâlinde egzersizi durdurun.</p>
       </LegalSection>
 
       <LegalSection title="5. Kullanım sorumluluğu">

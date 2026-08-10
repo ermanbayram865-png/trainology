@@ -16,6 +16,12 @@ import { absoluteUrl, siteConfig } from "@/lib/seo";
 
 type MovementDetailPageProps = { params: Promise<{ slug: string }> };
 
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return movements.map((movement) => ({ slug: movement.slug }));
+}
+
 function getMovementSeoTitle(name: string) {
   return `${name} Nasıl Yapılır?`;
 }

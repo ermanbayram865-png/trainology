@@ -4,13 +4,8 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 
 const platformLinks = [
-  { label: "Hesaplayıcılar", href: "/calculators" },
-  { label: "Hareket Kütüphanesi", href: "/movements" },
-  { label: "Supplementler", href: "/supplements" },
-];
-
-const knowledgeLinks = [
-  { label: "Scientific Library", href: "/articles" },
+  { label: "Hareketler", href: "/movements" },
+  { label: "Araçlar", href: "/calculators" },
   { label: "Hakkımızda", href: "/about" },
 ];
 
@@ -26,7 +21,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#050505]">
       <Container>
-        <div className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] lg:gap-10">
+        <div className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-10">
           <div className="max-w-sm">
             <Link href="/" className="inline-flex items-center gap-4">
               <Image src="/images/logo.png" alt="Trainology" width={48} height={48} />
@@ -46,7 +41,6 @@ export default function Footer() {
           </div>
 
           <FooterLinkGroup title="Platform" links={platformLinks} />
-          <FooterLinkGroup title="Bilgi Merkezi" links={knowledgeLinks} />
           <FooterLinkGroup title="Yasal ve İletişim" links={legalLinks} />
         </div>
 

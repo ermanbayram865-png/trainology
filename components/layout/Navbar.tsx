@@ -11,10 +11,8 @@ import CTAButton from "@/components/ui/CTAButton";
 
 const menuItems = [
   { title: "Ana Sayfa", href: "/" },
-  { title: "Hesaplayıcılar", href: "/calculators" },
-  { title: "Hareket Kütüphanesi", href: "/movements" },
-  { title: "Science", href: "/articles" },
-  { title: "Supplementler", href: "/supplements" },
+  { title: "Hareketler", href: "/movements" },
+  { title: "Araçlar", href: "/calculators" },
   { title: "Hakkımızda", href: "/about" },
 ];
 

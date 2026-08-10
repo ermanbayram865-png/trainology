@@ -1,4 +1,4 @@
-import { Dumbbell, FlaskConical, Sigma } from "lucide-react";
+import { Dumbbell, Sigma } from "lucide-react";
 
 import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
@@ -16,12 +16,6 @@ const values = [
     icon: <Dumbbell aria-hidden="true" />,
     href: "/movements",
   },
-  {
-    title: "Supplement Bilimi",
-    description: "Takviyeleri kanıt düzeyine göre değerlendir.",
-    icon: <FlaskConical aria-hidden="true" />,
-    href: "/supplements",
-  },
 ];
 
 export default function ValueProposition() {
@@ -29,9 +23,9 @@ export default function ValueProposition() {
     <Section
       title="Fitness hedeflerin için bilimsel araçlar ve güvenilir bilgiler."
       subtitle="TRAINOLOGY PLATFORMU"
-      description="Karar vermeyi kolaylaştıran, birbirini tamamlayan araçlar ve içerikler."
+      description="Karar vermeyi kolaylaştıran, birbirini tamamlayan araçlar."
     >
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {values.map((value) => (
           <Card key={value.title} {...value} variant="subtle" />
         ))}

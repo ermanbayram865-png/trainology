@@ -1,6 +1,5 @@
 import Image from "next/image";
 
-import FavoriteButton from "@/components/movements/FavoriteButton";
 import MovementBreadcrumbs from "@/components/movements/MovementBreadcrumbs";
 import MovementDifficulty from "@/components/movements/MovementDifficulty";
 import MovementShareActions from "@/components/movements/MovementShareActions";
@@ -44,7 +43,6 @@ export default function MovementDetailHero({ movement }: MovementDetailHeroProps
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <FavoriteButton slug={movement.slug} />
               <MovementShareActions url={absoluteUrl(`/movements/${movement.slug}`)} />
             </div>
           </div>

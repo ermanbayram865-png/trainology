@@ -15,12 +15,12 @@ export default function AboutPage() {
         <PageHeader
           badge="Hakkımızda"
           title="Trainology"
-          description="Bilimsel araştırmaları herkesin anlayabileceği şekilde sunan yeni nesil fitness platformu."
+          description="Bilimsel ilkeleri anlaşılır ve uygulanabilir fitness araçlarına dönüştüren yeni nesil platform."
         />
 
         <Card
           title="Bilimsel yaklaşım"
-          description="Kanıta dayalı içerikleri, güvenilir kaynakları ve anlaşılır rehberleri bir araya getiriyoruz."
+          description="Kanıta dayalı yöntemleri, güvenilir hesaplama yaklaşımlarını ve anlaşılır hareket bilgilerini bir araya getiriyoruz."
           variant="subtle"
           className="max-w-2xl"
         />

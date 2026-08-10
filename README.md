@@ -41,4 +41,10 @@ To learn more about Next.js, take a look at the following resources:
 
 ## Production Deployment
 
-This repository does not currently define an automated production deployment target. Configure and document the selected hosting environment before deploying.
+The application is exported as a fully static site. Create the production output with:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://trainology.com.tr npm run build
+```
+
+Next.js writes the deployable HTML, CSS, JavaScript, and assets to `out/`. Publish the contents of that directory to the web root of any static host. A persistent Node.js process and `server.js` are not required.

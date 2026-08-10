@@ -2,7 +2,6 @@ import Image from "next/image";
 
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
-import FavoriteButton from "@/components/movements/FavoriteButton";
 import MovementDifficulty from "@/components/movements/MovementDifficulty";
 import { getMovementType } from "@/lib/movements/discovery";
 import type { Difficulty, Equipment, MuscleGroup } from "@/lib/movements/types";
@@ -33,7 +32,6 @@ export default function MovementCard({
   const movementType = getMovementType({ slug, tags });
   return (
     <div className="relative h-full">
-      <FavoriteButton slug={slug} className="absolute right-4 top-4 z-10" />
       <Card
       title={title}
       description={description}
