@@ -1,3 +1,11 @@
+import {
+  calculateMifflinStJeorRmr,
+  calculateTargetScenario,
+  evaluateEnergyLab,
+  getFatLossPolicy,
+  type ActivityProfile,
+} from "@/lib/energy-lab";
+
 import type { ActivityLevel, CalorieGender, Goal } from "./types";
 
 type CalorieRange = {
@@ -5,6 +13,10 @@ type CalorieRange = {
   max: number;
 };
 
+/**
+ * Compatibility shape for the legacy Health Snapshot module.
+ * All energy values now come from the single Energy Lab/NASEM engine.
+ */
 export type CalorieRequirement = {
   bmr: number;
   tdee: number;
@@ -13,12 +25,12 @@ export type CalorieRequirement = {
   recommendedCalories: number;
 };
 
-const activityMultipliers: Record<ActivityLevel, number> = {
-  sedentary: 1.2,
-  light: 1.375,
-  moderate: 1.55,
-  active: 1.725,
-  veryActive: 1.9,
+const activityProfileMap: Record<ActivityLevel, ActivityProfile> = {
+  sedentary: "inactive",
+  light: "lowActive",
+  moderate: "active",
+  active: "veryActive",
+  veryActive: "veryActive",
 };
 
 export function calculateMifflinStJeorBmr({
@@ -32,9 +44,14 @@ export function calculateMifflinStJeorBmr({
   height: number;
   weight: number;
 }): number {
-  const genderAdjustment = gender === "male" ? 5 : -161;
-
-  return Math.round(10 * weight + 6.25 * height - 5 * age + genderAdjustment);
+  return Math.round(
+    calculateMifflinStJeorRmr({
+      sex: gender,
+      age,
+      heightCm: height,
+      weightKg: weight,
+    }),
+  );
 }
 
 export function calculateCalorieRequirement({
@@ -52,16 +69,52 @@ export function calculateCalorieRequirement({
   activityLevel: ActivityLevel;
   goal: Goal;
 }): CalorieRequirement {
-  const bmr = calculateMifflinStJeorBmr({ gender, age, height, weight });
-  const tdee = Math.round(bmr * activityMultipliers[activityLevel]);
-  const fatLoss = { min: tdee - 500, max: tdee - 300 };
-  const muscleGain = { min: tdee + 200, max: tdee + 400 };
-  const recommendedCalories =
-    goal === "lose"
-      ? Math.round((fatLoss.min + fatLoss.max) / 2)
-      : goal === "gain"
-        ? Math.round((muscleGain.min + muscleGain.max) / 2)
-        : tdee;
+  const evaluation = evaluateEnergyLab({
+    age,
+    sex: gender,
+    heightCm: height,
+    weightKg: weight,
+    activityProfiles: [activityProfileMap[activityLevel]],
+    performancePriority: false,
+    safetyFlags: [],
+  });
 
-  return { bmr, tdee, fatLoss, muscleGain, recommendedCalories };
+  if (evaluation.status !== "ready") {
+    throw new RangeError(
+      "Bu girdi Energy Lab yetişkin genel kullanıcı kapsamı dışında; sayısal enerji hedefi üretilmedi.",
+    );
+  }
+
+  const policy = getFatLossPolicy(
+    evaluation.bmi,
+    false,
+    evaluation.scope.fatLossAllowed,
+  );
+  const defaultLossRate = policy.defaultRate ?? 0.1;
+  const lossScenario = calculateTargetScenario({
+    evaluation,
+    selection: { goal: "lose", rate: defaultLossRate },
+    performancePriority: false,
+  });
+  const gainScenario = calculateTargetScenario({
+    evaluation,
+    selection: { goal: "gain", mode: "smallSurplus" },
+    performancePriority: false,
+  });
+
+  const maintenance = evaluation.maintenance.displayMin;
+  const lossTarget =
+    lossScenario.status === "available" ? lossScenario.displayMin : maintenance;
+  const gainTarget =
+    gainScenario.status === "available" ? gainScenario.displayMin : maintenance;
+  const recommendedCalories =
+    goal === "lose" ? lossTarget : goal === "gain" ? gainTarget : maintenance;
+
+  return {
+    bmr: Math.round(evaluation.mifflinRmr),
+    tdee: maintenance,
+    fatLoss: { min: lossTarget, max: lossTarget },
+    muscleGain: { min: maintenance, max: gainTarget },
+    recommendedCalories,
+  };
 }

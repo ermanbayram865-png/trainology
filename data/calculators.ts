@@ -6,8 +6,8 @@ export const calculators = [
   },
   {
     slug: "calorie",
-    title: "Kalori Hesaplayıcı",
-    description: "Günlük kalori ihtiyacını hesapla.",
+    title: "Kalori Hedefi Simülatörü / Energy Lab",
+    description: "Bakım enerjisi ve kontrollü kalori hedefi için bir başlangıç tahmini oluştur.",
   },
   {
     slug: "bmi",

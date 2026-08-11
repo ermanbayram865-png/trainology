@@ -63,12 +63,12 @@ export default function HealthyWeightCalculatorPage() {
 
   return (
     <CalculatorLayout
-      title="Sağlıklı Ağırlık Aralığı Hesaplayıcı"
+      title="BMI ve Ağırlık Aralığı"
       seoPath="/calculators/healthy-weight"
-      description="Boyuna göre tahmini sağlıklı ağırlık aralığını genel bir referans olarak incele."
+      description="Boyuna göre BMI temelli genel ağırlık referans aralığını incele."
       info={
         <p>
-          Bu araç tek bir “ideal kilo” önermez. Sonuç, boy uzunluğuna göre genel BMI referans aralığından türetilir.
+          Bu araç tek bir hedef kilo önermez. Sonuç, boy uzunluğuna göre genel BMI referans aralığından türetilir.
         </p>
       }
       disclaimer="Bu değer genel bir referanstır. Vücut kompozisyonu, kas kütlesi, yaş, cinsiyet ve bireysel hedefler sonucu değiştirebilir."
@@ -93,11 +93,11 @@ export default function HealthyWeightCalculatorPage() {
 
         {result ? (
           <CalculatorResultCard
-            title="Tahmini Sağlıklı Ağırlık Aralığın"
-            description={`${values.height} cm boy için genel bir referans aralığı.`}
+            title="BMI Referansına Göre Ağırlık Aralığın"
+            description={`${values.height} cm boy için BMI temelli genel bir referans aralığı.`}
             results={[
               {
-                title: "Tahmini sağlıklı ağırlık aralığı",
+                title: "BMI ve ağırlık aralığı",
                 value: `${result.minimumWeight}–${result.maximumWeight}`,
                 unit: "kg",
                 color: "gold",

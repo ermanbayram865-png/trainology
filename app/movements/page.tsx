@@ -12,6 +12,7 @@ import Section from "@/components/ui/Section";
 import { movements } from "@/data/movements/movements";
 import { searchMovements } from "@/lib/movements/discovery";
 import type { MovementFilters } from "@/lib/movements/types";
+import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 const libraryFeatures = [
   {
@@ -73,6 +74,14 @@ export default function MovementsPage() {
         )}
 
         <FeatureGrid items={libraryFeatures} columns={3} />
+
+        <Card
+          title="Antrenmanını enerji hedefinle destekle"
+          description="Trainology Energy Lab ile günlük enerji ihtiyacın ve hedefin için kontrollü bir başlangıç tahmini oluştur."
+          variant="gold"
+        >
+          <CTAButton href={ENERGY_LAB_PATH}>Energy Lab’i Aç</CTAButton>
+        </Card>
       </Section>
     </main>
   );

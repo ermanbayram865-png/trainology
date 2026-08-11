@@ -2,11 +2,11 @@ import Image from "next/image";
 
 const tools = [
   {
-    title: "Kalori Hesapla",
+    title: "Kalori Hedefi Simülatörü",
     description:
-      "Günlük kalori ihtiyacını ve hedeflerine uygun enerji dengesini hesapla.",
+      "Trainology Energy Lab ile bakım enerjisi ve kontrollü kalori hedefi için bir başlangıç tahmini oluştur.",
     image: "/images/tools/calculator-v2.png",
-    button: "Hesaplamaya Başla",
+    button: "Energy Lab’i Aç",
   },
   {
     title: "Protein İhtiyacını Öğren",

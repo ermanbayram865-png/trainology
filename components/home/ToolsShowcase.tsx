@@ -3,17 +3,18 @@ import { Calculator, ChartBar, Scale } from "lucide-react";
 import Card from "@/components/ui/Card";
 import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
+import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 const tools = [
   {
-    title: "Kalori Hesaplayıcı",
+    title: "Kalori Hedefi Simülatörü",
     description:
-      "Günlük enerji ihtiyacını ve hedeflerine uygun kalori seviyeni belirle.",
+      "Energy Lab ile bakım enerjisi ve kontrollü kalori hedefi için bir başlangıç tahmini oluştur.",
     icon: <Calculator size={30} strokeWidth={1.5} />,
-    href: "/calculators/calorie",
+    href: ENERGY_LAB_PATH,
   },
   {
-    title: "Makro Hesaplayıcı",
+    title: "Makro Planlayıcı",
     description:
       "Protein, karbonhidrat ve yağ dağılımını hedeflerine göre planla.",
     icon: <Scale size={30} strokeWidth={1.5} />,

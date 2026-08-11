@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Makro Hesaplayıcı",
-  description: "Günlük kalori hedefi, aktivite ve hedefe göre makro dağılımı için genel bir öneri alın.",
+  title: "Makro Planlayıcı",
+  description:
+    "Günlük kalori hedefi, vücut ağırlığı, aktivite ve hedefe göre protein, karbonhidrat ve yağ dağılımı planlayın.",
   alternates: { canonical: "/calculators/macro" },
 };
 

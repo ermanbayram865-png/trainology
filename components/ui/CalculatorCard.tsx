@@ -3,24 +3,31 @@ import type { ReactNode } from "react";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 
-export type CalculatorCardStatus = "active" | "comingSoon" | "new";
+export type CalculatorCardBadge =
+  | "ENERGY LAB 2.0"
+  | "ENERGY LAB İLE BAĞLANTILI"
+  | "HIZLI HESAPLAMA"
+  | "GELİŞMİŞ ANALİZ"
+  | "YENİ";
 
 type CalculatorCardProps = {
   title: ReactNode;
   description: ReactNode;
   icon?: ReactNode;
   category: ReactNode;
-  status: CalculatorCardStatus;
+  badge: CalculatorCardBadge;
   href?: string;
   onClick?: () => void;
   className?: string;
   compact?: boolean;
 };
 
-const statusLabels: Record<CalculatorCardStatus, string> = {
-  active: "ACTIVE",
-  comingSoon: "COMING SOON",
-  new: "NEW",
+const badgeVariants: Record<CalculatorCardBadge, "gold" | "neutral"> = {
+  "ENERGY LAB 2.0": "gold",
+  "ENERGY LAB İLE BAĞLANTILI": "gold",
+  "HIZLI HESAPLAMA": "neutral",
+  "GELİŞMİŞ ANALİZ": "neutral",
+  YENİ: "gold",
 };
 
 export default function CalculatorCard({
@@ -28,7 +35,7 @@ export default function CalculatorCard({
   description,
   icon,
   category,
-  status,
+  badge,
   href,
   onClick,
   className,
@@ -54,20 +61,12 @@ export default function CalculatorCard({
       onClick={onClick}
       className={`h-full ${compact ? "!p-5 sm:!p-6" : ""} ${className ?? ""}`}
     >
-      <div className={`flex items-center justify-between gap-4 border-t border-white/5 ${compact ? "pt-4" : "pt-5"}`}>
+      <div className={`flex flex-wrap items-center justify-between gap-3 border-t border-white/5 ${compact ? "pt-4" : "pt-5"}`}>
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
           {category}
         </span>
-        <Badge
-          variant={
-            status === "active"
-              ? "success"
-              : status === "new"
-                ? "gold"
-                : "neutral"
-          }
-        >
-          {statusLabels[status]}
+        <Badge variant={badgeVariants[badge]} className="max-w-full text-center">
+          {badge}
         </Badge>
       </div>
     </Card>

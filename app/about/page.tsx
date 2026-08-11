@@ -15,6 +15,7 @@ import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
+import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: { absolute: "Hakkımızda | Trainology" },
@@ -56,18 +57,18 @@ const platformFeatures = [
   {
     title: "Hesaplama Araçları",
     description:
-      "Kalori, protein, makro, su, FFMI, sağlıklı ağırlık ve 1RM gibi ölçümleri pratik biçimde değerlendirmeye yardımcı olan araçlar.",
+      "Energy Lab, protein, makro, su, FFMI, BMI ve 1RM gibi ölçümleri pratik biçimde değerlendirmeye yardımcı olan araçlar.",
     icon: <Calculator aria-hidden="true" />,
     cta: "Araçları Keşfet",
     href: "/calculators",
   },
   {
-    title: "Analiz Araçları",
+    title: "Trainology Energy Lab",
     description:
-      "Antrenman verilerini daha anlamlı hâle getirmeye ve performansı sistemli biçimde değerlendirmeye yardımcı olan analiz deneyimleri.",
+      "Günlük enerji ihtiyacın ve hedefin için kontrollü bir başlangıç tahmini oluşturup ağırlık trendinle değerlendirmene yardımcı olur.",
     icon: <BarChart3 aria-hidden="true" />,
-    cta: "Analize Başla",
-    href: "/analysis",
+    cta: "Ücretsiz Analize Başla",
+    href: ENERGY_LAB_PATH,
   },
 ] as const;
 

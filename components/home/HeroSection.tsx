@@ -4,6 +4,7 @@ import Image from "next/image";
 import Badge from "@/components/ui/Badge";
 import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
+import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 export default function HeroSection() {
   return (
@@ -30,7 +31,7 @@ export default function HeroSection() {
         </p>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
-          <CTAButton href="/analysis" className="w-full sm:w-auto">
+          <CTAButton href={ENERGY_LAB_PATH} className="w-full sm:w-auto">
             Ücretsiz Analizini Başlat <ArrowRight aria-hidden="true" className="ml-2 size-4" />
           </CTAButton>
           <CTAButton href="/calculators" variant="secondary" className="w-full sm:w-auto">

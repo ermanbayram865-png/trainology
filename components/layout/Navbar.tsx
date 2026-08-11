@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import Container from "@/components/ui/Container";
 import CTAButton from "@/components/ui/CTAButton";
+import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 const menuItems = [
   { title: "Ana Sayfa", href: "/" },
@@ -72,7 +73,7 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden xl:block">
-            <CTAButton href="/analysis">Ücretsiz Analiz</CTAButton>
+            <CTAButton href={ENERGY_LAB_PATH}>Ücretsiz Analiz</CTAButton>
           </div>
 
           <button
@@ -110,7 +111,7 @@ export default function Navbar() {
               })}
 
               <div onClick={() => setIsMenuOpen(false)}>
-                <CTAButton href="/analysis">Ücretsiz Analiz</CTAButton>
+                <CTAButton href={ENERGY_LAB_PATH}>Ücretsiz Analiz</CTAButton>
               </div>
             </div>
           </nav>

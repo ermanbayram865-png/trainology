@@ -1,260 +1,110 @@
-"use client";
+import { ArrowDown, FlaskConical, Gauge, LineChart, SlidersHorizontal } from "lucide-react";
+import Image from "next/image";
 
-import { useState } from "react";
+import EnergyLabExperience from "@/components/energy-lab/EnergyLabExperience";
+import EnergyLabMethodology from "@/components/energy-lab/EnergyLabMethodology";
 
-import CalculatorForm from "@/components/calculators/CalculatorForm";
-import CalculatorLayout from "@/components/calculators/CalculatorLayout";
-import CalculatorResultCard from "@/components/calculators/CalculatorResultCard";
-import CalculatorSection from "@/components/calculators/CalculatorSection";
-import CTAButton from "@/components/ui/CTAButton";
-import {
-  calculateCalorieRequirement,
-  CALORIE_ACTIVITY_LEVELS,
-  CALORIE_GENDERS,
-  CALORIE_GOALS,
-  DEFAULT_CALORIE_ACTIVITY_LEVEL,
-  DEFAULT_CALORIE_GENDER,
-  DEFAULT_CALORIE_GOAL,
-  validateCalculatorField,
-  type ActivityLevel,
-  type CalculatorField,
-  type CalculatorFormValues,
-  type CalculatorValidationErrors,
-  type CalorieGender,
-  type CalorieRequirement,
-  type Goal,
-} from "@/lib/calculators";
+const processSteps = [
+  { icon: Gauge, label: "Başlangıç tahmini" },
+  { icon: SlidersHorizontal, label: "Aktivite belirsizliği" },
+  { icon: FlaskConical, label: "Kontrollü hedef" },
+  { icon: LineChart, label: "Trend kalibrasyonu" },
+] as const;
 
-const calorieFields: readonly CalculatorField[] = [
-  {
-    name: "gender",
-    label: "Cinsiyet",
-    type: "radio",
-    options: CALORIE_GENDERS,
-    required: true,
-  },
-  {
-    name: "age",
-    label: "Yaş",
-    type: "number",
-    unit: "yıl",
-    placeholder: "Örneğin 30",
-    required: true,
-    min: 15,
-    max: 100,
-    step: 1,
-  },
-  {
-    name: "height",
-    label: "Boy",
-    type: "number",
-    unit: "cm",
-    placeholder: "Örneğin 175",
-    required: true,
-    min: 100,
-    max: 250,
-    step: 1,
-  },
-  {
-    name: "weight",
-    label: "Kilo",
-    type: "number",
-    unit: "kg",
-    placeholder: "Örneğin 70",
-    required: true,
-    min: 30,
-    max: 300,
-    step: 0.1,
-  },
-  {
-    name: "activityLevel",
-    label: "Aktivite seviyesi",
-    type: "select",
-    options: CALORIE_ACTIVITY_LEVELS,
-    required: true,
-  },
-  {
-    name: "goal",
-    label: "Hedefin",
-    type: "radio",
-    options: CALORIE_GOALS,
-    required: true,
-  },
-];
-
-const initialValues: CalculatorFormValues = {
-  gender: DEFAULT_CALORIE_GENDER,
-  age: "",
-  height: "",
-  weight: "",
-  activityLevel: DEFAULT_CALORIE_ACTIVITY_LEVEL,
-  goal: DEFAULT_CALORIE_GOAL,
-};
-
-function getOptionLabel(
-  options: readonly { label: string; value: string }[],
-  value: string,
-) {
-  return options.find((option) => option.value === value)?.label ?? value;
-}
-
-export default function CalorieCalculatorPage() {
-  const [values, setValues] = useState<CalculatorFormValues>(initialValues);
-  const [errors, setErrors] = useState<CalculatorValidationErrors>({});
-  const [result, setResult] = useState<CalorieRequirement | null>(null);
-
-  function handleFieldChange(name: string, value: CalculatorFormValues[string]) {
-    setValues((currentValues) => ({ ...currentValues, [name]: value }));
-    setErrors((currentErrors) => ({ ...currentErrors, [name]: undefined }));
-    setResult(null);
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const nextErrors: CalculatorValidationErrors = {};
-
-    for (const field of calorieFields) {
-      const error = validateCalculatorField(field, values[field.name]);
-
-      if (error) {
-        nextErrors[field.name] = error;
-      }
-    }
-
-    setErrors(nextErrors);
-
-    if (Object.keys(nextErrors).length > 0) {
-      return;
-    }
-
-    setResult(
-      calculateCalorieRequirement({
-        gender: values.gender as CalorieGender,
-        age: Number(values.age),
-        height: Number(values.height),
-        weight: Number(values.weight),
-        activityLevel: values.activityLevel as ActivityLevel,
-        goal: values.goal as Goal,
-      }),
-    );
-  }
-
-  const selectedGoal = getOptionLabel(CALORIE_GOALS, String(values.goal));
-
+export default function EnergyLabPage() {
   return (
-    <CalculatorLayout
-      title="Kalori Hesaplayıcı"
-      seoPath="/calculators/calorie"
-      description="Mifflin–St Jeor denklemi ve aktivite seviyene göre günlük enerji ihtiyacını analiz et."
-      info={
-        <>
-          <p>
-            BMR, vücudunun tam dinlenme halindeyken temel işlevleri için harcadığı tahmini enerjidir.
-          </p>
-          <p className="mt-3">
-            TDEE, BMR değerinin günlük aktivite düzeyinle birlikte değerlendirilmiş halidir. Kalori dengesi, kilo koruma, yağ kaybı ve kas kazanımı hedeflerini etkiler.
-          </p>
-        </>
-      }
-      references={
-        <ul className="list-disc space-y-2 pl-5">
-          <li>
-            <a
-              href="https://pubmed.ncbi.nlm.nih.gov/2305711/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#C9A14A] underline-offset-4 hover:underline"
-            >
-              Mifflin MD et al. — A new predictive equation for resting energy expenditure in healthy individuals
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://acsm.org/education-resources/pronouncements-scientific-communications/position-stands/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#C9A14A] underline-offset-4 hover:underline"
-            >
-              American College of Sports Medicine (ACSM) — Position Stands
-            </a>
-          </li>
-        </ul>
-      }
-      disclaimer="Bu hesaplama genel bilimsel denklemler temel alınarak hazırlanmıştır. Bireysel metabolizma, sağlık durumu ve yaşam koşulları farklılık gösterebilir."
-    >
-      <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
-        <CalculatorSection
-          title="Bilgilerin"
-          description="Enerji ihtiyacını tahmin etmek için aşağıdaki alanları doldur."
-        >
-          <CalculatorForm
-            fields={calorieFields}
-            values={values}
-            errors={errors}
-            onChange={handleFieldChange}
-            onSubmit={handleSubmit}
-          >
-            <CTAButton type="submit" className="w-full">
-              Günlük Enerji İhtiyacını Hesapla
-            </CTAButton>
-          </CalculatorForm>
-        </CalculatorSection>
+    <main className="overflow-x-hidden bg-[#f4f1e9]">
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#071523] px-6 py-16 text-white sm:py-20 lg:py-24">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(208,175,105,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(208,175,105,.055)_1px,transparent_1px)] [background-size:56px_56px]"
+        />
+        <div aria-hidden="true" className="absolute -right-48 -top-48 size-[32rem] rounded-full border border-[#d0af69]/10" />
+        <div aria-hidden="true" className="absolute -right-24 -top-24 size-80 rounded-full border border-[#d0af69]/10" />
 
-        {result ? (
-          <CalculatorResultCard
-            title="Enerji Analizin"
-            description="Öneriler, seçtiğin hedef ve aktivite seviyesine göre oluşturuldu."
-            results={[
-              {
-                title: "Günlük Enerji İhtiyacın",
-                value: result.recommendedCalories,
-                unit: "kcal / gün",
-                color: "gold",
-                explanation: `${selectedGoal} hedefin için günlük öneri.`,
-              },
-              {
-                title: "Bazal Metabolizma (BMR)",
-                value: result.bmr,
-                unit: "kcal / gün",
-                color: "neutral",
-                explanation: "Tam dinlenme halindeki tahmini enerji harcaman.",
-              },
-              {
-                title: "Günlük Kalori İhtiyacı (TDEE)",
-                value: result.tdee,
-                unit: "kcal / gün",
-                color: "success",
-                explanation: "Aktivite düzeyin dahil tahmini günlük enerji ihtiyacın.",
-              },
-              {
-                title: "Yağ Kaybı Kalorisi",
-                value: `${result.fatLoss.min}–${result.fatLoss.max}`,
-                unit: "kcal / gün",
-                color: "warning",
-                explanation: "TDEE değerinden günlük 300–500 kcal daha düşük aralık.",
-              },
-              {
-                title: "Kas Kazanımı Kalorisi",
-                value: `${result.muscleGain.min}–${result.muscleGain.max}`,
-                unit: "kcal / gün",
-                color: "success",
-                explanation: "TDEE değerine günlük 200–400 kcal eklenen aralık.",
-              },
-            ]}
-          />
-        ) : (
-          <CalculatorSection
-            title="Enerji Analizin"
-            description="Bilgilerini girip hesapla butonuna bastığında BMR, TDEE ve hedef aralıkların burada görünecek."
-            className="min-h-full"
-          >
-            <p className="text-sm leading-6 text-neutral-500">
-              Sonuçlar; cinsiyet, yaş, boy, kilo, aktivite seviyesi ve hedef seçimine göre oluşturulur.
+        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,.9fr)] lg:items-center">
+          <div>
+            <div className="flex items-center gap-4">
+              <span className="inline-flex rounded-full border border-[#d0af69]/30 bg-[#d0af69]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ead5a8]">
+                Trainology Energy Lab 2.0
+              </span>
+              <span aria-hidden="true" className="hidden h-px w-20 bg-[#d0af69]/35 sm:block" />
+            </div>
+
+            <h1 className="mt-7 max-w-5xl text-[clamp(3rem,6.4vw,6.4rem)] font-semibold leading-[.93] tracking-[-0.06em]">
+              Kalori Hedefi
+              <span className="block text-[#d0af69]">Simülatörü</span>
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300 sm:text-xl sm:leading-9">
+              Enerji ihtiyacını tahmin et, hedefini seç ve gerçek ağırlık trendinle değerlendir.
             </p>
-          </CalculatorSection>
-        )}
-      </div>
-    </CalculatorLayout>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
+              NASEM 2023 yetişkin enerji denklemleriyle oluşturulan sakin bir başlangıç tahmini.
+              Kesin reçete, metabolizma ölçümü veya garantili kilo değişimi değildir.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <a
+                href="#simulator"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#d0af69] bg-[#d0af69] px-6 py-3 text-sm font-bold text-[#071523] transition hover:-translate-y-0.5 hover:bg-[#dfc17e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white motion-reduce:transform-none"
+              >
+                Simülasyonu başlat
+                <ArrowDown aria-hidden="true" className="size-4" />
+              </a>
+              <a
+                href="#nasil-hesaplandi"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/15 px-6 py-3 text-sm font-bold text-slate-200 transition hover:border-[#d0af69]/50 hover:text-[#ead5a8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d0af69]"
+              >
+                Nasıl hesaplandığını gör
+              </a>
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-xl">
+            <div className="relative overflow-hidden rounded-[2rem] border border-[#d0af69]/25 bg-white/[.035] p-6 shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:p-8">
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d0af69]">
+                    Energy protocol
+                  </p>
+                  <p className="mt-2 text-sm text-slate-400">Estimate → observe → calibrate</p>
+                </div>
+                <Image
+                  src="/images/logo.png"
+                  alt="Trainology Gold Monogram"
+                  width={64}
+                  height={64}
+                  priority
+                  className="size-14 object-contain sm:size-16"
+                />
+              </div>
+
+              <ol className="mt-6 space-y-3">
+                {processSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <li
+                      key={step.label}
+                      className="flex items-center gap-4 rounded-2xl border border-white/10 bg-black/10 p-4"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#d0af69]/25 bg-[#d0af69]/10 text-[#d0af69]">
+                        <Icon aria-hidden="true" className="size-4" />
+                      </span>
+                      <span className="flex-1 text-sm font-semibold text-slate-200">{step.label}</span>
+                      <span className="font-mono text-xs text-slate-600">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <EnergyLabExperience />
+      <EnergyLabMethodology />
+    </main>
   );
 }

@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import CTAButton from "@/components/ui/CTAButton";
 import Section from "@/components/ui/Section";
+import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 export default function FinalCTA() {
   return (
@@ -26,7 +27,7 @@ export default function FinalCTA() {
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-5 sm:flex-row">
-            <CTAButton href="/analysis" className="w-full sm:w-auto">
+            <CTAButton href={ENERGY_LAB_PATH} className="w-full sm:w-auto">
               Ücretsiz Analizini Başlat
               <ArrowRight aria-hidden="true" className="ml-2 size-4" />
             </CTAButton>

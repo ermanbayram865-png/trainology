@@ -17,8 +17,9 @@ export default function CerezVeYerelDepolamaPolitikasiPage() {
       </LegalSection>
 
       <LegalSection title="2. LocalStorage kullanımı">
-        <p>LocalStorage klasik bir HTTP çerezi değildir; tercihlerin aynı cihaz ve tarayıcıda hatırlanmasını sağlayan yerel bir tarayıcı depolama alanıdır.</p>
-        <p>Trainology’nin mevcut sürümü uygulama işlevleri için localStorage alanında kayıt oluşturmaz.</p>
+        <p>LocalStorage klasik bir HTTP çerezi değildir; bilgilerin aynı cihaz ve tarayıcıda saklanmasını sağlayan yerel bir tarayıcı depolama alanıdır.</p>
+        <p>Trainology Energy Lab, Ağırlık Trendi Kalibrasyonu bölümüne isteğinizle eklediğiniz tarih, günlük vücut ağırlığı, isteğe bağlı döngü notu ve kısa kişisel notu yalnızca bu cihazdaki localStorage alanında saklar.</p>
+        <p>Bu kayıtlar Trainology sunucusuna veya bir analytics servisine gönderilmez. Kayıtları tek tek silebilir ya da Energy Lab içinden tüm kalibrasyon verisini onay vererek temizleyebilirsiniz. Tarayıcı verilerini temizlemek de cihazdaki kayıtları kaldırır.</p>
       </LegalSection>
 
       <LegalSection title="3. Gelecekteki değişiklikler">

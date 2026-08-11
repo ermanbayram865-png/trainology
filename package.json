@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint",
+    "test": "tsx --test tests/**/*.test.ts",
+    "typecheck": "tsc --noEmit",
     "trainology": "node trainology-cli/index.js"
   },
   "dependencies": {
