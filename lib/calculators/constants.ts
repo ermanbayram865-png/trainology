@@ -6,8 +6,8 @@ import type {
   Goal,
   MacroActivityLevel,
   MacroProteinPreference,
-  ProteinActivityLevel,
   ProteinGoal,
+  ProteinTrainingProfile,
 } from "./types";
 
 export const ACTIVITY_LEVELS: readonly CalculatorOption[] = [
@@ -68,23 +68,30 @@ export const ONE_REP_MAX_EXERCISES: readonly CalculatorOption[] = [
   { label: "Diğer", value: "other" },
 ] as const;
 
-export const PROTEIN_ACTIVITY_LEVELS: readonly CalculatorOption[] = [
-  { label: "Düşük aktif", value: "low" },
-  { label: "Orta aktif", value: "moderate" },
-  { label: "Aktif", value: "active" },
-  { label: "Çok aktif", value: "veryActive" },
+export const PROTEIN_TRAINING_PROFILES: readonly CalculatorOption[] = [
+  { label: "Düzenli egzersiz yapmıyorum", value: "none" },
+  { label: "Düzenli egzersiz yapıyorum", value: "regular_exercise" },
+  {
+    label: "Direnç / hipertrofi antrenmanı yapıyorum",
+    value: "resistance_hypertrophy",
+  },
 ] as const;
 
-export const WATER_ACTIVITY_LEVELS: readonly CalculatorOption[] = [
-  { label: "Düşük", value: "low" },
-  { label: "Orta", value: "moderate" },
-  { label: "Yüksek", value: "high" },
+export const EFSA_ADULT_REFERENCE_CATEGORIES: readonly CalculatorOption[] = [
+  { label: "Kadın yetişkin referansı", value: "adult_female_reference" },
+  { label: "Erkek yetişkin referansı", value: "adult_male_reference" },
 ] as const;
 
 export const PROTEIN_GOALS: readonly CalculatorOption[] = [
-  { label: "Genel sağlık", value: "generalHealth" },
-  { label: "Kas kazanımı", value: "muscleGain" },
-  { label: "Yağ kaybı", value: "fatLoss" },
+  { label: "Genel sağlık", value: "general_health" },
+  { label: "Kilo koruma", value: "maintenance" },
+  { label: "Kas kazanımı", value: "muscle_gain" },
+  { label: "Yağ kaybı", value: "fat_loss" },
+] as const;
+
+export const SCOPE_RISK_OPTIONS: readonly CalculatorOption[] = [
+  { label: "Hayır", value: "false" },
+  { label: "Evet", value: "true" },
 ] as const;
 
 export const DEFAULT_ACTIVITY_LEVEL: ActivityLevel = "moderate";
@@ -95,8 +102,8 @@ export const DEFAULT_CALORIE_ACTIVITY_LEVEL: ActivityLevel = "moderate";
 export const DEFAULT_CALORIE_GOAL: Goal = "maintain";
 export const DEFAULT_MACRO_PROTEIN_PREFERENCE: MacroProteinPreference = "standard";
 export const DEFAULT_MACRO_ACTIVITY_LEVEL: MacroActivityLevel = "moderate";
-export const DEFAULT_PROTEIN_ACTIVITY_LEVEL: ProteinActivityLevel = "moderate";
-export const DEFAULT_PROTEIN_GOAL: ProteinGoal = "generalHealth";
+export const DEFAULT_PROTEIN_TRAINING_PROFILE: ProteinTrainingProfile | "" = "";
+export const DEFAULT_PROTEIN_GOAL: ProteinGoal | "" = "";
 
 export const CALCULATOR_LIMITS = {
   age: { min: 13, max: 120 },

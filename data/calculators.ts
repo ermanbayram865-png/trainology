@@ -1,8 +1,8 @@
 export const calculators = [
   {
     slug: "protein",
-    title: "Protein Hesaplayıcı",
-    description: "Günlük protein ihtiyacını hesapla.",
+    title: "Protein İhtiyacı",
+    description: "Yetişkin protein referansını ve pratik aralıkları incele.",
   },
   {
     slug: "calorie",
@@ -21,8 +21,8 @@ export const calculators = [
   },
   {
     slug: "water",
-    title: "Su İhtiyacı",
-    description: "Günlük su tüketimini hesapla.",
+    title: "Su Alımı Referansı",
+    description: "EFSA yetişkin toplam su alımı referansını incele.",
   },
   {
     slug: "body-fat",

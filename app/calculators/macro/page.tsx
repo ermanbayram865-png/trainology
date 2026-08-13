@@ -46,7 +46,7 @@ const macroFields: readonly CalculatorField[] = [
     unit: "kg",
     placeholder: "Örneğin 70",
     helperText:
-      "Protein önerisi, Protein Hesaplayıcı ile aynı kilo başına kuralları kullanır.",
+      "Makro Planlayıcının protein tahmini, seçtiğin hedef ve aktivite düzeyine göre değişir.",
     required: true,
     min: 25,
     max: 400,
@@ -204,7 +204,7 @@ export default function MacroCalculatorPage() {
             Makrolar protein, karbonhidrat ve yağdan oluşur. Protein doku onarımını destekler; karbonhidrat antrenman performansına enerji sağlar; yağlar hormon ve genel sağlık için gereklidir.
           </p>
           <p className="mt-3">
-            Protein miktarı, Protein Hesaplayıcı ile aynı kilo başına protein motorundan gelir. Yağ aktiviteye göre başlangıç payı olarak ayrılır; karbonhidrat kalan enerjiden hesaplanır.
+            Protein miktarı, Makro Planlayıcının kendi hedef ve aktivite tablosundan gelen bir başlangıç tahminidir. Yağ aktiviteye göre başlangıç payı olarak ayrılır; karbonhidrat kalan enerjiden hesaplanır.
           </p>
         </>
       }
@@ -273,7 +273,7 @@ export default function MacroCalculatorPage() {
         {result ? (
           <CalculatorResultCard
             title="Günlük Makro Dağılımın"
-            description="Protein önerisi ortak Protein Hesaplayıcı motorundan, diğer makrolar kalan enerji dağılımından oluşturulur."
+            description="Protein tahmini Makro Planlayıcının kendi hedef ve aktivite tablosundan, diğer makrolar kalan enerji dağılımından oluşturulur."
             results={[
               {
                 title: "Protein",
@@ -309,7 +309,7 @@ export default function MacroCalculatorPage() {
               },
               {
                 title: "Kullanılan Yaklaşım",
-                value: "Ortak protein motoru",
+                value: "Makro protein tablosu",
                 color: "neutral",
                 explanation: `${selectedGoal} hedefi ve ${selectedActivity.toLocaleLowerCase("tr-TR")} aktivite düzeyi dikkate alınır.`,
               },

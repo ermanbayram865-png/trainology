@@ -14,7 +14,7 @@ export type AnalysisInput = {
 };
 
 export type BodySummary = { bmi: number; bmiCategory: string; healthyWeightRange: { minimumWeight: number; maximumWeight: number } };
-export type NutritionSummary = { maintenanceCalories: number; targetCalories: number; targetRange?: { min: number; max: number }; dailyProtein: number; proteinPerKg: number; macro: { protein: number; carbohydrates: number; fat: number; proteinPercentage: number; carbohydratePercentage: number; fatPercentage: number }; water: { minimumLiters: number; maximumLiters: number } };
+export type NutritionSummary = { maintenanceCalories: number; targetCalories: number; targetRange?: { min: number; max: number }; dailyProtein: number; proteinPerKg: number; macro: { protein: number; carbohydrates: number; fat: number; proteinPercentage: number; carbohydratePercentage: number; fatPercentage: number } };
 export type ActivitySummary = { weeklyTrainingDays?: number; dailySteps?: number; message?: string };
 export type TargetSummary = { label: string; message: string };
 export type AnalysisResult = { body: BodySummary; nutrition: NutritionSummary; activity: ActivitySummary; target: TargetSummary };

@@ -58,5 +58,22 @@ export function validateCalculatorField(
     });
   }
 
-  return field.required ? validateRequired(value, field.label) : undefined;
+  const requiredError = field.required
+    ? validateRequired(value, field.label)
+    : undefined;
+
+  if (requiredError) {
+    return requiredError;
+  }
+
+  if (
+    typeof value === "string" &&
+    value !== "" &&
+    field.options &&
+    !field.options.some((option) => option.value === value)
+  ) {
+    return `${field.label} için geçerli bir seçim yap.`;
+  }
+
+  return undefined;
 }

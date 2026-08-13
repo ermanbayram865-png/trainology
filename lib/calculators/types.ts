@@ -11,11 +11,20 @@ export type ActivityLevel =
   | "active"
   | "veryActive";
 
-export type ProteinGoal = "generalHealth" | "muscleGain" | "fatLoss";
+export type ProteinGoal =
+  | "general_health"
+  | "maintenance"
+  | "muscle_gain"
+  | "fat_loss";
 
-export type ProteinActivityLevel = "low" | "moderate" | "active" | "veryActive";
+export type ProteinTrainingProfile =
+  | "none"
+  | "regular_exercise"
+  | "resistance_hypertrophy";
 
-export type WaterActivityLevel = "low" | "moderate" | "high";
+export type EfsaAdultReferenceCategory =
+  | "adult_female_reference"
+  | "adult_male_reference";
 
 export type MacroProteinPreference = "standard" | "highProtein";
 

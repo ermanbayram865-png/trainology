@@ -9,22 +9,33 @@ import CalculatorSection from "@/components/calculators/CalculatorSection";
 import CTAButton from "@/components/ui/CTAButton";
 import {
   calculateProteinRequirement,
-  DEFAULT_PROTEIN_ACTIVITY_LEVEL,
-  DEFAULT_PROTEIN_GOAL,
-  PROTEIN_ACTIVITY_LEVELS,
   PROTEIN_GOALS,
+  PROTEIN_TRAINING_PROFILES,
+  SCOPE_RISK_OPTIONS,
   validateCalculatorField,
   type CalculatorField,
   type CalculatorFormValues,
+  type CalculatorResult,
   type CalculatorValidationErrors,
-  type ProteinActivityLevel,
   type ProteinGoal,
   type ProteinRequirement,
+  type ProteinTrainingProfile,
 } from "@/lib/calculators";
 
 const proteinFields: readonly CalculatorField[] = [
   {
-    name: "weight",
+    name: "ageYears",
+    label: "Yaş",
+    type: "number",
+    unit: "yıl",
+    placeholder: "Örneğin 30",
+    required: true,
+    min: 0,
+    max: 120,
+    step: 1,
+  },
+  {
+    name: "weightKg",
     label: "Kilo",
     type: "number",
     unit: "kg",
@@ -36,32 +47,119 @@ const proteinFields: readonly CalculatorField[] = [
     step: 0.1,
   },
   {
-    name: "activityLevel",
-    label: "Aktivite seviyesi",
-    type: "select",
-    options: PROTEIN_ACTIVITY_LEVELS,
+    name: "trainingProfile",
+    label: "Antrenman profili",
+    type: "radio",
+    options: PROTEIN_TRAINING_PROFILES,
     required: true,
   },
   {
     name: "goal",
-    label: "Hedefin",
-    type: "radio",
+    label: "Hedef (isteğe bağlı)",
+    type: "select",
+    helperText: "Hedef seçimi tek başına protein katsayısını değiştirmez.",
     options: PROTEIN_GOALS,
+  },
+  {
+    name: "scopeRisk",
+    label: "Bu genel protein hesaplayıcısının kapsamı dışında bir durum var mı?",
+    type: "radio",
+    helperText:
+      "Gebelik/emzirme; böbrek veya karaciğer hastalığı; obezite tanısı; klinik protein kısıtlaması veya klinik beslenme tedavisi; yeme bozukluğu ya da REDs şüphesi.",
+    options: SCOPE_RISK_OPTIONS,
     required: true,
   },
 ];
 
 const initialValues: CalculatorFormValues = {
-  weight: "",
-  activityLevel: DEFAULT_PROTEIN_ACTIVITY_LEVEL,
-  goal: DEFAULT_PROTEIN_GOAL,
+  ageYears: "",
+  weightKg: "",
+  trainingProfile: "",
+  goal: "",
+  scopeRisk: "",
 };
 
-function getOptionLabel(
-  options: readonly { label: string; value: string }[],
-  value: string,
-) {
-  return options.find((option) => option.value === value)?.label ?? value;
+function roundedGrams(value: number) {
+  return Math.round(value).toLocaleString("tr-TR");
+}
+
+function resultMetrics(result: ProteinRequirement): readonly CalculatorResult[] {
+  if (result.type === "PRI_REFERENCE") {
+    return [
+      {
+        title: result.label,
+        value: `Yaklaşık ${roundedGrams(result.dailyGrams)}`,
+        unit: "g/gün",
+        color: "gold",
+        explanation:
+          "EFSA’nın sağlıklı yetişkinler için nüfus düzeyindeki protein yeterlilik referansıdır. Kişisel optimum veya kesin hedef değildir.",
+      },
+      {
+        title: "Kullanılan referans",
+        value: "0,83",
+        unit: "g/kg/gün",
+        color: "neutral",
+      },
+    ];
+  }
+
+  if (result.type === "PRACTICAL_RANGE") {
+    const isOlderAdultRange = result.lowGPerKg === 1;
+    return [
+      {
+        title: result.label,
+        value: `Yaklaşık ${roundedGrams(result.lowDailyGrams)}–${roundedGrams(result.highDailyGrams)}`,
+        unit: "g/gün",
+        color: "gold",
+        explanation: isOlderAdultRange
+          ? "Sağlıklı ileri yaş için kılavuz temelli pratik aralıktır. Gereksinim fiziksel aktivite ve sağlık durumuna göre değişebilir."
+          : "Sağlıklı ve düzenli egzersiz yapan yetişkinler için spor beslenmesi literatürüyle uyumlu pratik aralıktır.",
+      },
+      {
+        title: "Kullanılan aralık",
+        value: `${result.lowGPerKg.toLocaleString("tr-TR")}–${result.highGPerKg.toLocaleString("tr-TR")}`,
+        unit: "g/kg/gün",
+        color: "neutral",
+        explanation:
+          result.certainty === "conditional" && !isOlderAdultRange
+            ? "Bu sonuç sağlıklı ve egzersiz yapan yetişkinler için koşullu bir pratik aralıktır; ileri yaşın kesin gereksinimi değildir."
+            : undefined,
+      },
+    ];
+  }
+
+  if (result.type === "RESISTANCE_RANGE") {
+    return [
+      {
+        title: "Direnç antrenmanı için pratik aralık",
+        value: `Yaklaşık ${roundedGrams(result.lowDailyGrams)}–${roundedGrams(result.highDailyGrams)}`,
+        unit: "g/gün",
+        color: "gold",
+        explanation:
+          "Sağlıklı ve düzenli egzersiz yapan yetişkinler için spor beslenmesi literatürüyle uyumlu pratik aralıktır.",
+      },
+      {
+        title: result.anchorLabel,
+        value: `Yaklaşık ${roundedGrams(result.anchorDailyGrams)}`,
+        unit: "g/gün",
+        color: "success",
+        explanation:
+          "Bu başlangıç noktası kişisel optimum, minimum veya zorunlu eşik değildir.",
+      },
+      {
+        title: "Kullanılan aralık",
+        value: "1,4–2,0",
+        unit: "g/kg/gün",
+        color: "neutral",
+        explanation:
+          result.certainty === "conditional"
+            ? "Bu sonuç sağlıklı ve egzersiz yapan yetişkinler için koşullu bir pratik aralıktır; ileri yaşın kesin gereksinimi değildir."
+            : undefined,
+      },
+    ];
+  }
+
+  return [];
 }
 
 export default function ProteinCalculatorPage() {
@@ -70,127 +168,94 @@ export default function ProteinCalculatorPage() {
   const [result, setResult] = useState<ProteinRequirement | null>(null);
 
   function handleFieldChange(name: string, value: CalculatorFormValues[string]) {
-    setValues((currentValues) => ({ ...currentValues, [name]: value }));
-    setErrors((currentErrors) => ({ ...currentErrors, [name]: undefined }));
+    setValues((current) => ({ ...current, [name]: value }));
+    setErrors((current) => ({ ...current, [name]: undefined }));
     setResult(null);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const nextErrors: CalculatorValidationErrors = {};
 
     for (const field of proteinFields) {
       const error = validateCalculatorField(field, values[field.name]);
-
-      if (error) {
-        nextErrors[field.name] = error;
-      }
+      if (error) nextErrors[field.name] = error;
     }
 
     setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
-    if (Object.keys(nextErrors).length > 0) {
+    const nextResult = calculateProteinRequirement({
+      ageYears: Number(values.ageYears),
+      weightKg: Number(values.weightKg),
+      trainingProfile: values.trainingProfile as ProteinTrainingProfile,
+      goal: values.goal ? (values.goal as ProteinGoal) : undefined,
+      scopeRisk: values.scopeRisk === "true",
+    });
+
+    if (nextResult.type === "VALIDATION_ERROR") {
+      setErrors({ [nextResult.field]: nextResult.message });
       return;
     }
 
-    setResult(
-      calculateProteinRequirement(
-        Number(values.weight),
-        values.goal as ProteinGoal,
-        values.activityLevel as ProteinActivityLevel,
-      ),
-    );
+    setResult(nextResult);
   }
 
-  const selectedGoal = getOptionLabel(PROTEIN_GOALS, String(values.goal));
+  const blockedResult =
+    result?.type === "NO_NUMERIC_RESULT"
+      ? result.reason === "under_18"
+        ? {
+            title: "Bu hesaplayıcı yetişkinler için tasarlanmıştır.",
+            text: "18 yaş altında protein referansları yaşa ve gelişim dönemine göre değiştiği için bu araç sayısal sonuç üretmez.",
+          }
+        : {
+            title: "Genel hesaplayıcının kapsamı dışında",
+            text: "Belirttiğiniz durumda protein hedefi sağlık durumu ve bireysel koşullara göre değişebilir. Bu nedenle bu genel araç sayısal hedef üretmez.",
+          }
+      : null;
 
   return (
     <CalculatorLayout
-      title="Protein Hesaplayıcı"
+      title="Protein İhtiyacı"
       seoPath="/calculators/protein"
-      description="Hedefin ve aktivite seviyene göre günlük protein ihtiyacını hesapla."
+      description="Yaş, vücut ağırlığı ve antrenman profiline göre yetişkinler için protein referansını veya pratik aralığı incele."
       info={
-        <>
-          <p>
-            Protein, kas protein sentezini destekler ve gün içine yayılan toplam protein alımı aktif bireylerde önem taşır.
-          </p>
-          <p className="mt-3">
-            Öneriler; hedef, antrenman yükü, enerji alımı ve bireysel özelliklere göre değişebilir.
-          </p>
-        </>
+        <p>
+          Hedef seçimi tek başına katsayıyı değiştirmez. Sonuçlar sağlıklı yetişkinler için nüfus referansı veya koşula bağlı pratik aralık olarak sunulur.
+        </p>
       }
       references={
-        <ul className="list-disc space-y-2 pl-5">
-          <li>
-            <a
-              href="https://pubmed.ncbi.nlm.nih.gov/28642676/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#C9A14A] underline-offset-4 hover:underline"
-            >
-              International Society of Sports Nutrition (ISSN) — Position Stand: Protein and Exercise
-            </a>
-          </li>
-        </ul>
+        <div className="space-y-3">
+          <p>EFSA NDA (2012) · ISSN/Jäger et al. (2017) · Morton et al. (2018) · ESPEN/Volkert et al. (2022)</p>
+          <details>
+            <summary className="cursor-pointer font-medium text-[#C9A14A]">Kaynak ayrıntılarını aç</summary>
+            <ul className="mt-3 list-disc space-y-2 pl-5">
+              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.2903/j.efsa.2012.2557" target="_blank" rel="noreferrer">EFSA NDA — DOI: 10.2903/j.efsa.2012.2557</a></li>
+              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.1186/s12970-017-0177-8" target="_blank" rel="noreferrer">Jäger et al. — DOI: 10.1186/s12970-017-0177-8</a></li>
+              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.1136/bjsports-2017-097608" target="_blank" rel="noreferrer">Morton et al. — DOI: 10.1136/bjsports-2017-097608</a></li>
+              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.1016/j.clnu.2022.01.024" target="_blank" rel="noreferrer">Volkert et al. — DOI: 10.1016/j.clnu.2022.01.024</a></li>
+            </ul>
+          </details>
+        </div>
       }
-      disclaimer="Bu hesaplama genel bilimsel öneriler temel alınarak hazırlanmıştır. Bireysel ihtiyaçlar kişisel özelliklere göre değişebilir."
+      disclaimer="Bu araç yalnız genel yetişkin referansları sunar; kişisel optimumu veya klinik protein hedefini belirlemez."
     >
       <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
-        <CalculatorSection
-          title="Bilgilerin"
-          description="Sonucunu kişiselleştirmek için aşağıdaki alanları doldur."
-        >
-          <CalculatorForm
-            fields={proteinFields}
-            values={values}
-            errors={errors}
-            onChange={handleFieldChange}
-            onSubmit={handleSubmit}
-          >
-            <CTAButton type="submit" className="w-full">
-              Protein İhtiyacını Hesapla
-            </CTAButton>
+        <CalculatorSection title="Bilgilerin" description="Tüm zorunlu alanları açıkça yanıtla.">
+          <CalculatorForm fields={proteinFields} values={values} errors={errors} onChange={handleFieldChange} onSubmit={handleSubmit}>
+            <CTAButton type="submit" className="w-full">Protein Referansını Gör</CTAButton>
           </CalculatorForm>
         </CalculatorSection>
 
-        {result ? (
-          <CalculatorResultCard
-            title="Protein Sonucun"
-            description="Öneri, seçtiğin hedef ve aktivite seviyesine göre hesaplandı."
-            results={[
-              {
-                title: "Önerilen Günlük Protein",
-                value: result.dailyProtein,
-                unit: "g / gün",
-                color: "gold",
-                explanation: `${selectedGoal} hedefin için önerilen günlük miktar.`,
-              },
-              {
-                title: "Kullanılan Aralık",
-                value: `${result.range.min}–${result.range.max}`,
-                unit: "g/kg/gün",
-                color: "neutral",
-                explanation: "Hedefine karşılık gelen bilimsel öneri aralığı.",
-              },
-              {
-                title: "Kilo Başına Protein",
-                value: result.proteinPerKg.toFixed(1),
-                unit: "g/kg/gün",
-                color: "success",
-                explanation: "Aktivite seviyene göre aralık içinden seçilen değer.",
-              },
-            ]}
-          />
+        {result && result.type !== "NO_NUMERIC_RESULT" && result.type !== "VALIDATION_ERROR" ? (
+          <CalculatorResultCard title="Protein Sonucun" description="Gram değerleri ekranda en yakın tam sayıya yuvarlanmıştır." results={resultMetrics(result)} />
+        ) : blockedResult ? (
+          <CalculatorSection title={blockedResult.title} description={blockedResult.text} className="border-amber-300/30" >
+            <p className="text-sm leading-6 text-neutral-500">Sayısal sonuç gösterilmedi.</p>
+          </CalculatorSection>
         ) : (
-          <CalculatorSection
-            title="Protein Sonucun"
-            description="Bilgilerini girip hesapla butonuna bastığında günlük protein önerin burada görünecek."
-            className="min-h-full"
-          >
-            <p className="text-sm leading-6 text-neutral-500">
-              Sonuç; kilo, aktivite seviyesi ve hedef seçimine göre oluşturulur.
-            </p>
+          <CalculatorSection title="Protein Sonucun" description="Bilgilerini girdikten sonra uygun referans veya pratik aralık burada görünecek." className="min-h-full">
+            <p className="text-sm leading-6 text-neutral-500">Sonuç yaklaşık değerlerle ve kapsam bilgisiyle birlikte sunulur.</p>
           </CalculatorSection>
         )}
       </div>

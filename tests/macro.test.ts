@@ -3,42 +3,35 @@ import test from "node:test";
 
 import {
   calculateMacroDistribution,
-  calculateProteinRequirement,
 } from "../lib/calculators/index";
 
-test("Makro Planlayıcı tüm hedef ve aktivite eşlemelerinde ortak protein motorunu kullanır", () => {
-  const goals = [
-    ["maintain", "generalHealth"],
-    ["gain", "muscleGain"],
-    ["lose", "fatLoss"],
-  ] as const;
-  const activityLevels = [
-    ["low", "low"],
-    ["moderate", "moderate"],
-    ["high", "active"],
+test("Makro Planlayıcı kendi hedef ve aktivite protein tablosunu uygular", () => {
+  const expectations = [
+    ["maintain", "low", 1.2],
+    ["maintain", "moderate", 1.4],
+    ["maintain", "high", 1.5],
+    ["gain", "low", 1.6],
+    ["gain", "moderate", 1.9],
+    ["gain", "high", 2.1],
+    ["lose", "low", 1.6],
+    ["lose", "moderate", 2],
+    ["lose", "high", 2.2],
   ] as const;
 
-  for (const [macroGoal, proteinGoal] of goals) {
-    for (const [macroActivity, proteinActivity] of activityLevels) {
-      const sharedProtein = calculateProteinRequirement(
-        70,
-        proteinGoal,
-        proteinActivity,
-      );
-      const macros = calculateMacroDistribution({
-        calories: 2_500,
-        weight: 70,
-        goal: macroGoal,
-        activityLevel: macroActivity,
-      });
+  for (const [goal, activityLevel, proteinPerKg] of expectations) {
+    const macros = calculateMacroDistribution({
+      calories: 3_000,
+      weight: 70,
+      goal,
+      activityLevel,
+    });
 
-      assert.equal(macros.protein, sharedProtein.dailyProtein);
-      assert.equal(macros.proteinPerKg, sharedProtein.proteinPerKg);
-    }
+    assert.equal(macros.proteinPerKg, proteinPerKg);
+    assert.equal(macros.protein, Math.round(70 * proteinPerKg));
   }
 });
 
-test("protein hedefi kalori yüzdesinden değil kilo başına ortak kuraldan gelir", () => {
+test("Makro protein tahmini kalori hedefinden bağımsızdır", () => {
   const lowerEnergy = calculateMacroDistribution({
     calories: 2_000,
     weight: 70,
