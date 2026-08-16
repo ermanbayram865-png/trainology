@@ -4,7 +4,6 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 
 const platformLinks = [
-  { label: "Hareketler", href: "/movements" },
   { label: "Araçlar", href: "/calculators" },
   { label: "Hakkımızda", href: "/about" },
 ];

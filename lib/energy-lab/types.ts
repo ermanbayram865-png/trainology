@@ -12,11 +12,7 @@ export type DeficitRate = 0.1 | 0.15 | 0.2;
 
 export type GainMode = "maintenance" | "smallSurplus";
 
-export type SafetyFlag =
-  | "pregnancyOrBreastfeeding"
-  | "eatingDisorderOrRedsRisk"
-  | "competitionOrExtremeAthleteContext"
-  | "medicalReviewContext";
+export type GeneralScopeSelection = "standardAdult" | "mayBeOutsideScope";
 
 export type EnergyLabInput = {
   age: number;
@@ -25,7 +21,7 @@ export type EnergyLabInput = {
   weightKg: number;
   activityProfiles: readonly ActivityProfile[];
   performancePriority: boolean;
-  safetyFlags: readonly SafetyFlag[];
+  generalScope: GeneralScopeSelection;
 };
 
 export type ScopeReasonCode =
@@ -33,10 +29,7 @@ export type ScopeReasonCode =
   | "BMI_UNDER_16"
   | "BMI_UNDER_18_5"
   | "BMI_50_OR_ABOVE"
-  | "PREGNANCY_OR_BREASTFEEDING"
-  | "EATING_DISORDER_OR_REDS_RISK"
-  | "COMPETITION_OR_EXTREME_ATHLETE_CONTEXT"
-  | "MEDICAL_REVIEW_CONTEXT";
+  | "MAY_BE_OUTSIDE_GENERAL_SCOPE";
 
 export type ScopeReason = {
   code: ScopeReasonCode;
@@ -56,11 +49,11 @@ export type EnergyInputErrorCode =
   | "INVALID_HEIGHT"
   | "INVALID_WEIGHT"
   | "INVALID_ACTIVITY_SELECTION"
-  | "INVALID_SAFETY_FLAGS";
+  | "INVALID_GENERAL_SCOPE";
 
 export type EnergyInputError = {
   code: EnergyInputErrorCode;
-  field: "age" | "sex" | "heightCm" | "weightKg" | "activityProfiles" | "safetyFlags";
+  field: "age" | "sex" | "heightCm" | "weightKg" | "activityProfiles" | "generalScope";
   message: string;
 };
 

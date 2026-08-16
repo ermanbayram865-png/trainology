@@ -10,17 +10,15 @@ import {
   Target,
   Watch,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
-import CalibrationPanel from "@/components/energy-lab/CalibrationPanel";
 import {
   ACTIVITY_PROFILE_ORDER,
   calculateTargetScenario,
   evaluateEnergyLab,
   getFatLossPolicy,
   roundToNearest50,
-  writeEnergyLabHandoff,
   type ActivityProfile,
   type BiologicalSex,
   type DeficitRate,
@@ -29,11 +27,9 @@ import {
   type GainMode,
   type GoalSelection,
   type ReadyEnergyEvaluation,
-  type SafetyFlag,
+  type GeneralScopeSelection,
   type TargetScenario,
 } from "@/lib/energy-lab";
-
-type SafetyStatus = "unanswered" | "none" | "applies";
 
 type FormState = {
   age: string;
@@ -46,8 +42,7 @@ type FormState = {
   trainingMinutes: string;
   dailySteps: string;
   performancePriority: boolean;
-  safetyStatus: SafetyStatus;
-  safetyFlags: SafetyFlag[];
+  generalScope: GeneralScopeSelection | "";
 };
 
 const initialForm: FormState = {
@@ -61,8 +56,7 @@ const initialForm: FormState = {
   trainingMinutes: "",
   dailySteps: "",
   performancePriority: false,
-  safetyStatus: "unanswered",
-  safetyFlags: [],
+  generalScope: "",
 };
 
 const activityOptions: readonly {
@@ -102,30 +96,6 @@ const activityOptions: readonly {
   },
 ] as const;
 
-const safetyOptions: readonly { value: SafetyFlag; label: string; description: string }[] = [
-  {
-    value: "pregnancyOrBreastfeeding",
-    label: "Hamilelik veya emzirme",
-    description: "Bu yaşam dönemleri ayrı enerji denklemleri ve kişisel değerlendirme gerektirir.",
-  },
-  {
-    value: "eatingDisorderOrRedsRisk",
-    label: "Aktif/şüpheli yeme bozukluğu veya RED-S riski",
-    description: "Otomatik enerji hedefi yerine nitelikli profesyonel destek gerekir.",
-  },
-  {
-    value: "competitionOrExtremeAthleteContext",
-    label: "Yarışma hazırlığı veya ileri sporcu bağlamı",
-    description: "Çok düşük yağ oranı, elit sporculuk ya da aşırı yüksek hacim bu gruba dahildir.",
-  },
-  {
-    value: "medicalReviewContext",
-    label: "Kişisel sağlık değerlendirmesi gerektiren durum",
-    description:
-      "Metabolik/endokrin durum, enerjiyi etkileyen ilaç, frailty/sarkopeni endişesi veya geçmiş yeme bozukluğu öyküsü.",
-  },
-] as const;
-
 const goalLabels: Record<EnergyGoal, string> = {
   maintain: "Kilo koruma",
   lose: "Yağ kaybı",
@@ -142,6 +112,21 @@ export default function EnergyLabExperience() {
   const resultRef = useRef<HTMLDivElement>(null);
 
   const completion = calculateCompletion(form, goal);
+
+  useEffect(() => {
+    function resetRestoredPage(event: PageTransitionEvent) {
+      if (!event.persisted) return;
+      setForm(initialForm);
+      setGoal("maintain");
+      setLossRate(0.1);
+      setGainMode("maintenance");
+      setErrors({});
+      setEvaluation(null);
+    }
+
+    window.addEventListener("pageshow", resetRestoredPage);
+    return () => window.removeEventListener("pageshow", resetRestoredPage);
+  }, []);
 
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -171,13 +156,6 @@ export default function EnergyLabExperience() {
     }
 
     updateForm("activityProfiles", nextProfiles);
-  }
-
-  function toggleSafetyFlag(flag: SafetyFlag) {
-    const nextFlags = form.safetyFlags.includes(flag)
-      ? form.safetyFlags.filter((item) => item !== flag)
-      : [...form.safetyFlags, flag];
-    updateForm("safetyFlags", nextFlags);
   }
 
   function handleGoalChange(nextGoal: EnergyGoal) {
@@ -210,7 +188,7 @@ export default function EnergyLabExperience() {
       weightKg: Number(form.weightKg),
       activityProfiles: form.activityProfiles,
       performancePriority: form.performancePriority,
-      safetyFlags: form.safetyStatus === "applies" ? form.safetyFlags : [],
+      generalScope: form.generalScope as GeneralScopeSelection,
     });
 
     if (nextEvaluation.status === "invalid") {
@@ -248,8 +226,7 @@ export default function EnergyLabExperience() {
       const selectors: Record<string, string> = {
         sex: "[name='sex']",
         activityProfiles: "[data-field='activityProfiles']",
-        safetyStatus: "[name='safetyStatus']",
-        safetyFlags: "[name='safetyFlags']",
+        generalScope: "[name='generalScope']",
       };
       const selector = selectors[firstField] ?? `#${firstField}`;
       const firstInvalid = document.querySelector<HTMLElement>(`#energy-lab-form ${selector}`);
@@ -276,12 +253,13 @@ export default function EnergyLabExperience() {
             </p>
           </div>
 
-          <div className="grid gap-7 xl:grid-cols-[minmax(0,1.12fr)_minmax(22rem,.88fr)] xl:items-start">
+          <div className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1.12fr)_minmax(22rem,.88fr)] xl:items-start">
             <form
               id="energy-lab-form"
               onSubmit={handleSubmit}
+              autoComplete="off"
               noValidate
-              className="rounded-[1.75rem] border border-[#11283a]/10 bg-[#fbfaf6] p-6 shadow-[0_24px_70px_rgba(17,40,58,.08)] sm:p-8 lg:p-10"
+              className="min-w-0 rounded-[1.75rem] border border-[#11283a]/10 bg-[#fbfaf6] p-6 shadow-[0_24px_70px_rgba(17,40,58,.08)] sm:p-8 lg:p-10"
             >
               <FormSection number="01" title="Temel bilgiler">
                 <div className="grid gap-5 sm:grid-cols-2">
@@ -530,83 +508,65 @@ export default function EnergyLabExperience() {
                 </fieldset>
               </FormSection>
 
-              <FormSection number="05" title="Kapsam ve güvenlik kontrolü" last>
+              <FormSection number="05" title="Bu hesaplama senin için uygun mu?" last>
                 <div className="rounded-2xl border border-[#11283a]/12 bg-[#f5f2ea] p-5">
                   <div className="flex items-start gap-3">
                     <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#8c6a2d]" />
-                    <p className="text-sm leading-7 text-[#536574]">
-                      Energy Lab genel yetişkinlere yönelik bir başlangıç aracıdır. Tanı koymaz.
-                      Aşağıdaki kısa kontrol, otomatik hedefin uygun olmadığı durumları belirlemek
-                      içindir; yanıtlar cihazda bile saklanmaz.
-                    </p>
+                    <div className="space-y-3 text-sm leading-7 text-[#536574]">
+                      <p>
+                        Energy Lab, genel yetişkin kullanıcılar için başlangıç tahmini oluşturur.
+                        Hamilelik veya emzirme döneminde olanlar, 19 yaşından küçükler, yeme
+                        bozukluğu ya da RED-S riski bulunanlar, yarışma hazırlığındaki ileri
+                        sporcular ve enerji ihtiyacını etkileyebilecek sağlık durumu veya ilaç
+                        kullanımı bulunan kişiler için kişisel hedef oluşturmaz.
+                      </p>
+                      <p id="general-scope-help">
+                        Bu seçim yalnızca aracın senin için uygun olup olmadığını belirlemek için
+                        kullanılır; kaydedilmez veya sunucuya gönderilmez.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
                 <fieldset className="mt-5">
-                  <legend className="font-bold text-[#102536]">
-                    Aşağıdaki özel durumlardan biri sana uyuyor mu?
-                  </legend>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <legend className="sr-only">Energy Lab genel yetişkin kapsamı seçimi</legend>
+                  <div
+                    className="grid gap-3"
+                    aria-describedby={`general-scope-help${errors.generalScope ? " general-scope-error" : ""}`}
+                  >
                     {([
-                      ["none", "Hayır, hiçbiri uymuyor"],
-                      ["applies", "Evet, biri veya birkaçı uyuyor"],
+                      [
+                        "standardAdult",
+                        "Bilgilendirmeyi okudum; standart yetişkin kapsamıyla devam etmek istiyorum.",
+                      ],
+                      ["mayBeOutsideScope", "Bu araç benim durumuma uygun olmayabilir."],
                     ] as const).map(([value, label]) => (
                       <label
                         key={value}
                         className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm font-semibold transition focus-within:ring-2 focus-within:ring-[#9f7b38] ${
-                          form.safetyStatus === value
+                          form.generalScope === value
                             ? "border-[#9f7b38] bg-[#efe5d0]"
                             : "border-[#11283a]/12 bg-white text-[#5d6d79]"
                         }`}
                       >
                         <input
                           type="radio"
-                          name="safetyStatus"
+                          name="generalScope"
                           value={value}
-                          checked={form.safetyStatus === value}
-                          onChange={() => {
-                            updateForm("safetyStatus", value);
-                            if (value === "none") updateForm("safetyFlags", []);
-                          }}
+                          autoComplete="off"
+                          checked={form.generalScope === value}
+                          onChange={() => updateForm("generalScope", value)}
+                          aria-describedby={`general-scope-help${errors.generalScope ? " general-scope-error" : ""}`}
                           className="accent-[#9f7b38]"
                         />
                         {label}
                       </label>
                     ))}
                   </div>
-                  {errors.safetyStatus && <FieldError>{errors.safetyStatus}</FieldError>}
+                  {errors.generalScope && (
+                    <FieldError id="general-scope-error">{errors.generalScope}</FieldError>
+                  )}
                 </fieldset>
-
-                {form.safetyStatus === "applies" && (
-                  <fieldset className="mt-5 rounded-2xl border border-[#9f7b38]/20 bg-[#fffdf8] p-5">
-                    <legend className="px-2 text-sm font-bold text-[#102536]">
-                      Uyan durumları seç
-                    </legend>
-                    <div className="space-y-3">
-                      {safetyOptions.map((option) => (
-                        <label key={option.value} className="flex cursor-pointer items-start gap-3">
-                          <input
-                            type="checkbox"
-                            name="safetyFlags"
-                            checked={form.safetyFlags.includes(option.value)}
-                            onChange={() => toggleSafetyFlag(option.value)}
-                            aria-invalid={Boolean(errors.safetyFlags)}
-                            className="mt-1 size-4 accent-[#9f7b38]"
-                          />
-                          <span>
-                            <span className="block text-sm font-bold text-[#102536]">
-                              {option.label}
-                            </span>
-                            <span className="mt-1 block text-xs leading-5 text-[#6b7883]">
-                              {option.description}
-                            </span>
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                    {errors.safetyFlags && <FieldError>{errors.safetyFlags}</FieldError>}
-                  </fieldset>
-                )}
               </FormSection>
 
               <button
@@ -621,7 +581,7 @@ export default function EnergyLabExperience() {
             <EnergyProfilePanel form={form} goal={goal} completion={completion} />
           </div>
 
-          <div ref={resultRef} className="scroll-mt-28">
+          <div ref={resultRef} className="min-w-0 scroll-mt-28">
             {evaluation?.status === "blocked" && <BlockedResult evaluation={evaluation} />}
             {evaluation?.status === "ready" && (
               <ReadyResults
@@ -634,14 +594,12 @@ export default function EnergyLabExperience() {
                 gainMode={gainMode}
                 onGainModeChange={setGainMode}
                 performancePriority={form.performancePriority}
-                weightKg={Number(form.weightKg)}
               />
             )}
           </div>
         </div>
       </section>
 
-      <CalibrationPanel sex={form.sex} />
     </>
   );
 }
@@ -669,8 +627,9 @@ function EnergyProfilePanel({
     .join(" · ");
 
   return (
-    <aside className="overflow-hidden rounded-[1.75rem] border border-[#d0af69]/25 bg-[#071523] text-white shadow-[0_26px_80px_rgba(7,21,35,.2)] xl:sticky xl:top-28">
-      <div className="relative overflow-hidden border-b border-white/10 p-6 sm:p-8">
+    <div className="min-w-0 self-stretch xl:relative">
+      <aside className="overflow-hidden rounded-[1.75rem] border border-[#d0af69]/25 bg-[#071523] text-white shadow-[0_26px_80px_rgba(7,21,35,.2)] xl:sticky xl:top-28 xl:max-h-[calc(100dvh-8rem)] xl:overflow-y-auto xl:overscroll-contain">
+        <div className="relative overflow-hidden border-b border-white/10 p-6 sm:p-8">
         <div aria-hidden="true" className="absolute -right-12 -top-12 size-48 rounded-full border border-[#d0af69]/10" />
         <PersonStanding
           aria-hidden="true"
@@ -693,25 +652,26 @@ function EnergyProfilePanel({
             style={{ width: `${completion}%` }}
           />
         </div>
-      </div>
+        </div>
 
-      <dl className="divide-y divide-white/10 px-6 sm:px-8">
-        <ProfileRow label="Yaş" value={form.age ? `${form.age} yaş` : "Bekleniyor"} />
-        <ProfileRow label="Boy" value={form.heightCm ? `${form.heightCm} cm` : "Bekleniyor"} />
-        <ProfileRow label="Kilo" value={form.weightKg ? `${form.weightKg} kg` : "Bekleniyor"} />
-        <ProfileRow label="Günlük hareket" value={selectedActivity || "Henüz seçilmedi"} />
-        <ProfileRow label="Antrenman bağlamı" value={trainingContext || "İsteğe bağlı"} />
-        <ProfileRow label="Seçilen hedef" value={goalLabels[goal]} />
-      </dl>
+        <dl className="divide-y divide-white/10 px-6 sm:px-8">
+          <ProfileRow label="Yaş" value={form.age ? `${form.age} yaş` : "Bekleniyor"} />
+          <ProfileRow label="Boy" value={form.heightCm ? `${form.heightCm} cm` : "Bekleniyor"} />
+          <ProfileRow label="Kilo" value={form.weightKg ? `${form.weightKg} kg` : "Bekleniyor"} />
+          <ProfileRow label="Günlük hareket" value={selectedActivity || "Henüz seçilmedi"} />
+          <ProfileRow label="Antrenman bağlamı" value={trainingContext || "İsteğe bağlı"} />
+          <ProfileRow label="Seçilen hedef" value={goalLabels[goal]} />
+        </dl>
 
-      <div className="m-6 rounded-2xl border border-[#d0af69]/20 bg-[#d0af69]/[.07] p-5 sm:m-8">
-        <p className="text-sm font-semibold leading-7 text-[#f0dfba]">
-          Vücut bilgilerin + toplam aktivite profilin
-          <span className="mx-2 text-[#d0af69]">→</span>
-          başlangıç enerji tahmini
-        </p>
-      </div>
-    </aside>
+        <div className="m-6 rounded-2xl border border-[#d0af69]/20 bg-[#d0af69]/[.07] p-5 sm:m-8">
+          <p className="text-sm font-semibold leading-7 text-[#f0dfba]">
+            Vücut bilgilerin + toplam aktivite profilin
+            <span className="mx-2 text-[#d0af69]">→</span>
+            başlangıç enerji tahmini
+          </p>
+        </div>
+      </aside>
+    </div>
   );
 }
 
@@ -766,7 +726,6 @@ function ReadyResults({
   gainMode,
   onGainModeChange,
   performancePriority,
-  weightKg,
 }: {
   evaluation: ReadyEnergyEvaluation;
   age: number;
@@ -777,7 +736,6 @@ function ReadyResults({
   gainMode: GainMode;
   onGainModeChange: (mode: GainMode) => void;
   performancePriority: boolean;
-  weightKg: number;
 }) {
   const lossPolicy = getFatLossPolicy(
     evaluation.bmi,
@@ -799,7 +757,7 @@ function ReadyResults({
   });
 
   return (
-    <div aria-live="polite" aria-atomic="true" className="mt-12 space-y-8">
+    <div aria-live="polite" aria-atomic="true" className="mt-12 min-w-0 space-y-8">
       <section className="overflow-hidden rounded-[1.9rem] border border-[#d0af69]/25 bg-[#071523] text-white shadow-[0_28px_80px_rgba(7,21,35,.2)]">
         <div className="grid gap-8 p-6 sm:p-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>
@@ -859,7 +817,7 @@ function ReadyResults({
         </div>
       )}
 
-      <section className="rounded-[1.75rem] border border-[#11283a]/10 bg-[#fbfaf6] p-6 shadow-[0_24px_70px_rgba(17,40,58,.07)] sm:p-8 lg:p-10">
+      <section className="min-w-0 rounded-[1.75rem] border border-[#11283a]/10 bg-[#fbfaf6] p-6 shadow-[0_24px_70px_rgba(17,40,58,.07)] sm:p-8 lg:p-10">
         <div className="flex items-start gap-4">
           <Target aria-hidden="true" className="mt-1 size-6 shrink-0 text-[#8c6a2d]" />
           <div>
@@ -979,9 +937,7 @@ function ReadyResults({
           deficitCapKcal={lossPolicy.deficitCapKcal}
         />
 
-        {targetScenario.status === "available" && (
-          <MacroTransfer scenario={targetScenario} weightKg={weightKg} />
-        )}
+        {targetScenario.status === "available" && <MacroPlannerLink />}
       </section>
     </div>
   );
@@ -1052,66 +1008,23 @@ function TargetResultCard({
   );
 }
 
-function MacroTransfer({
-  scenario,
-  weightKg,
-}: {
-  scenario: Extract<TargetScenario, { status: "available" }>;
-  weightKg: number;
-}) {
-  const router = useRouter();
-  const [selectedProfile, setSelectedProfile] = useState<ActivityProfile | "">(
-    scenario.points.length === 1 ? scenario.points[0].profile : "",
-  );
-  const selectedPoint = scenario.points.find((point) => point.profile === selectedProfile);
-
-  function handleContinue() {
-    if (!selectedPoint) return;
-    writeEnergyLabHandoff(window.sessionStorage, {
-      rawTargetKcal: selectedPoint.rawKcal,
-      displayTargetKcal: selectedPoint.displayKcal,
-      goal: scenario.goal,
-      weightKg,
-      activityProfile: selectedPoint.profile,
-    });
-    router.push("/calculators/macro?source=energy-lab");
-  }
-
+function MacroPlannerLink() {
   return (
-    <div className="mt-6 flex flex-col gap-5 rounded-2xl border border-[#9f7b38]/20 bg-[#f3ecdd] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
-      <div className="max-w-2xl">
-        <p className="font-bold text-[#102536]">Bu hedefle makrolarını planla</p>
-        <p className="mt-2 text-sm leading-6 text-[#5e6e79]">
-          Yuvarlanmamış iç hedef güvenli biçimde bu tarayıcı oturumunda aktarılır; sağlık ve kapsam
-          cevapları URL’ye yazılmaz.
+    <div className="mt-6 flex min-w-0 flex-col gap-5 rounded-2xl border border-[#9f7b38]/20 bg-[#f3ecdd] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="min-w-0 max-w-2xl">
+        <p className="font-bold text-[#102536]">Makrolarını ayrı olarak planla</p>
+        <p className="mt-2 text-sm leading-6 text-[#4f606d]">
+          Makro Planlayıcı bağımsız bir araçtır. Energy Lab girdilerin aktarılmaz; gerekli
+          bilgileri orada yeniden girebilirsin.
         </p>
-        {scenario.points.length > 1 && (
-          <label className="mt-4 block max-w-md text-sm font-bold text-[#102536]">
-            Makro planı için aktivite senaryosu
-            <select
-              value={selectedProfile}
-              onChange={(event) => setSelectedProfile(event.target.value as ActivityProfile)}
-              className="mt-2 min-h-12 w-full rounded-xl border border-[#11283a]/20 bg-white px-4 text-[#102536] outline-none focus:border-[#9f7b38] focus:ring-2 focus:ring-[#9f7b38]/20"
-            >
-              <option value="">Senaryo seç</option>
-              {scenario.points.map((point) => (
-                <option key={point.profile} value={point.profile}>
-                  {activityLabel(point.profile)} · {point.displayKcal.toLocaleString("tr-TR")} kcal
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
       </div>
-      <button
-        type="button"
-        disabled={!selectedPoint}
-        onClick={handleContinue}
-        className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#102536] bg-[#102536] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] disabled:cursor-not-allowed disabled:opacity-50"
+      <Link
+        href="/calculators/macro"
+        className="inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-[#102536] bg-[#102536] px-5 py-3 text-center text-sm font-bold transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] sm:w-auto sm:shrink-0 sm:px-6"
       >
-        Makro Planlayıcı’ya geç
-        <ArrowRight aria-hidden="true" className="size-4" />
-      </button>
+        <span className="break-words text-white">Makro Planlayıcı’ya geç</span>
+        <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-white" />
+      </Link>
     </div>
   );
 }
@@ -1326,12 +1239,7 @@ function validateForm(form: FormState): Record<string, string> {
     errors,
   );
   validateOptionalNumber(form.dailySteps, 0, 100000, "Günlük adım", "dailySteps", errors, true);
-  if (form.safetyStatus === "unanswered") {
-    errors.safetyStatus = "Kapsam kontrolü için bir yanıt seçilmelidir.";
-  }
-  if (form.safetyStatus === "applies" && form.safetyFlags.length === 0) {
-    errors.safetyFlags = "Sana uyan en az bir durumu seçmelisin.";
-  }
+  if (!form.generalScope) errors.generalScope = "Kapsam kontrolü için bir yanıt seçilmelidir.";
 
   return errors;
 }
@@ -1365,7 +1273,7 @@ function calculateCompletion(form: FormState, goal: EnergyGoal): number {
     form.weightKg,
     form.activityProfiles.length > 0,
     goal,
-    form.safetyStatus !== "unanswered",
+    form.generalScope,
   ].filter(Boolean).length;
   return Math.round((completed / 7) * 100);
 }

@@ -12,7 +12,6 @@ import type {
   PerformanceExerciseInput,
 } from "@/types/performance";
 
-export * from "./benchmarks";
 export * from "./constants";
 
 const minimumActiveExercises = 2;

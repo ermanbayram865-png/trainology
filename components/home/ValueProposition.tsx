@@ -1,4 +1,4 @@
-import { Dumbbell, Sigma } from "lucide-react";
+import { Sigma } from "lucide-react";
 
 import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
@@ -10,12 +10,6 @@ const values = [
     icon: <Sigma aria-hidden="true" />,
     href: "/calculators",
   },
-  {
-    title: "Hareket Kütüphanesi",
-    description: "Egzersizleri doğru teknik, kas grubu ve uygulama bilgileriyle keşfet.",
-    icon: <Dumbbell aria-hidden="true" />,
-    href: "/movements",
-  },
 ];
 
 export default function ValueProposition() {
@@ -25,7 +19,7 @@ export default function ValueProposition() {
       subtitle="TRAINOLOGY PLATFORMU"
       description="Karar vermeyi kolaylaştıran, birbirini tamamlayan araçlar."
     >
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="max-w-2xl">
         {values.map((value) => (
           <Card key={value.title} {...value} variant="subtle" />
         ))}

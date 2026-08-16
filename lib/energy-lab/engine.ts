@@ -11,7 +11,6 @@ import type {
   ReadyEnergyEvaluation,
   ScopeDecision,
   ScopeReason,
-  SafetyFlag,
   TargetPoint,
   TargetScenario,
 } from "./types";
@@ -50,13 +49,6 @@ export const ACTIVITY_PROFILE_ORDER: readonly ActivityProfile[] = [
   "lowActive",
   "active",
   "veryActive",
-];
-
-const VALID_SAFETY_FLAGS: readonly SafetyFlag[] = [
-  "pregnancyOrBreastfeeding",
-  "eatingDisorderOrRedsRisk",
-  "competitionOrExtremeAthleteContext",
-  "medicalReviewContext",
 ];
 
 const DEFICIT_RATES: readonly DeficitRate[] = [0.1, 0.15, 0.2];
@@ -168,13 +160,10 @@ export function validateEnergyLabInput(input: EnergyLabInput): readonly EnergyIn
     });
   }
 
-  if (
-    !Array.isArray(input.safetyFlags) ||
-    input.safetyFlags.some((flag) => !VALID_SAFETY_FLAGS.includes(flag))
-  ) {
+  if (input.generalScope !== "standardAdult" && input.generalScope !== "mayBeOutsideScope") {
     errors.push({
-      code: "INVALID_SAFETY_FLAGS",
-      field: "safetyFlags",
+      code: "INVALID_GENERAL_SCOPE",
+      field: "generalScope",
       message: "Kapsam ve güvenlik seçimi geçerli değil.",
     });
   }
@@ -235,38 +224,13 @@ export function evaluateScope(input: EnergyLabInput, bmi: number): ScopeDecision
     });
   }
 
-  const safetyReasonMap: Record<SafetyFlag, ScopeReason> = {
-    pregnancyOrBreastfeeding: {
-      code: "PREGNANCY_OR_BREASTFEEDING",
-      title: "Hamilelik veya emzirme için ayrı değerlendirme gerekir",
+  if (input.generalScope === "mayBeOutsideScope") {
+    blockingReasons.push({
+      code: "MAY_BE_OUTSIDE_GENERAL_SCOPE",
+      title: "Bu araç durumun için uygun olmayabilir",
       message:
-        "Bu yetişkin genel amaçlı motor hamilelik ve emzirme dönemlerine yönelik sayısal hedef üretmez. Kişisel değerlendirme için sağlık profesyoneline başvurun.",
-    },
-    eatingDisorderOrRedsRisk: {
-      code: "EATING_DISORDER_OR_REDS_RISK",
-      title: "Enerji hedefi yerine profesyonel destek",
-      message:
-        "Aktif veya şüpheli yeme bozukluğu ya da RED-S riski varsa otomatik enerji hedefi uygun değildir. Nitelikli bir sağlık profesyonelinden destek alın.",
-    },
-    competitionOrExtremeAthleteContext: {
-      code: "COMPETITION_OR_EXTREME_ATHLETE_CONTEXT",
-      title: "Sporcu bağlamı genel aracın kapsamını aşıyor",
-      message:
-        "Yarışma hazırlığı, çok düşük yağ oranı, elit sporculuk veya aşırı yüksek antrenman hacmi bireysel takip gerektirir. Energy Lab bu bağlamda standart hedef üretmez.",
-    },
-    medicalReviewContext: {
-      code: "MEDICAL_REVIEW_CONTEXT",
-      title: "Kişisel sağlık değerlendirmesi gerekli",
-      message:
-        "Metabolik/endokrin durum, enerjiyi etkileyen ilaç, frailty/sarkopeni endişesi veya geçmiş yeme bozukluğu öyküsü varsa otomatik hedef yerine profesyonel değerlendirme gerekir.",
-    },
-  };
-
-  for (const flag of input.safetyFlags) {
-    const reason = safetyReasonMap[flag];
-    if (reason && !blockingReasons.some((item) => item.code === reason.code)) {
-      blockingReasons.push(reason);
-    }
+        "Energy Lab bu durumda standart sayısal hedef üretmez. Kişisel durumunu değerlendirebilecek uygun bir sağlık profesyoneliyle görüşebilirsin.",
+    });
   }
 
   if (blockingReasons.length > 0) {

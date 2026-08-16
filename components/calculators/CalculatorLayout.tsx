@@ -14,6 +14,8 @@ type CalculatorLayoutProps = {
   references?: ReactNode;
   disclaimer?: ReactNode;
   seoPath?: string;
+  sectionClassName?: string;
+  contentClassName?: string;
 };
 
 export default function CalculatorLayout({
@@ -24,6 +26,8 @@ export default function CalculatorLayout({
   references,
   disclaimer,
   seoPath,
+  sectionClassName,
+  contentClassName,
 }: CalculatorLayoutProps) {
   const structuredData =
     seoPath && typeof title === "string"
@@ -46,7 +50,10 @@ export default function CalculatorLayout({
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
-      <Section className="bg-[#050505]" contentClassName="space-y-10">
+      <Section
+        className={`bg-[#050505] ${sectionClassName ?? ""}`}
+        contentClassName={contentClassName ?? "space-y-10"}
+      >
         {structuredData && (
           <script
             type="application/ld+json"

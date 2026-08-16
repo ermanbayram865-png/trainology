@@ -2,7 +2,7 @@
 
 ## Amaç
 
-Bu sistem, Trainology arayüzlerinde tekrar kullanılabilir, tutarlı ve responsive bileşenler oluşturmak için ortak API ve görsel kuralları tanımlar. Sprint 02 bileşenleri henüz mevcut sayfalara entegre edilmemiştir.
+Bu sistem, Trainology arayüzlerinde tekrar kullanılabilir, tutarlı ve responsive bileşenler oluşturmak için ortak API ve görsel kuralları tanımlar.
 
 ## Tasarım kuralları
 
@@ -57,12 +57,6 @@ Birincil kullanıcı aksiyonları için buton veya link bileşenidir. `href` ver
 - Props: `children`, `href`, `variant`, `className` ve standart button props’ları
 - Variant’lar: `primary`, `secondary`, `ghost`
 
-### `EmptyState`
-
-Boş liste, bulunamayan içerik veya yakında ekranları için kullanılır.
-
-- Props: `title`, `description`, `button`, `icon`, `className`
-
 ### `CalculatorCard`
 
 Trainology’nin resmi hesaplayıcı katalog kartıdır.
@@ -70,17 +64,8 @@ Trainology’nin resmi hesaplayıcı katalog kartıdır.
 - Props: `title`, `description`, `icon`, `category`, `status`, `href`, `className`
 - `status`: `active`, `comingSoon` veya `new`
 
-### `FeatureGrid`
-
-Özellik kartlarını responsive bir grid içinde listeler.
-
-- Props: `items`, `columns`, `className`
-- `items`: `title`, `description`, `icon`, `href` alanlarından oluşur.
-- `columns`: `2`, `3` veya `4`
-
 ## Kullanım ilkeleri
 
 - Yeni sayfa geliştirmelerinde önce uygun `ui` bileşeni seçilir; aynı kart veya CTA stili yeniden yazılmaz.
 - Var olan sayfalara geçiş, görsel regresyon kontrolüyle sayfa bazında ve ayrıca onay alınarak yapılır.
 - Variant yeterli değilse önce bileşen API’si değerlendirilir; sayfa içinde kopya Tailwind sınıfları oluşturmaktan kaçınılır.
-- Mevcut eski bileşenler, bütün tüketicileri taşınmadan veya onay alınmadan silinmez.

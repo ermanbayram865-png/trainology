@@ -1,4 +1,4 @@
-import { ArrowDown, FlaskConical, Gauge, LineChart, SlidersHorizontal } from "lucide-react";
+import { ArrowDown, FlaskConical, Gauge, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 
 import EnergyLabExperience from "@/components/energy-lab/EnergyLabExperience";
@@ -8,12 +8,12 @@ const processSteps = [
   { icon: Gauge, label: "Başlangıç tahmini" },
   { icon: SlidersHorizontal, label: "Aktivite belirsizliği" },
   { icon: FlaskConical, label: "Kontrollü hedef" },
-  { icon: LineChart, label: "Trend kalibrasyonu" },
+  { icon: ShieldCheck, label: "Kapsam kontrolü" },
 ] as const;
 
 export default function EnergyLabPage() {
   return (
-    <main className="overflow-x-hidden bg-[#f4f1e9]">
+    <main className="bg-[#f4f1e9]">
       <section className="relative overflow-hidden border-b border-white/10 bg-[#071523] px-6 py-16 text-white sm:py-20 lg:py-24">
         <div
           aria-hidden="true"
@@ -36,7 +36,7 @@ export default function EnergyLabPage() {
               <span className="block text-[#d0af69]">Simülatörü</span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300 sm:text-xl sm:leading-9">
-              Enerji ihtiyacını tahmin et, hedefini seç ve gerçek ağırlık trendinle değerlendir.
+              Enerji ihtiyacını tahmin et, hedefini seç ve kontrollü bir başlangıç noktası oluştur.
             </p>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
               NASEM 2023 yetişkin enerji denklemleriyle oluşturulan sakin bir başlangıç tahmini.
@@ -67,7 +67,7 @@ export default function EnergyLabPage() {
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d0af69]">
                     Energy protocol
                   </p>
-                  <p className="mt-2 text-sm text-slate-400">Estimate → observe → calibrate</p>
+                  <p className="mt-2 text-sm text-slate-400">Estimate → assess → plan</p>
                 </div>
                 <Image
                   src="/images/logo.png"

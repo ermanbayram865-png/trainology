@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     template: "%s | Trainology",
   },
   description:
-    "Kanıt temelli fitness hesaplayıcıları, performans analizi ve hareket kütüphanesi.",
+    "Kanıt temelli fitness hesaplayıcıları ve performans analizi.",
   openGraph: {
     title: "Trainology | Bilimsel Fitness Platformu",
     description:
-      "Kanıt temelli fitness hesaplayıcıları, performans analizi ve hareket kütüphanesi.",
+      "Kanıt temelli fitness hesaplayıcıları ve performans analizi.",
     type: "website",
     locale: "tr_TR",
     siteName: siteConfig.name,
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Trainology | Bilimsel Fitness Platformu",
     description:
-      "Kanıt temelli fitness hesaplayıcıları, performans analizi ve hareket kütüphanesi.",
+      "Kanıt temelli fitness hesaplayıcıları ve performans analizi.",
     images: [absoluteUrl(siteConfig.defaultOpenGraphImage)],
   },
 };

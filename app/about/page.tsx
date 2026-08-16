@@ -5,7 +5,6 @@ import {
   BookOpenCheck,
   Calculator,
   CheckCircle2,
-  Dumbbell,
   Mail,
   ShieldCheck,
   Target,
@@ -47,14 +46,6 @@ const approaches = [
 
 const platformFeatures = [
   {
-    title: "Hareket Kütüphanesi",
-    description:
-      "Temel egzersizleri hedef kas grubu, ekipman, zorluk seviyesi ve uygulama ayrıntılarıyla inceleyebileceğiniz düzenli bir hareket arşivi.",
-    icon: <Dumbbell aria-hidden="true" />,
-    cta: "Hareketleri İncele",
-    href: "/movements",
-  },
-  {
     title: "Hesaplama Araçları",
     description:
       "Energy Lab, protein, makro, su, FFMI, BMI ve 1RM gibi ölçümleri pratik biçimde değerlendirmeye yardımcı olan araçlar.",
@@ -65,7 +56,7 @@ const platformFeatures = [
   {
     title: "Trainology Energy Lab",
     description:
-      "Günlük enerji ihtiyacın ve hedefin için kontrollü bir başlangıç tahmini oluşturup ağırlık trendinle değerlendirmene yardımcı olur.",
+      "Günlük enerji ihtiyacın ve hedefin için kontrollü bir başlangıç tahmini oluşturmana yardımcı olur.",
     icon: <BarChart3 aria-hidden="true" />,
     cta: "Ücretsiz Analize Başla",
     href: ENERGY_LAB_PATH,
@@ -93,7 +84,7 @@ export default function AboutPage() {
               Bilgiyi Antrenmana Dönüştüren Bilimsel Fitness Platformu
             </h1>
             <p className="mt-7 max-w-3xl text-base leading-8 text-neutral-300 sm:text-lg">
-              Trainology; fitness alanındaki karmaşık bilgileri anlaşılır, uygulanabilir ve ölçülebilir hâle getirmek amacıyla geliştirilen bağımsız bir platformdur. Hareket kütüphanesi, hesaplama araçları ve performans analizleriyle kullanıcıların daha bilinçli kararlar almasına yardımcı olur.
+              Trainology; fitness alanındaki karmaşık bilgileri anlaşılır, uygulanabilir ve ölçülebilir hâle getirmek amacıyla geliştirilen bağımsız bir platformdur. Hesaplama araçları ve performans analizleriyle kullanıcıların daha bilinçli kararlar almasına yardımcı olur.
             </p>
           </div>
 
@@ -137,7 +128,7 @@ export default function AboutPage() {
         title="Trainology’de Neler Var?"
         description="Mevcut araçlar, antrenman bilgisini ölçülebilir ve uygulanabilir kararlara dönüştürmeye yardımcı olur."
       >
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-2">
           {platformFeatures.map((feature) => (
             <Card key={feature.title} title={feature.title} description={feature.description} icon={feature.icon} variant="subtle" className="flex h-full flex-col" childrenClassName="mt-auto pt-7">
               <CTAButton href={feature.href} variant="secondary" className="w-full">

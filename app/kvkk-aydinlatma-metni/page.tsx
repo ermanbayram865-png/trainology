@@ -32,10 +32,9 @@ export default function KvkkAydinlatmaMetniPage() {
           <li><strong className="text-white">İletişim verileri:</strong> Kendi isteğinizle e-posta gönderdiğinizde e-posta adresiniz, ad-soyadınız, mesajınız ve eklediğiniz dosyalar.</li>
           <li><strong className="text-white">Başvuru verileri:</strong> KVKK kapsamındaki başvurunun konusu, iletişim bilgileri ve başvuru sahibiyle ilgili veriler arasındaki ilişkiyi doğrulamak için gerekli olabilecek sınırlı bilgiler.</li>
           <li><strong className="text-white">Hukuki işlem verileri:</strong> Bir hakkın tesisi, kullanılması veya korunması için tutulması gereken sınırlı yazışma ve kayıtlar.</li>
-          <li><strong className="text-white">Cihaz içi Energy Lab kalibrasyon verileri:</strong> Kullanıcının kendi isteğiyle eklediği tarih, günlük vücut ağırlığı, isteğe bağlı döngü notu ve kısa kişisel not. Bu kayıtlar yalnız kullanıcının tarayıcısındaki localStorage alanında tutulur ve Trainology sunucusuna aktarılmaz.</li>
         </LegalList>
         <p>Mevcut sürümde üyelik, kullanıcı hesabı, bülten, ödeme, abonelik, iletişim formu veya kullanıcı profili bulunmaz.</p>
-        <p>Energy Lab’in hamilelik/emzirme, yeme bozukluğu veya RED-S riski ve profesyonel değerlendirme gerektirebilecek durumlara ilişkin güvenlik ve kapsam yanıtları yalnız mevcut kullanım sırasında cihazda değerlendirilir; localStorage veya sessionStorage alanına kaydedilmez ve Trainology sunucusuna gönderilmez.</p>
+        <p>Energy Lab’e girilen yaş, boy, kilo, hedef, aktivite ve genel kapsam seçimi yalnız hesaplama sırasında tarayıcıdaki geçici React durumu içinde işlenir. Energy Lab bu girdileri localStorage, sessionStorage veya cookie alanına yazmaz; Trainology sunucusuna ya da analytics hizmetine göndermez. Sayfa yenilendiğinde form sıfırlanır.</p>
       </LegalSection>
 
       <LegalSection title="3. İşleme amaçları ve hukuki sebepler">
@@ -54,22 +53,22 @@ export default function KvkkAydinlatmaMetniPage() {
 
       <LegalSection title="4. Toplama yöntemi">
         <p>Veriler; hosting ve sunucu altyapısında otomatik oluşabilecek teknik kayıtlar, kullanıcının kendi isteğiyle gönderdiği e-postalar ve KVKK başvurularında doğrudan iletilen bilgiler yoluyla elektronik ortamda toplanabilir.</p>
-        <p>Energy Lab kalibrasyon kayıtları tarayıcı tarafından doğrudan ilgili cihazın localStorage alanına yazılır. Trainology bu kayıtları bir sunucu, kullanıcı hesabı veya merkezi veri tabanı üzerinden toplamaz.</p>
+        <p>Energy Lab form girdileri istemci tarafındaki geçici çalışma belleğinde işlenir; form action, API isteği, URL parametresi veya kalıcı tarayıcı depolaması kullanılmaz.</p>
       </LegalSection>
 
       <LegalSection title="5. Verilerin aktarılması">
         <p>Kişisel veriler yalnızca gerekli ölçüde; web hosting ve e-posta hizmetlerinin sunulmasını sağlayan hizmet sağlayıcılara ve hukuken zorunlu olması hâlinde yetkili kamu kurumları ile adli mercilere aktarılabilir.</p>
-        <p>Energy Lab kalibrasyon kayıtları ile güvenlik ve kapsam yanıtları analytics hizmetlerine veya üçüncü taraflara aktarılmaz. Kalibrasyon kayıtları cihazdaki localStorage alanında kalır; güvenlik ve kapsam yanıtları ise kalıcı olarak saklanmaz.</p>
+        <p>Energy Lab form girdileri ve kapsam seçimi analytics hizmetlerine veya üçüncü taraflara aktarılmaz. Sitenin teknik sunumu sırasında hosting altyapısında oluşabilecek standart erişim ve güvenlik kayıtları bu istemci tarafı form değerlerinden ayrıdır.</p>
         <p>Hosting, uzak yedekler, e-posta altyapısı ve alt hizmet sağlayıcıların veri işleme ülkelerine ilişkin bilgiler sağlayıcılardan doğrulandıkça bu metin güncellenir. Doğrulanmamış bir yurt dışı aktarımı varmış veya hiç yokmuş gibi kesin bir beyanda bulunulmaz.</p>
       </LegalSection>
 
       <LegalSection title="6. Saklama ve imha">
         <p>Veriler, amaç için gerekli süre ve uygulanabilir hukuki yükümlülükler dikkate alınarak saklanır. Saklama sebebi sona eren veriler, uygun yönteme göre silinir, yok edilir veya anonim hâle getirilir. Doğrulanmamış kesin bir log ya da e-posta saklama süresi taahhüt edilmez.</p>
-        <p>Energy Lab kalibrasyon kayıtları, kullanıcı tek tek veya topluca silene ya da tarayıcı verilerini temizleyene kadar yalnız ilgili cihazda kalır. Trainology sunucusunda bu kayıtların yedeği bulunmaz. Güvenlik ve kapsam yanıtları oturum sonrasında saklanmaz.</p>
+        <p>Energy Lab girdileri kalıcı olarak saklanmaz; yalnız açık sayfadaki geçici hesaplama durumu içinde bulunur ve sayfa yenilendiğinde sıfırlanır.</p>
       </LegalSection>
 
       <LegalSection title="7. Özel nitelikli kişisel veriler">
-        <p>Energy Lab genel yetişkin hesaplayıcısının kapsamını belirlemek için yalnız geniş kapsamlı güvenlik seçimleri sunar; teşhis, sağlık raporu, laboratuvar sonucu veya ayrıntılı hastalık öyküsü talep etmez. Bu seçimler cihazda geçici olarak değerlendirilir ve saklanmaz. Kullanıcının kalibrasyona kendi isteğiyle eklediği döngü veya kişisel notlar yalnız cihazdaki localStorage alanında tutulur.</p>
+        <p>Energy Lab yalnız genel yetişkin kapsamıyla devam etmek isteyip istemediğinizi sorar; hangi özel durumun bulunduğunu, teşhis, sağlık raporu, laboratuvar sonucu, ilaç adı veya ayrıntılı hastalık öyküsü talep etmez. Bu seçim tarayıcıda geçici olarak değerlendirilir, saklanmaz ve gönderilmez.</p>
         <p>E-postayla gereksiz sağlık verisi veya kimlik belgesi göndermeyin. Talep edilmeden iletilen bu tür veriler üzerinden kişisel teşhis ya da tıbbi değerlendirme yapılmaz; geçerli saklama sebebi bulunmayan gereksiz veriler silinir.</p>
       </LegalSection>
 

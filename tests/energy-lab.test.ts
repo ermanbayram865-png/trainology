@@ -2,27 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  CALIBRATION_STORAGE_KEY,
-  ENERGY_LAB_HANDOFF_KEY,
   calculateMifflinStJeorRmr,
   calculateNasem2023AdultEer,
   calculateTargetScenario,
-  clearCalibrationEntries,
   evaluateEnergyLab,
   getFatLossPolicy,
   isValidActivitySelection,
-  normalizeCalibrationEntries,
-  readCalibrationEntries,
-  readEnergyLabHandoff,
-  removeCalibrationEntry,
   roundToNearest50,
-  summarizeCalibration,
-  upsertCalibrationEntry,
-  writeCalibrationEntries,
-  writeEnergyLabHandoff,
-  type CalibrationEntry,
   type EnergyLabInput,
-  type StorageLike,
 } from "../lib/energy-lab/index";
 
 const BASE_INPUT: EnergyLabInput = {
@@ -32,7 +19,7 @@ const BASE_INPUT: EnergyLabInput = {
   weightKg: 60,
   activityProfiles: ["inactive"],
   performancePriority: false,
-  safetyFlags: [],
+  generalScope: "standardAdult",
 };
 
 function readyEvaluation(overrides: Partial<EnergyLabInput> = {}) {
@@ -293,27 +280,26 @@ test("BMI under 18.5 disables fat loss and BMI under 16 blocks standard targets"
   assert.equal(blocked.status, "blocked");
 });
 
-test("pregnancy/breastfeeding and eating-disorder/RED-S contexts block standard targets", () => {
-  const pregnancy = evaluateEnergyLab({
+test("the general scope gate allows standard adults and blocks uncertain scope without details", () => {
+  assert.equal(evaluateEnergyLab({ ...BASE_INPUT, generalScope: "standardAdult" }).status, "ready");
+
+  const outsideScope = evaluateEnergyLab({
     ...BASE_INPUT,
-    safetyFlags: ["pregnancyOrBreastfeeding"],
+    generalScope: "mayBeOutsideScope",
   });
-  const risk = evaluateEnergyLab({
-    ...BASE_INPUT,
-    safetyFlags: ["eatingDisorderOrRedsRisk"],
-  });
-  assert.equal(pregnancy.status, "blocked");
-  assert.equal(risk.status, "blocked");
+  assert.equal(outsideScope.status, "blocked");
+  if (outsideScope.status === "blocked") {
+    assert.equal(outsideScope.scope.reasons[0]?.code, "MAY_BE_OUTSIDE_GENERAL_SCOPE");
+    assert.match(outsideScope.scope.reasons[0]?.message ?? "", /sağlık profesyoneli/i);
+  }
 });
 
-test("medical and extreme-athlete contexts route to professional review", () => {
-  const medical = evaluateEnergyLab({ ...BASE_INPUT, safetyFlags: ["medicalReviewContext"] });
-  const athlete = evaluateEnergyLab({
-    ...BASE_INPUT,
-    safetyFlags: ["competitionOrExtremeAthleteContext"],
-  });
-  assert.equal(medical.status, "blocked");
-  assert.equal(athlete.status, "blocked");
+test("invalid or missing general scope choices never reach a numerical result", () => {
+  const invalid = evaluateEnergyLab({ ...BASE_INPUT, generalScope: "" as never });
+  assert.equal(invalid.status, "invalid");
+  if (invalid.status === "invalid") {
+    assert.equal(invalid.errors[0]?.field, "generalScope");
+  }
 });
 
 test("empty, NaN and invalid activity combinations never reach a result", () => {
@@ -346,127 +332,3 @@ test("gain targets expose maintenance and a true 5% small-surplus option only", 
     assert.notEqual(surplus.rawMin - result.maintenance.rawMin, 500);
   }
 });
-
-test("calibration normalization removes invalid records and upserts duplicate dates", () => {
-  const entries = normalizeCalibrationEntries([
-    { date: "2026-01-01", weightKg: 80 },
-    { date: "bad-date", weightKg: 79 },
-    { date: "2026-01-01", weightKg: 79.5, note: " güncellendi " },
-    { date: "2026-01-02", weightKg: Number.NaN },
-  ]);
-  assert.deepEqual(entries, [{ date: "2026-01-01", weightKg: 79.5, note: "güncellendi" }]);
-
-  const updated = upsertCalibrationEntry(entries, { date: "2026-01-01", weightKg: 79 });
-  assert.deepEqual(updated, [{ date: "2026-01-01", weightKg: 79 }]);
-  assert.deepEqual(removeCalibrationEntry(updated, "2026-01-01"), []);
-});
-
-test("calibration stage messages switch at 14 and 28 valid days", () => {
-  assert.match(summarizeCalibration(makeEntries(13)).stageMessage, /yeterli trend verisi yok/i);
-  assert.match(summarizeCalibration(makeEntries(14)).stageMessage, /İlk trend oluşuyor/i);
-  assert.match(summarizeCalibration(makeEntries(27)).stageMessage, /İlk trend oluşuyor/i);
-  assert.match(summarizeCalibration(makeEntries(28)).stageMessage, /daha güçlü veri/i);
-});
-
-test("28 records spread across months are not treated as a 28-day calibration window", () => {
-  const sparseEntries = Array.from({ length: 28 }, (_, index) => ({
-    date: new Date(Date.UTC(2025, 0, 1 + index * 7)).toISOString().slice(0, 10),
-    weightKg: 80 - index * 0.1,
-  }));
-  const summary = summarizeCalibration(sparseEntries);
-  assert.equal(summary.dataQuality, "missing");
-  assert.ok(summary.completedDays < 14);
-  assert.ok(summary.observationDays <= 28);
-});
-
-test("calibration uses first and last seven-day averages and returns only a direction", () => {
-  const summary = summarizeCalibration(makeEntries(28, (day) => 80 - day * 0.1));
-  assert.equal(summary.firstSevenAverage, 79.7);
-  assert.equal(summary.lastSevenAverage, 77.6);
-  assert.equal(summary.direction, "down");
-  assert.doesNotMatch(summary.directionMessage, /-100|-200|\+100|\+200/);
-});
-
-test("the 28-day, greater-than-4% loss caution is applied without diagnosis", () => {
-  const summary = summarizeCalibration(
-    makeEntries(28, (day) => (day < 7 ? 80 : day >= 21 ? 75 : 77.5)),
-  );
-  assert.equal(summary.rapidLossCaution, true);
-});
-
-test("the calibration caution is strict: exactly 4% does not trigger", () => {
-  const entries = makeEntries(28, (day) => (day < 7 ? 80 : day >= 21 ? 76.8 : 78.4));
-  const summary = summarizeCalibration(entries);
-  assert.ok(
-    summary.firstSevenAverage !== null &&
-      summary.lastSevenAverage !== null &&
-      Math.abs(
-        (summary.firstSevenAverage - summary.lastSevenAverage) / summary.firstSevenAverage -
-          0.04,
-      ) < 1e-10,
-  );
-  assert.equal(summary.rapidLossCaution, false);
-});
-
-test("sub-0.1 kg average noise is not labelled as an up or down direction", () => {
-  const summary = summarizeCalibration(
-    makeEntries(14, (day) => (day < 7 ? 80 : 79.98)),
-  );
-  assert.equal(summary.direction, "stable");
-  assert.match(summary.directionMessage, /0,1 kg gösterim çözünürlüğünde/i);
-});
-
-test("versioned local storage data is read safely, updated and cleared", () => {
-  const storage = new MemoryStorage();
-  storage.setItem(CALIBRATION_STORAGE_KEY, "not-json");
-  assert.deepEqual(readCalibrationEntries(storage), []);
-
-  const entries = writeCalibrationEntries(storage, [{ date: "2026-01-01", weightKg: 80 }]);
-  assert.deepEqual(entries, [{ date: "2026-01-01", weightKg: 80 }]);
-  assert.deepEqual(readCalibrationEntries(storage), entries);
-  clearCalibrationEntries(storage);
-  assert.deepEqual(readCalibrationEntries(storage), []);
-});
-
-test("macro handoff contains only validated planning fields", () => {
-  const storage = new MemoryStorage();
-  const written = writeEnergyLabHandoff(storage, {
-    rawTargetKcal: 2275.37,
-    displayTargetKcal: 2300,
-    goal: "maintain",
-    weightKg: 63,
-    activityProfile: "lowActive",
-  });
-  assert.deepEqual(readEnergyLabHandoff(storage), written);
-
-  const serialized = storage.getItem(ENERGY_LAB_HANDOFF_KEY) ?? "";
-  assert.doesNotMatch(serialized, /pregnan|safety|eating|medication|sex|height|age/i);
-  storage.setItem(ENERGY_LAB_HANDOFF_KEY, JSON.stringify({ ...written, rawTargetKcal: null }));
-  assert.equal(readEnergyLabHandoff(storage), null);
-});
-
-function makeEntries(
-  count: number,
-  weightForDay: (day: number) => number = (day) => 80 - day * 0.05,
-): CalibrationEntry[] {
-  return Array.from({ length: count }, (_, index) => {
-    const date = new Date(Date.UTC(2026, 0, index + 1)).toISOString().slice(0, 10);
-    return { date, weightKg: weightForDay(index) };
-  });
-}
-
-class MemoryStorage implements StorageLike {
-  private readonly values = new Map<string, string>();
-
-  getItem(key: string) {
-    return this.values.get(key) ?? null;
-  }
-
-  setItem(key: string, value: string) {
-    this.values.set(key, value);
-  }
-
-  removeItem(key: string) {
-    this.values.delete(key);
-  }
-}

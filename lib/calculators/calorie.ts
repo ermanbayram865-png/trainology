@@ -76,7 +76,7 @@ export function calculateCalorieRequirement({
     weightKg: weight,
     activityProfiles: [activityProfileMap[activityLevel]],
     performancePriority: false,
-    safetyFlags: [],
+    generalScope: "standardAdult",
   });
 
   if (evaluation.status !== "ready") {

@@ -23,7 +23,7 @@ export default function FinalCTA() {
           </h2>
 
           <p className="mx-auto mt-5 max-w-xl text-center text-base leading-7 text-neutral-400 sm:text-lg sm:leading-8">
-            Bilimsel araçlar ve hareket bilgileriyle daha bilinçli kararlar için Trainology&apos;i keşfet.
+            Bilimsel araçlarla daha bilinçli fitness kararları için Trainology&apos;i keşfet.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-5 sm:flex-row">
@@ -32,9 +32,6 @@ export default function FinalCTA() {
               <ArrowRight aria-hidden="true" className="ml-2 size-4" />
             </CTAButton>
 
-            <CTAButton href="/movements" variant="secondary" className="w-full sm:w-auto">
-              Hareketleri Keşfet
-            </CTAButton>
           </div>
         </div>
       </div>

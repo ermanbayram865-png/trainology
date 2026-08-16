@@ -12,7 +12,6 @@ import { ENERGY_LAB_PATH } from "@/lib/routes";
 
 const menuItems = [
   { title: "Ana Sayfa", href: "/" },
-  { title: "Hareketler", href: "/movements" },
   { title: "Araçlar", href: "/calculators" },
   { title: "Hakkımızda", href: "/about" },
 ];

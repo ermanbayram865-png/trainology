@@ -72,25 +72,7 @@ const accordionItems = [
     ),
   },
   {
-    title: "6. Trend kalibrasyonu",
-    content: (
-      <div className="space-y-3">
-        <p>
-          Yalnız son 28 takvim günlük pencere değerlendirilir. En az 14 geçerli günlük kayıt
-          ilk trendi; pencerenin 28 gününün tamamlanması daha güçlü veri aşamasını açar.
-          Düzensiz biçimde aylara yayılan 28 kayıt “yeterli” sayılmaz.
-        </p>
-        <p>
-          İlk ve son yedi takvim günü ortalamalarını karşılaştıran 14/28 gün kuralı bir
-          ürün sezgisidir; Hall ve Chow çalışmasının doğruladığı klinik eşik değildir.
-          Kayıtlar belirli bir tahmin başlangıcına veya enerji alımına bağlanmadığı için
-          gerçek TDEE ya da kalori farkı geri hesaplanmaz ve otomatik hedef değişikliği yapılmaz.
-        </p>
-      </div>
-    ),
-  },
-  {
-    title: "7. Kullanılmayan yöntemler",
+    title: "6. Kullanılmayan yöntemler",
     content: (
       <ul className="list-disc space-y-2 pl-5">
         <li>Klasik “haftada kaç gün spor” aktivite çarpanları</li>
@@ -116,13 +98,6 @@ const references = [
       "Mifflin MD, St Jeor ST, Hill LA, et al. A new predictive equation for resting energy expenditure in healthy individuals. Am J Clin Nutr. 1990;51(2):241–247. doi:10.1093/ajcn/51.2.241.",
     href: "https://pubmed.ncbi.nlm.nih.gov/2305711/",
     supports: "Yalnız ikincil RMR gösterimi; orijinal örneklem 19–78 yaş.",
-  },
-  {
-    label:
-      "Hall KD, Chow CC. Estimating changes in free-living energy intake and its confidence interval. Am J Clin Nutr. 2011;94(1):66–74. doi:10.3945/ajcn.111.014399.",
-    href: "https://pubmed.ncbi.nlm.nih.gov/21562087/",
-    supports:
-      "Günlük boylamsal kilo verisinin değerini destekler; Energy Lab’in 14/28 gün sezgisini veya ilk/son yedi kuralını doğrulamaz.",
   },
   {
     label:
@@ -172,8 +147,8 @@ export default function EnergyLabMethodology() {
             <div className="mt-7 flex items-start gap-3 rounded-2xl border border-[#11283a]/10 bg-[#fbfaf6] p-5">
               <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#8c6a2d]" />
               <p className="text-sm leading-7 text-[#596a77]">
-                Sağlık ve kapsam cevapları yalnız o anki kontrol için kullanılır; URL’ye,
-                localStorage’a veya analytics’e yazılmaz.
+                Form girdileri ve kapsam seçimi yalnız bu sayfadaki geçici hesap için kullanılır;
+                URL’ye, tarayıcı depolamasına veya analytics’e yazılmaz ve sunucuya gönderilmez.
               </p>
             </div>
           </div>
@@ -205,7 +180,7 @@ export default function EnergyLabMethodology() {
             <details className="group rounded-2xl border border-[#11283a]/10 bg-[#fbfaf6] p-5 shadow-[0_10px_35px_rgba(17,40,58,.04)] open:border-[#9f7b38]/30 sm:p-6">
               <summary className="cursor-pointer list-none pr-8 text-base font-bold text-[#102536] marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-4">
-                  8. Bilimsel kaynaklar
+                  7. Bilimsel kaynaklar
                   <span
                     aria-hidden="true"
                     className="text-xl font-light text-[#8c6a2d] transition-transform group-open:rotate-45 motion-reduce:transition-none"
