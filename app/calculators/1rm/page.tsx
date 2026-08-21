@@ -8,61 +8,54 @@ import CalculatorResultCard from "@/components/calculators/CalculatorResultCard"
 import CalculatorSection from "@/components/calculators/CalculatorSection";
 import CTAButton from "@/components/ui/CTAButton";
 import {
-  calculateEpleyOneRepMax,
-  ONE_REP_MAX_EXERCISES,
-  validateCalculatorField,
+  calculateOneRepMax,
+  formatKilograms,
   type CalculatorField,
   type CalculatorFormValues,
   type CalculatorValidationErrors,
-  type OneRepMaxEstimate,
+  type OneRepMaxCalculation,
 } from "@/lib/calculators";
 
 const oneRepMaxFields: readonly CalculatorField[] = [
   {
-    name: "exercise",
-    label: "Egzersiz",
-    type: "select",
-    options: ONE_REP_MAX_EXERCISES,
-    required: true,
-  },
-  {
     name: "weight",
-    label: "Kullanılan ağırlık",
+    label: "Kaldırılan ağırlık",
     type: "number",
     unit: "kg",
     placeholder: "Örneğin 100",
+    helperText: "Set boyunca kullandığın toplam ağırlığı gir.",
     required: true,
-    min: 1,
-    max: 500,
-    step: 0.5,
+    min: 0.1,
+    max: 1000,
+    step: 0.1,
   },
   {
     name: "repetitions",
     label: "Tekrar sayısı",
     type: "number",
-    unit: "rep",
     placeholder: "Örneğin 5",
+    helperText:
+      "1–10 arasında tamamladığın tekrar sayısını gir. Daha düşük tekrar sayıları genellikle daha güvenilir tahmin sağlar.",
     required: true,
     min: 1,
-    max: 20,
+    max: 10,
     step: 1,
   },
 ];
 
 const initialValues: CalculatorFormValues = {
-  exercise: "",
   weight: "",
   repetitions: "",
 };
 
-function getExerciseLabel(value: string) {
-  return ONE_REP_MAX_EXERCISES.find((exercise) => exercise.value === value)?.label ?? value;
+function parseInput(value: CalculatorFormValues[string]): number | null {
+  return typeof value === "string" && value.trim() !== "" ? Number(value) : null;
 }
 
 export default function OneRepMaxCalculatorPage() {
   const [values, setValues] = useState<CalculatorFormValues>(initialValues);
   const [errors, setErrors] = useState<CalculatorValidationErrors>({});
-  const [result, setResult] = useState<OneRepMaxEstimate | null>(null);
+  const [result, setResult] = useState<OneRepMaxCalculation | null>(null);
 
   function handleFieldChange(name: string, value: CalculatorFormValues[string]) {
     setValues((currentValues) => ({ ...currentValues, [name]: value }));
@@ -70,49 +63,55 @@ export default function OneRepMaxCalculatorPage() {
     setResult(null);
   }
 
+  function handleReset() {
+    setValues(initialValues);
+    setErrors({});
+    setResult(null);
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const nextErrors: CalculatorValidationErrors = {};
+    const calculation = calculateOneRepMax({
+      weightKg: parseInput(values.weight),
+      repetitions: parseInput(values.repetitions),
+    });
 
-    for (const field of oneRepMaxFields) {
-      const error = validateCalculatorField(field, values[field.name]);
-
-      if (error) {
-        nextErrors[field.name] = error;
-      }
-    }
-
-    setErrors(nextErrors);
-
-    if (Object.keys(nextErrors).length > 0) {
+    if (calculation.type === "VALIDATION_ERROR") {
+      setErrors(
+        Object.fromEntries(
+          calculation.errors.map((error) => [
+            error.field === "weightKg" ? "weight" : "repetitions",
+            error.message,
+          ]),
+        ),
+      );
+      setResult(null);
       return;
     }
 
-    setResult(
-      calculateEpleyOneRepMax(
-        Number(values.weight),
-        Number(values.repetitions),
-      ),
-    );
+    setErrors({});
+    setResult(calculation);
   }
-
-  const selectedExercise = getExerciseLabel(String(values.exercise));
 
   return (
     <CalculatorLayout
       title="1RM Hesaplayıcı"
       seoPath="/calculators/1rm"
-      description="Bir harekette kaldırdığın ağırlık ve tekrar sayısından tahmini maksimum gücünü hesapla."
+      description="Kaldırdığın ağırlık ve tamamladığın tekrar sayısından yaklaşık tek tekrar maksimumunu tahmin et."
       info={
-        <>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">Nasıl hesaplanıyor?</h2>
           <p>
-            1RM, bir hareket için tek tekrar yapabileceğin en yüksek yükü ifade eder. Antrenman programlamasında yükleri yüzde olarak planlamak için kullanılabilir.
+            1 tekrarda kaldırılan yük doğrudan gösterilir. 2–10 tekrar için Lombardi
+            denklemi kullanılır: 1RM = ağırlık × tekrar^0,10.
           </p>
-          <p className="mt-3">
-            Submaksimal bir setten tahmin yapmak, her zaman gerçek maksimum denemesi yapmadan performans takibi sağlamaya yardımcı olabilir.
+          <p>
+            Bu bir tahmindir; farklı denklemlerin doğruluğu egzersiz ve popülasyona göre
+            değişebilir. Lombardi, Trainology&apos;nin v1 ürün yöntemidir ve evrensel olarak en
+            doğru formül olduğu iddia edilmez.
           </p>
-        </>
+        </div>
       }
       references={
         <ul className="list-disc space-y-2 pl-5">
@@ -123,27 +122,27 @@ export default function OneRepMaxCalculatorPage() {
               rel="noreferrer"
               className="text-[#C9A14A] underline-offset-4 hover:underline"
             >
-              Prediction of one repetition maximum strength from multiple repetition maximum testing
+              Tekrar temelli 1RM tahmini ve tekrar sınırı
             </a>
           </li>
           <li>
             <a
-              href="https://www.hprc-online.org/physical-fitness/training-performance/what-one-rep-max"
+              href="https://journal.iusca.org/index.php/Journal/article/view/327"
               target="_blank"
               rel="noreferrer"
               className="text-[#C9A14A] underline-offset-4 hover:underline"
             >
-              NSCA strength testing guidance
+              1RM denklemlerinin güncel karşılaştırması
             </a>
           </li>
         </ul>
       }
-      disclaimer="Bu hesaplama tahmini bir 1RM değeri sağlar. Gerçek maksimum performans; teknik, hareket deneyimi, ekipman ve günlük performans durumuna göre değişebilir."
+      disclaimer="Bu araç egzersize uygunluk değerlendirmesi veya kişisel antrenman reçetesi değildir. Sonuç, maksimal deneme yapman gerektiği anlamına gelmez."
     >
-      <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
+      <div className="grid min-w-0 gap-8 xl:grid-cols-2 xl:items-start">
         <CalculatorSection
-          title="Set Bilgilerin"
-          description="Tahmini maksimum gücünü hesaplamak için hareketini, yükünü ve tekrar sayını gir."
+          title="Set bilgilerin"
+          description="Tahmin için kaldırdığın toplam ağırlığı ve tamamladığın tekrar sayısını gir."
         >
           <CalculatorForm
             fields={oneRepMaxFields}
@@ -152,60 +151,74 @@ export default function OneRepMaxCalculatorPage() {
             onChange={handleFieldChange}
             onSubmit={handleSubmit}
           >
-            <CTAButton type="submit" className="w-full">
-              Tahmini 1RM Hesapla
-            </CTAButton>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <CTAButton type="submit" className="w-full">
+                Hesapla
+              </CTAButton>
+              <CTAButton type="button" variant="secondary" className="w-full" onClick={handleReset}>
+                Sıfırla
+              </CTAButton>
+            </div>
           </CalculatorForm>
         </CalculatorSection>
 
-        {result ? (
-          <CalculatorResultCard
-            title="Performans Analizin"
-            description="Epley formülü ile hesaplanan tahmini maksimum güç değerin."
-            results={[
-              {
-                title: "Tahmini 1RM",
-                value: result.estimatedOneRepMax.toFixed(1),
-                unit: "kg",
-                color: "gold",
-                explanation: "Bu değer tahmini maksimum gücünü gösterir.",
-              },
-              {
-                title: "Kullanılan Ağırlık",
-                value: String(values.weight),
-                unit: "kg",
-                color: "neutral",
-              },
-              {
-                title: "Tekrar Sayısı",
-                value: String(values.repetitions),
-                unit: "rep",
-                color: "neutral",
-              },
-              {
-                title: "Egzersiz",
-                value: selectedExercise,
-                color: "success",
-              },
-              {
-                title: "Formül Yöntemi",
-                value: "Epley",
-                color: "neutral",
-                explanation: "Ağırlık × (1 + tekrar / 30)",
-              },
-            ]}
-          />
-        ) : (
-          <CalculatorSection
-            title="Performans Analizin"
-            description="Set bilgilerini girip hesapla butonuna bastığında tahmini 1RM değerin burada görünecek."
-            className="min-h-full"
-          >
-            <p className="text-sm leading-6 text-neutral-500">
-              Gerçek 1RM performansı teknik, deneyim, yorgunluk ve ekipman gibi faktörlerden etkilenebilir.
-            </p>
-          </CalculatorSection>
-        )}
+        <div aria-live="polite" aria-atomic="true" className="min-w-0">
+          {result ? (
+            <div className="space-y-5">
+              <CalculatorResultCard
+                title="Tahmini 1RM"
+                description={
+                  result.calculationMethod === "direct"
+                    ? "Tek tekrar girişi doğrudan kaldırılan yüke eşitlendi."
+                    : "Lombardi denklemiyle hesaplanan yaklaşık 1RM değeri."
+                }
+                results={[
+                  {
+                    title: "Tahmini 1RM",
+                    value: formatKilograms(result.rawEstimatedOneRepMaxKg, 1),
+                    unit: "kg",
+                    color: "gold",
+                    explanation: "Görünür sonuç bir ondalık basamağa yuvarlanır.",
+                  },
+                  {
+                    title: "Girdi özeti",
+                    value: `${formatKilograms(result.inputWeightKg, 1)} kg × ${result.repetitions} tekrar`,
+                    color: "neutral",
+                  },
+                  {
+                    title: "Yöntem",
+                    value: result.calculationMethod === "direct" ? "Doğrudan yük" : "Lombardi",
+                    color: "neutral",
+                    explanation:
+                      result.calculationMethod === "direct"
+                        ? "1 tekrar için formül uygulanmaz."
+                        : "Ağırlık × tekrar^0,10",
+                  },
+                ]}
+              />
+
+              <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[.04] p-5">
+                <h3 className="font-semibold text-amber-200">Belirsizlik ve güvenlik</h3>
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-300">
+                  {result.warnings.map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                  <li>Bu sonuç egzersize uygunluk değerlendirmesi veya kişisel antrenman reçetesi değildir.</li>
+                </ul>
+              </div>
+
+              <CTAButton href="/calculators/training-load" variant="secondary" className="w-full">
+                Bu 1RM ile antrenman ağırlığını hesapla →
+              </CTAButton>
+            </div>
+          ) : (
+            <CalculatorSection title="Tahmini 1RM" className="min-h-full">
+              <p className="text-sm leading-6 text-neutral-400">
+                Ağırlık ve tekrar sayısını girerek tahmini 1RM değerini hesaplayabilirsin.
+              </p>
+            </CalculatorSection>
+          )}
+        </div>
       </div>
     </CalculatorLayout>
   );

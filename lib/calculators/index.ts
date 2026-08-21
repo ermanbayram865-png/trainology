@@ -6,6 +6,7 @@ export * from "./healthy-weight";
 export * from "./macro";
 export * from "./one-rep-max";
 export * from "./protein";
+export * from "./training-load";
 export * from "./types";
 export * from "./validators";
 export * from "./water";

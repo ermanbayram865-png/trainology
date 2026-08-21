@@ -13,7 +13,7 @@ type CalculatorFieldProps = {
 };
 
 const inputClasses =
-  "w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-[#C9A14A]";
+  "w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-[#C9A14A] focus-visible:ring-2 focus-visible:ring-[#C9A14A]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0B]";
 
 export default function CalculatorField({
   field,
@@ -133,7 +133,7 @@ export default function CalculatorField({
       )}
 
       {error && (
-        <p id={errorId} className="mt-2 text-sm text-amber-300">
+        <p id={errorId} role="alert" className="mt-2 text-sm text-amber-300">
           {error}
         </p>
       )}

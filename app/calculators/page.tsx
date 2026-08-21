@@ -6,6 +6,7 @@ import {
   Droplets,
   Dumbbell,
   Ruler,
+  Percent,
   Target,
   Trophy,
   Utensils,
@@ -63,11 +64,19 @@ const calculatorGroups = [
     calculators: [
       {
         title: "1RM Hesaplayıcı",
-        description: "Tek tekrar maksimumunu güvenli bir başlangıç tahminiyle incele.",
+        description: "Kaldırdığın ağırlık ve tekrar sayısından yaklaşık 1RM değerini hesapla.",
         category: "Kuvvet",
         badge: "HIZLI HESAPLAMA",
         href: "/calculators/1rm",
         icon: <Trophy aria-hidden="true" />,
+      },
+      {
+        title: "%1RM Antrenman Yükü",
+        description: "1RM değerinin seçtiğin yüzdesine karşılık gelen yaklaşık yükü hesapla.",
+        category: "Performans",
+        badge: "HIZLI HESAPLAMA",
+        href: "/calculators/training-load",
+        icon: <Percent aria-hidden="true" />,
       },
       {
         title: "Performans Analizi",
