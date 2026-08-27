@@ -63,12 +63,12 @@ export default function HealthyWeightCalculatorPage() {
 
   return (
     <CalculatorLayout
-      title="BMI ve Ağırlık Aralığı"
+      title="Vücut Kitle İndeksi (BMI) ve Ağırlık Aralığı"
       seoPath="/calculators/healthy-weight"
       description="Boyuna göre BMI temelli genel ağırlık referans aralığını incele."
       info={
         <p>
-          Bu araç tek bir hedef kilo önermez. Sonuç, boy uzunluğuna göre genel BMI referans aralığından türetilir.
+          Bu araç tek bir hedef kilo önermez. Sonuç, boy uzunluğuna göre genel Vücut Kitle İndeksi (Body Mass Index / BMI) referans aralığından türetilir.
         </p>
       }
       disclaimer="Bu değer genel bir referanstır. Vücut kompozisyonu, kas kütlesi, yaş, cinsiyet ve bireysel hedefler sonucu değiştirebilir."
@@ -84,6 +84,7 @@ export default function HealthyWeightCalculatorPage() {
             errors={errors}
             onChange={handleFieldChange}
             onSubmit={handleSubmit}
+            className="lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-4 lg:space-y-0"
           >
             <CTAButton type="submit" className="w-full">
               Ağırlık Aralığını Hesapla

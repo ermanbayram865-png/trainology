@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Protein İhtiyacı",
-  description: "Yetişkinler için protein nüfus referansını veya antrenmana göre pratik protein aralığını inceleyin.",
+  title: "Günlük Protein Referansı",
+  description: "Kilonuz, hedefiniz ve antrenman durumunuza göre günlük protein başlangıç referansını veya pratik aralığı inceleyin.",
   alternates: { canonical: "/calculators/protein" },
 };
 

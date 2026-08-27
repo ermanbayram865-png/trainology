@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Toplam Su Alımı Referansı",
-  description: "EFSA'nın sağlıklı yetişkinler için toplam su yeterli alım referansını inceleyin.",
+  title: "Su & Hidrasyon",
+  description: "Günlük toplam su referansını görüntüleyin ve egzersiz hidrasyonunu ölçüme dayalı olarak değerlendirin.",
   alternates: { canonical: "/calculators/water" },
 };
 

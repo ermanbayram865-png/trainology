@@ -48,7 +48,7 @@ const platformFeatures = [
   {
     title: "Hesaplama Araçları",
     description:
-      "Energy Lab, protein, makro, su, FFMI, BMI ve 1RM gibi ölçümleri pratik biçimde değerlendirmeye yardımcı olan araçlar.",
+      "Energy Lab, protein, makro, su, FFMI ve BMI gibi ölçümleri pratik biçimde değerlendirmeye yardımcı olan araçlar.",
     icon: <Calculator aria-hidden="true" />,
     cta: "Araçları Keşfet",
     href: "/calculators",
@@ -84,7 +84,7 @@ export default function AboutPage() {
               Bilgiyi Antrenmana Dönüştüren Bilimsel Fitness Platformu
             </h1>
             <p className="mt-7 max-w-3xl text-base leading-8 text-neutral-300 sm:text-lg">
-              Trainology; fitness alanındaki karmaşık bilgileri anlaşılır, uygulanabilir ve ölçülebilir hâle getirmek amacıyla geliştirilen bağımsız bir platformdur. Hesaplama araçları ve performans analizleriyle kullanıcıların daha bilinçli kararlar almasına yardımcı olur.
+              Trainology; fitness alanındaki karmaşık bilgileri anlaşılır, uygulanabilir ve ölçülebilir hâle getirmek amacıyla geliştirilen bağımsız bir platformdur. Hesaplama araçlarıyla kullanıcıların daha bilinçli kararlar almasına yardımcı olur.
             </p>
           </div>
 

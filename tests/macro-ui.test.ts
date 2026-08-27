@@ -7,62 +7,125 @@ const source = readFileSync(
   "utf8",
 );
 
-test("Makro Profili gerçek motor sonucunu erişilebilir bir grafikle sunar", () => {
-  assert.match(source, /calculateMacroDistribution\s*\(/);
-  assert.match(source, /role="img"/);
-  assert.match(source, /aria-label=\{chartLabel\}/);
-  assert.match(source, /aria-live="polite"/);
-  assert.match(source, /result\.proteinPercentage/);
-  assert.match(source, /result\.carbohydratePercentage/);
-  assert.match(source, /result\.fatPercentage/);
-  assert.doesNotMatch(source, /112 g|306 g|80 g/);
+test("Makro Planlayıcı iki adımlı wizard, geri ve sonuç akışını korur", () => {
+  assert.match(source, /type MacroStage = 1 \| 2 \| "result"/);
+  assert.match(source, /useState<MacroStage>\(1\)/);
+  assert.match(source, /validateFields\(\["weight", "height", "calories"\]\)\) setStage\(2\)/);
+  assert.match(source, /onClick=\{\(\) => setStage\(1\)\}/);
+  assert.match(source, /Temel Bilgiler/);
+  assert.match(source, /Plan Tercihlerin/);
+  assert.doesNotMatch(source, /MacroProfilePanel|EmptyProfileState|sticky/);
 });
 
-test("premium form etiket, hata ve klavye odağı sözleşmelerini korur", () => {
-  assert.match(source, /<fieldset[\s\S]+?<legend/);
-  assert.match(source, /aria-describedby/);
+test("ağırlık, boy ve kalori teknik validasyonları inline çalışır", () => {
+  assert.match(source, /name: "weight"[\s\S]+?min: 25, max: 400/);
+  assert.match(source, /name: "height"[\s\S]+?min: 100, max: 250/);
+  assert.match(source, /name: "calories"[\s\S]+?min: 1000, max: 8000/);
+  assert.match(source, /validateCalculatorField\(field, values\[field\.name\]\)/);
+  assert.match(source, /id="macro-height"/);
   assert.match(source, /role="alert"/);
-  assert.match(source, /focus-within:ring-2/);
-  assert.match(source, /focus:ring-2/);
-  assert.match(source, /document\.querySelector<HTMLElement>\(selector\)\?\.focus\(\)/);
-
-  const weightPosition = source.indexOf('id="macro-weight"');
-  const caloriePosition = source.indexOf('id="macro-calories"');
-  const goalPosition = source.indexOf("macro-goal-helper");
-  const activityPosition = source.indexOf('id="macro-activityLevel"');
-
-  assert.ok(weightPosition >= 0);
-  assert.ok(caloriePosition > weightPosition);
-  assert.ok(goalPosition > caloriePosition);
-  assert.ok(activityPosition > goalPosition);
-  assert.doesNotMatch(source, /title="Enerji hedefin"/);
+  assert.match(source, /aria-invalid/);
 });
 
-test("Makro Profili yalnız masaüstü iki sütun eşiğinde sticky olur", () => {
-  assert.match(source, /xl:grid-cols/);
-  assert.match(source, /xl:sticky xl:top-24/);
-  assert.match(source, /xl:max-h-\[calc\(100dvh-7rem\)\] xl:overflow-y-auto/);
-  assert.doesNotMatch(source, /(?:^|\s)(?:sm|md|lg):sticky/);
-  assert.match(source, /min-w-0/);
-  assert.match(source, /aspect-square w-full max-w-60/);
-  assert.doesNotMatch(source, /(?:size-60|sm:size-64)/);
+test("manuel kalori ve güvenli Energy Lab prefill akışları birlikte çalışır", () => {
+  assert.match(source, /calories: ""/);
+  assert.match(source, /height: ""/);
+  assert.match(source, /useSearchParams\(\)/);
+  assert.match(source, /getCaloriePrefill\(searchParams\.get\("calories"\)\)/);
+  assert.match(source, /Number\.isInteger\(calories\)/);
+  assert.match(source, /calories >= 1000 && calories <= 8000/);
+  assert.match(source, /currentValues\.calories === ""/);
+  assert.match(source, /href=\{ENERGY_LAB_PATH\}/);
+  assert.match(source, /Energy Lab ile hesapla/);
+  assert.doesNotMatch(source, /localStorage|sessionStorage|fetch\s*\(/i);
 });
 
-test("Makro aracı iç içe krem kabuk ve masaüstünde tek kolonlu sonuç kullanmaz", () => {
-  assert.doesNotMatch(source, /bg-\[#f4f1e9\]/);
-  assert.doesNotMatch(source, /xl:grid-cols-1/);
-  assert.doesNotMatch(source, /Kısa plan|number="0[1-4]"/);
-  assert.match(source, /bg-\[#0c1924\]/);
-  assert.match(source, /bg-\[#071827\]/);
-  assert.match(source, /sectionClassName="!py-14 sm:!py-16 lg:!py-20"/);
-  assert.match(source, /contentClassName="space-y-12"/);
+test("hedef ve direnç antrenmanı seçimleri erişilebilir kartlarla motora aktarılır", () => {
+  assert.match(source, /Düzenli direnç antrenmanı yapıyor musun\?/);
+  assert.match(source, /name="resistanceTraining"/);
+  assert.match(source, /resistanceTraining: values\.resistanceTraining as MacroResistanceTraining/);
+  assert.match(source, /type="radio" name=\{name\}/);
+  assert.match(source, /checked=\{selected\}/);
+  assert.match(source, /Seçili/);
+  assert.doesNotMatch(source, /activityLevel|Aktivite düzeyin/);
 });
 
-test("Makro Planlayıcı bağımsız ve geçici form durumunu korur", () => {
-  assert.match(source, /calories:\s*""/);
-  assert.match(source, /weight:\s*""/);
-  assert.doesNotMatch(
-    source,
-    /EnergyLab|handoff|localStorage|sessionStorage|URLSearchParams|fetch\s*\(/i,
-  );
+test("kompakt yetişkin kapsam kontrolü bütün kapsam dışı durumları temsil eder", () => {
+  assert.match(source, /Standart yetişkin kapsamındayım/);
+  assert.match(source, /Bu araç benim durumuma uygun olmayabilir/);
+  assert.match(source, /18 yaş altı/);
+  assert.match(source, /gebelik\/emzirme/);
+  assert.match(source, /yeme bozukluğu/);
+  assert.match(source, /RED-S\/düşük enerji kullanılabilirliği/);
+  assert.match(source, /klinik hastalık\/özel tıbbi diyet/);
+  assert.match(source, /physique yarışma hazırlığı/);
+  assert.match(source, /scope: values\.scope as MacroScope/);
+  assert.match(source, /Kimler için uygun değildir\?/);
+  assert.match(source, /<details/);
+});
+
+test("sonuç motorun canonical gram ve yüzde değerlerini gösterir", () => {
+  assert.match(source, /distribution\.proteinPercentage/);
+  assert.match(source, /distribution\.carbohydratePercentage/);
+  assert.match(source, /distribution\.fatPercentage/);
+  assert.match(source, /grams: distribution\.protein/);
+  assert.match(source, /grams: distribution\.carbohydrates/);
+  assert.match(source, /grams: distribution\.fat/);
+  assert.match(source, /minimumFractionDigits: 1, maximumFractionDigits: 1/);
+  assert.doesNotMatch(source, /proteinShare|carbohydrateShare|conic-gradient/);
+  assert.match(source, /Günlük Makro Dağılımın/);
+});
+
+test("lif, dinamik bilimsel bağlam ve manuel kalori sınırı görünürdür", () => {
+  assert.match(source, /Lif referansı/);
+  assert.match(source, /≥\{distribution\.fiberReferenceGrams\} g \/ gün/);
+  assert.match(source, /girdiğin kalori hedefini kullanır/);
+  assert.match(source, /referans ağırlık kullanıldı/);
+  assert.match(source, /1,6 g\/kg\/gün/);
+  assert.match(source, /genel yetişkin protein yeterlilik referansı/);
+});
+
+test("blocked sonuçlar sayısal dağılım göstermeden düzenlemeye döner", () => {
+  assert.match(source, /evaluation\.status === "ok"/);
+  assert.match(source, /Standart dağılım oluşturulmadı/);
+  assert.match(source, /evaluation\.message/);
+  assert.match(source, /Planı Düzenle/);
+  assert.match(source, /onEdit=\{\(\) => setStage\(2\)\}/);
+  assert.doesNotMatch(source, /setValues\(initialValues\)/);
+});
+
+test("metodoloji accordion ve kaynaklar erişilebilir biçimde sunulur", () => {
+  assert.match(source, /<details/);
+  assert.match(source, /<summary/);
+  assert.match(source, /Nasıl hesaplandı\?/);
+  assert.match(source, /EFSA — Yetişkin protein PRI/);
+  assert.match(source, /Jäger ve ark\./);
+  assert.match(source, /Morton ve ark\./);
+  assert.match(source, /WHO — Karbonhidrat ve lif kılavuzu/);
+  assert.match(source, /Yuvarlama/);
+});
+
+test("wizard düşük yükseklikli gerçek desktop viewport için kompaktlaşır", () => {
+  assert.match(source, /max-height:850px/);
+  assert.match(source, /sectionClassName="!py-5 sm:!py-7 lg:!py-7/);
+  assert.match(source, /contentClassName="space-y-4 lg:space-y-3\.5/);
+  assert.match(source, /max-w-5xl/);
+  assert.match(source, /md:grid-cols-3/);
+  assert.match(source, /\[@media\(min-width:1024px\)_and_\(max-height:850px\)\]:!py-2\.5/);
+  assert.match(source, /min-h-12/);
+  assert.match(source, /min-h-11/);
+  assert.doesNotMatch(source, /!min-h-10/);
+  assert.doesNotMatch(source, /transform:\s*scale|zoom:|overflow-hidden/);
+});
+
+test("ana sonuç ve düzenleme aksiyonu uzun açıklamalardan önce gelir", () => {
+  const macroCards = source.indexOf("<dl className=");
+  const fiber = source.indexOf("Lif referansı");
+  const edit = source.indexOf("Planı Düzenle", fiber);
+  const explanation = source.indexOf("Bu dağılım ne anlama geliyor?");
+
+  assert.ok(macroCards >= 0);
+  assert.ok(fiber > macroCards);
+  assert.ok(edit > fiber);
+  assert.ok(explanation > edit);
 });

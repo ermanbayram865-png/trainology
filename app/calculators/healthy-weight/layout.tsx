@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "BMI ve Ağırlık Aralığı",
-  description: "Boyunuza göre BMI temelli genel ağırlık referans aralığını inceleyin.",
+  title: "Vücut Kitle İndeksi (BMI) ve Ağırlık Aralığı",
+  description: "Boyunuza göre Vücut Kitle İndeksi (BMI) temelli genel ağırlık referans aralığını inceleyin.",
   alternates: { canonical: "/calculators/healthy-weight" },
 };
 

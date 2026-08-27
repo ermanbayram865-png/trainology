@@ -29,7 +29,7 @@ export default function CalculatorForm({
   className,
 }: CalculatorFormProps) {
   return (
-    <form onSubmit={onSubmit} noValidate className={`space-y-8 ${className ?? ""}`}>
+    <form onSubmit={onSubmit} noValidate className={`space-y-5 ${className ?? ""}`}>
       {fields.map((field) => (
         <CalculatorField
           key={field.name}

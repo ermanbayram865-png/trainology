@@ -95,7 +95,7 @@ test("calibration and macro handoff modules have been removed", () => {
   assert.doesNotMatch(barrel, /calibration|handoff|storage/i);
 });
 
-test("Energy Lab keeps form values in transient state without storage, URL or network transfer", () => {
+test("Energy Lab keeps personal form values transient and transfers only the selected calorie target", () => {
   const experience = readSource("components/energy-lab/EnergyLabExperience.tsx");
   const macro = readSource("app/calculators/macro/page.tsx");
   const combined = `${experience}\n${macro}`;
@@ -105,7 +105,7 @@ test("Energy Lab keeps form values in transient state without storage, URL or ne
   assert.match(experience, /autoComplete="off"/);
   assert.match(experience, /pageshow/);
   assert.match(experience, /event\.persisted/);
-  assert.doesNotMatch(combined, /localStorage|sessionStorage|indexedDB|URLSearchParams/i);
+  assert.doesNotMatch(combined, /localStorage|sessionStorage|indexedDB/i);
   assert.doesNotMatch(combined, /fetch\s*\(|XMLHttpRequest|sendBeacon|axios/i);
   assert.doesNotMatch(combined, /console\.(?:log|debug|table)|use server/i);
   assert.doesNotMatch(experience, /<form[^>]+\baction\s*=/);
@@ -117,7 +117,7 @@ test("the general scope gate collects no detailed health category", () => {
   const engine = readSource("lib/energy-lab/engine.ts");
 
   assert.match(experience, /Bu hesaplama senin için uygun mu\?/);
-  assert.match(experience, /standart yetişkin kapsamıyla devam etmek istiyorum/);
+  assert.match(experience, /standart yetişkin kapsamıyla devam etmek istiyorum/i);
   assert.match(experience, /Bu araç benim durumuma uygun olmayabilir/);
   assert.match(experience, /kaydedilmez veya sunucuya gönderilmez/);
   assert.doesNotMatch(experience, /safetyFlags|pregnancyOrBreastfeeding|eatingDisorderOrRedsRisk/);
@@ -140,25 +140,29 @@ test("removed calibration UI and storage keys do not remain in application sourc
   assert.doesNotMatch(sources, /trainology\.energy-lab\.(?:calibration|macro-handoff)\.v1/i);
 });
 
-test("Macro Planner opens with its independent blank state and receives no Energy Lab handoff", () => {
+test("Macro Planner accepts a validated calorie prefill while direct use stays blank", () => {
   const experience = readSource("components/energy-lab/EnergyLabExperience.tsx");
   const macro = readSource("app/calculators/macro/page.tsx");
 
-  assert.match(experience, /href="\/calculators\/macro"/);
-  assert.match(experience, /Makro Planlayıcı’ya geç/);
-  assert.doesNotMatch(experience, /\?source=energy-lab|Handoff|Bu hedefle makrolarını planla/i);
+  assert.match(experience, /\/calculators\/macro\?calories=\$\{selectedPoint\.displayKcal\}/);
+  assert.match(experience, /Makrolarımı Planla/);
+  assert.match(experience, /scenario\.points\.length === 1 \? 0 : null/);
+  assert.match(experience, /Önce bir senaryo seç/);
   assert.match(macro, /calories:\s*""/);
   assert.match(macro, /weight:\s*""/);
-  assert.doesNotMatch(macro, /EnergyLab|handoff|source=energy-lab|sessionStorage|URLSearchParams/i);
+  assert.match(macro, /useSearchParams\(\)/);
+  assert.match(macro, /getCaloriePrefill\(searchParams\.get\("calories"\)\)/);
+  assert.match(macro, /calories >= 1000 && calories <= 8000/);
+  assert.doesNotMatch(macro, /EnergyLab|handoff|source=energy-lab|sessionStorage/i);
 });
 
-test("Energy Profile is sticky only at the desktop two-column breakpoint", () => {
+test("Energy Lab uses a compact responsive wizard instead of the legacy sticky profile", () => {
   const experience = readSource("components/energy-lab/EnergyLabExperience.tsx");
-  assert.match(experience, /xl:grid-cols/);
-  assert.match(experience, /min-w-0 self-stretch xl:relative/);
-  assert.match(experience, /xl:sticky xl:top-28/);
-  assert.match(experience, /xl:max-h-\[calc\(100dvh-8rem\)\] xl:overflow-y-auto/);
-  assert.doesNotMatch(experience, /(?:^|\s)(?:sm|md|lg):sticky/);
+  assert.match(experience, /type WizardStep = 1 \| 2 \| 3/);
+  assert.match(experience, /Temel Bilgiler/);
+  assert.match(experience, /Günlük Hareket/);
+  assert.match(experience, /Hedefimi Hesapla/);
+  assert.doesNotMatch(experience, /sticky|overflow-y-auto/);
 });
 
 test("Energy Lab result actions stay visible and do not create a horizontal scroll container", () => {
@@ -166,10 +170,9 @@ test("Energy Lab result actions stay visible and do not create a horizontal scro
   const page = readSource("app/calculators/calorie/page.tsx");
   const globals = readSource("app/globals.css");
 
-  assert.match(experience, /Makrolarını ayrı olarak planla/);
-  assert.match(experience, /Energy Lab girdilerin aktarılmaz/);
-  assert.match(experience, /break-words text-white/);
-  assert.match(experience, /w-full min-w-0[\s\S]+sm:w-auto/);
+  assert.match(experience, /Bu kalori hedefini protein, karbonhidrat ve yağlara dağıt/);
+  assert.match(experience, /Makrolarımı Planla/);
+  assert.match(experience, /w-full items-center[\s\S]+sm:w-auto/);
   assert.doesNotMatch(page, /<main className="[^"]*overflow-x-hidden/);
   assert.doesNotMatch(globals, /a\s*\{[\s\S]*?color:\s*inherit/);
 });

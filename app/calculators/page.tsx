@@ -1,14 +1,11 @@
 "use client";
 
 import {
-  Activity,
   Calculator,
   Droplets,
   Dumbbell,
   Ruler,
-  Percent,
   Target,
-  Trophy,
   Utensils,
 } from "lucide-react";
 
@@ -27,64 +24,26 @@ const calculatorGroups = [
         title: "Kalori Hedefi Simülatörü / Energy Lab",
         description:
           "Bakım enerjin ve kontrollü kalori hedefin için bir başlangıç tahmini oluştur.",
-        category: "Enerji tahmini",
-        badge: "ENERGY LAB 2.0",
         href: ENERGY_LAB_PATH,
         icon: <Calculator aria-hidden="true" />,
       },
       {
         title: "Makro Planlayıcı",
         description: "Makro besin dağılımını kalori hedefin ve tercihlerine göre planla.",
-        category: "Makro planlama",
-        badge: "ENERGY LAB İLE BAĞLANTILI",
         href: "/calculators/macro",
         icon: <Utensils aria-hidden="true" />,
       },
       {
-        title: "Protein İhtiyacı",
-        description: "Yetişkin protein referansını veya antrenmana göre pratik aralığı incele.",
-        category: "Protein",
-        badge: "HIZLI HESAPLAMA",
+        title: "Günlük Protein Referansı",
+        description: "Kilon, hedefin ve antrenman durumuna göre günlük protein referansını incele.",
         href: "/calculators/protein",
         icon: <Dumbbell aria-hidden="true" />,
       },
       {
-        title: "Su Alımı Referansı",
-        description: "EFSA yetişkin toplam su yeterli alım referansını incele.",
-        category: "Toplam su referansı",
-        badge: "HIZLI HESAPLAMA",
+        title: "Su & Hidrasyon",
+        description: "Günlük toplam su referansını ve egzersiz hidrasyonunu ayrı modlarda değerlendir.",
         href: "/calculators/water",
         icon: <Droplets aria-hidden="true" />,
-      },
-    ],
-  },
-  {
-    id: "performans",
-    title: "PERFORMANS",
-    calculators: [
-      {
-        title: "1RM Hesaplayıcı",
-        description: "Kaldırdığın ağırlık ve tekrar sayısından yaklaşık 1RM değerini hesapla.",
-        category: "Kuvvet",
-        badge: "HIZLI HESAPLAMA",
-        href: "/calculators/1rm",
-        icon: <Trophy aria-hidden="true" />,
-      },
-      {
-        title: "%1RM Antrenman Yükü",
-        description: "1RM değerinin seçtiğin yüzdesine karşılık gelen yaklaşık yükü hesapla.",
-        category: "Performans",
-        badge: "HIZLI HESAPLAMA",
-        href: "/calculators/training-load",
-        icon: <Percent aria-hidden="true" />,
-      },
-      {
-        title: "Performans Analizi",
-        description: "Tahmini 1RM değerlerini ve kuvvet dağılımını tek yerde incele.",
-        category: "Performans",
-        badge: "GELİŞMİŞ ANALİZ",
-        href: "/calculators/performance",
-        icon: <Activity aria-hidden="true" />,
       },
     ],
   },
@@ -93,18 +52,14 @@ const calculatorGroups = [
     title: "VÜCUT ÖLÇÜMLERİ",
     calculators: [
       {
-        title: "FFMI Analizi",
+        title: "Yağsız Kütle İndeksi (FFMI) Analizi",
         description: "Yağsız kütleni boyuna göre genel bir referansla incele.",
-        category: "Vücut kompozisyonu",
-        badge: "HIZLI HESAPLAMA",
         href: "/calculators/ffmi",
         icon: <Ruler aria-hidden="true" />,
       },
       {
-        title: "BMI ve Ağırlık Aralığı",
-        description: "Boyuna göre BMI temelli genel ağırlık referans aralığını incele.",
-        category: "BMI referansı",
-        badge: "HIZLI HESAPLAMA",
+        title: "Vücut Kitle İndeksi (BMI) ve Ağırlık Aralığı",
+        description: "Boyuna göre Vücut Kitle İndeksi (BMI) temelli genel ağırlık referans aralığını incele.",
         href: "/calculators/healthy-weight",
         icon: <Target aria-hidden="true" />,
       },
@@ -115,33 +70,20 @@ const calculatorGroups = [
 export default function CalculatorsPage() {
   return (
     <main className="min-h-screen bg-[#050505] text-white">
-      <Section className="bg-[#050505] !py-10 sm:!py-12 lg:!py-14" contentClassName="space-y-10 lg:space-y-12">
+      <Section className="bg-[#050505] !py-4 sm:!py-5 lg:!py-5" contentClassName="space-y-4">
         <PageHeader
           badge={<Badge variant="gold">Bilimsel Araçlar</Badge>}
           title="Bilimsel Hesaplayıcılar"
           description="Kanıta dayalı hesaplayıcılarla beslenmeni, performansını ve vücut kompozisyonunu analiz et."
+          className="[&>h1]:!mt-2 [&>h1]:!text-3xl sm:[&>h1]:!text-4xl [&>p]:!mt-2 [&>p]:!leading-6"
         />
 
-        <div className="space-y-12">
-          {calculatorGroups.map((group) => (
-            <section key={group.id} aria-labelledby={group.id}>
-              <div className="mb-5 flex items-center gap-4">
-                <h2
-                  id={group.id}
-                  className="text-sm font-semibold tracking-[0.18em] text-[#D6B25E]"
-                >
-                  {group.title}
-                </h2>
-                <div aria-hidden="true" className="h-px flex-1 bg-white/10" />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {group.calculators.map((calculator) => (
-                  <CalculatorCard key={calculator.title} {...calculator} compact />
-                ))}
-              </div>
-            </section>
-          ))}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {calculatorGroups.map((group) =>
+            group.calculators.map((calculator) => (
+              <CalculatorCard key={calculator.title} {...calculator} compact />
+            )),
+          )}
         </div>
       </Section>
     </main>

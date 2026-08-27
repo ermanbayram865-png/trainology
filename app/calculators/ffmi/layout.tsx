@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FFMI Hesaplayıcı",
-  description: "Boy, kilo ve vücut yağ oranına göre yağsız kütle ve FFMI değerini genel olarak inceleyin.",
+  title: "Yağsız Kütle İndeksi (FFMI)",
+  description: "Boy, kilo ve vücut yağ oranından tahmini FFMI, yağsız kütle ve yağ kütlesi göstergelerini hesaplayın.",
   alternates: { canonical: "/calculators/ffmi" },
 };
 

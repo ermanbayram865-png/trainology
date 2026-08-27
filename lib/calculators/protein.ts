@@ -1,14 +1,17 @@
+import { calculateProteinCalculationWeight } from "./protein-weight";
 import type {
+  ProteinAgeGroup,
   ProteinGoal,
   ProteinTrainingProfile,
 } from "./types";
 
 export type ProteinInput = {
-  ageYears: number;
+  ageGroup: ProteinAgeGroup;
+  heightCm: number;
   weightKg: number;
   trainingProfile: ProteinTrainingProfile;
-  goal?: ProteinGoal;
-  scopeRisk: boolean;
+  goal: ProteinGoal;
+  standardAdultScope: boolean;
 };
 
 type ProteinValidationError = {
@@ -19,60 +22,65 @@ type ProteinValidationError = {
 
 type ProteinNoNumericResult = {
   type: "NO_NUMERIC_RESULT";
-  reason: "under_18" | "scope_risk";
+  reason: "outside_standard_scope";
 };
 
-type ProteinReferenceResult = {
-  type: "PRI_REFERENCE";
-  gPerKg: 0.83;
+type ProteinResultBase = {
+  calculationWeightKg: number;
+  actualWeightKg: number;
+  bmi: number;
+  usesReferenceWeight: boolean;
+  context:
+    | "population_reference"
+    | "conditional_fat_loss_start"
+    | "older_adult_range"
+    | "exercise_range"
+    | "resistance_start_and_range";
+  note?: "no_hypertrophy_target" | "fat_loss_context" | "older_adult_individualization";
+};
+
+export type ProteinSingleResult = ProteinResultBase & {
+  type: "SINGLE_REFERENCE";
+  gPerKg: 0.83 | 1.2;
   dailyGrams: number;
-  label: "Nüfus yeterlilik referansı (PRI)";
-  certainty: "population_reference";
+  label: "Nüfus referans alımı" | "Koşullu başlangıç referansı";
 };
 
-type ProteinPracticalRangeResult = {
+export type ProteinRangeResult = ProteinResultBase & {
   type: "PRACTICAL_RANGE";
   lowGPerKg: 1 | 1.4;
   highGPerKg: 1.2 | 2;
   lowDailyGrams: number;
   highDailyGrams: number;
-  label:
-    | "İleri yaş için pratik protein hedef aralığı"
-    | "Günlük protein için pratik aralık";
-  certainty?: "conditional";
+  label: "Pratik aralık";
 };
 
-type ProteinResistanceRangeResult = {
-  type: "RESISTANCE_RANGE";
-  lowGPerKg: 1.4;
+export type ProteinAnchorRangeResult = ProteinResultBase & {
+  type: "ANCHOR_AND_RANGE";
+  anchorGPerKg: 1.6;
+  anchorDailyGrams: number;
+  lowGPerKg: 1.4 | 1.6;
   highGPerKg: 2;
   lowDailyGrams: number;
   highDailyGrams: number;
-  optionalAnchorGPerKg: 1.6;
-  anchorDailyGrams: number;
   anchorLabel: "Kanıtla uyumlu başlangıç noktası";
-  certainty?: "conditional";
+  rangeLabel: "Pratik aralık";
 };
 
 export type ProteinRequirement =
   | ProteinValidationError
   | ProteinNoNumericResult
-  | ProteinReferenceResult
-  | ProteinPracticalRangeResult
-  | ProteinResistanceRangeResult;
+  | ProteinSingleResult
+  | ProteinRangeResult
+  | ProteinAnchorRangeResult;
 
+const AGE_GROUPS: readonly ProteinAgeGroup[] = ["adult_18_64", "adult_65_plus"];
 const TRAINING_PROFILES: readonly ProteinTrainingProfile[] = [
   "none",
-  "regular_exercise",
-  "resistance_hypertrophy",
+  "endurance_mixed",
+  "resistance",
 ];
-
-const GOALS: readonly ProteinGoal[] = [
-  "general_health",
-  "maintenance",
-  "muscle_gain",
-  "fat_loss",
-];
+const GOALS: readonly ProteinGoal[] = ["maintenance", "fat_loss", "muscle_gain"];
 
 function validationError(
   field: keyof ProteinInput,
@@ -81,82 +89,118 @@ function validationError(
   return { type: "VALIDATION_ERROR", field, message };
 }
 
-export function calculateProteinRequirement(
-  input: ProteinInput,
-): ProteinRequirement {
-  const { ageYears, weightKg, trainingProfile, goal, scopeRisk } = input;
+export function calculateProteinRequirement(input: ProteinInput): ProteinRequirement {
+  const { ageGroup, heightCm, weightKg, trainingProfile, goal, standardAdultScope } = input;
 
-  if (!Number.isFinite(ageYears) || ageYears < 0) {
-    return validationError("ageYears", "Yaş geçerli bir sayı olmalıdır.");
+  if (!AGE_GROUPS.includes(ageGroup)) {
+    return validationError("ageGroup", "Geçerli bir yaş grubu seçilmelidir.");
   }
-
-  if (ageYears < 18) {
-    return { type: "NO_NUMERIC_RESULT", reason: "under_18" };
+  if (!Number.isFinite(heightCm) || heightCm <= 0) {
+    return validationError("heightCm", "Boy pozitif ve sonlu bir sayı olmalıdır.");
   }
-
-  if (typeof scopeRisk !== "boolean") {
-    return validationError("scopeRisk", "Kapsam sorusu yanıtlanmalıdır.");
-  }
-
-  if (scopeRisk) {
-    return { type: "NO_NUMERIC_RESULT", reason: "scope_risk" };
-  }
-
   if (!Number.isFinite(weightKg) || weightKg <= 0) {
     return validationError("weightKg", "Kilo pozitif ve sonlu bir sayı olmalıdır.");
   }
-
   if (!TRAINING_PROFILES.includes(trainingProfile)) {
     return validationError("trainingProfile", "Geçerli bir antrenman profili seçilmelidir.");
   }
-
-  if (goal !== undefined && !GOALS.includes(goal)) {
+  if (!GOALS.includes(goal)) {
     return validationError("goal", "Geçerli bir hedef seçilmelidir.");
   }
+  if (typeof standardAdultScope !== "boolean") {
+    return validationError("standardAdultScope", "Kapsam onayı yanıtlanmalıdır.");
+  }
+  if (!standardAdultScope) {
+    return { type: "NO_NUMERIC_RESULT", reason: "outside_standard_scope" };
+  }
 
-  if (ageYears >= 65 && trainingProfile === "none") {
+  const weight = calculateProteinCalculationWeight(weightKg, heightCm);
+  const base = {
+    calculationWeightKg: weight.calculationWeightKg,
+    actualWeightKg: weightKg,
+    bmi: weight.bmi,
+    usesReferenceWeight: weight.usesReferenceWeight,
+  } as const;
+
+  if (trainingProfile === "resistance") {
+    const lowGPerKg = goal === "fat_loss" ? 1.6 : 1.4;
     return {
+      ...base,
+      type: "ANCHOR_AND_RANGE",
+      context: "resistance_start_and_range",
+      anchorGPerKg: 1.6,
+      anchorDailyGrams: weight.calculationWeightKg * 1.6,
+      lowGPerKg,
+      highGPerKg: 2,
+      lowDailyGrams: weight.calculationWeightKg * lowGPerKg,
+      highDailyGrams: weight.calculationWeightKg * 2,
+      anchorLabel: "Kanıtla uyumlu başlangıç noktası",
+      rangeLabel: "Pratik aralık",
+    };
+  }
+
+  if (trainingProfile === "endurance_mixed") {
+    return {
+      ...base,
       type: "PRACTICAL_RANGE",
+      context: "exercise_range",
+      lowGPerKg: 1.4,
+      highGPerKg: 2,
+      lowDailyGrams: weight.calculationWeightKg * 1.4,
+      highDailyGrams: weight.calculationWeightKg * 2,
+      label: "Pratik aralık",
+      ...(goal === "muscle_gain"
+        ? { note: "no_hypertrophy_target" as const }
+        : goal === "fat_loss"
+          ? { note: "fat_loss_context" as const }
+          : {}),
+    };
+  }
+
+  if (ageGroup === "adult_65_plus") {
+    if (goal === "fat_loss") {
+      return {
+        ...base,
+        type: "SINGLE_REFERENCE",
+        context: "conditional_fat_loss_start",
+        gPerKg: 1.2,
+        dailyGrams: weight.calculationWeightKg * 1.2,
+        label: "Koşullu başlangıç referansı",
+        note: "older_adult_individualization",
+      };
+    }
+
+    return {
+      ...base,
+      type: "PRACTICAL_RANGE",
+      context: "older_adult_range",
       lowGPerKg: 1,
       highGPerKg: 1.2,
-      lowDailyGrams: weightKg,
-      highDailyGrams: weightKg * 1.2,
-      label: "İleri yaş için pratik protein hedef aralığı",
-      certainty: "conditional",
+      lowDailyGrams: weight.calculationWeightKg,
+      highDailyGrams: weight.calculationWeightKg * 1.2,
+      label: "Pratik aralık",
+      ...(goal === "muscle_gain" ? { note: "no_hypertrophy_target" as const } : {}),
     };
   }
 
-  if (trainingProfile === "regular_exercise") {
+  if (goal === "fat_loss") {
     return {
-      type: "PRACTICAL_RANGE",
-      lowGPerKg: 1.4,
-      highGPerKg: 2,
-      lowDailyGrams: weightKg * 1.4,
-      highDailyGrams: weightKg * 2,
-      label: "Günlük protein için pratik aralık",
-      ...(ageYears >= 65 ? { certainty: "conditional" as const } : {}),
-    };
-  }
-
-  if (trainingProfile === "resistance_hypertrophy") {
-    return {
-      type: "RESISTANCE_RANGE",
-      lowGPerKg: 1.4,
-      highGPerKg: 2,
-      lowDailyGrams: weightKg * 1.4,
-      highDailyGrams: weightKg * 2,
-      optionalAnchorGPerKg: 1.6,
-      anchorDailyGrams: weightKg * 1.6,
-      anchorLabel: "Kanıtla uyumlu başlangıç noktası",
-      ...(ageYears >= 65 ? { certainty: "conditional" as const } : {}),
+      ...base,
+      type: "SINGLE_REFERENCE",
+      context: "conditional_fat_loss_start",
+      gPerKg: 1.2,
+      dailyGrams: weight.calculationWeightKg * 1.2,
+      label: "Koşullu başlangıç referansı",
     };
   }
 
   return {
-    type: "PRI_REFERENCE",
+    ...base,
+    type: "SINGLE_REFERENCE",
+    context: "population_reference",
     gPerKg: 0.83,
-    dailyGrams: weightKg * 0.83,
-    label: "Nüfus yeterlilik referansı (PRI)",
-    certainty: "population_reference",
+    dailyGrams: weight.calculationWeightKg * 0.83,
+    label: "Nüfus referans alımı",
+    ...(goal === "muscle_gain" ? { note: "no_hypertrophy_target" as const } : {}),
   };
 }

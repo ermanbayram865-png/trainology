@@ -3,9 +3,9 @@ import type { EfsaAdultReferenceCategory } from "./types";
 export type { EfsaAdultReferenceCategory } from "./types";
 
 export type WaterInput = {
-  ageYears: number;
+  adultConfirmed: boolean;
   efsaAdultReferenceCategory: EfsaAdultReferenceCategory;
-  scopeRisk: boolean;
+  standardAdultScope: boolean;
 };
 
 export const TOTAL_WATER_METADATA = {
@@ -24,59 +24,60 @@ type WaterValidationError = {
 
 type WaterNoNumericResult = {
   type: "NO_NUMERIC_RESULT";
-  reason: "under_18" | "scope_risk";
+  reason: "under_18" | "outside_standard_scope";
 };
 
-type TotalWaterAiResult = {
-  type: "TOTAL_WATER_AI";
+type TotalWaterReferenceResult = {
+  type: "TOTAL_WATER_REFERENCE";
   litersPerDay: 2 | 2.5;
+  millilitersPerDay: 2000 | 2500;
   metadata: typeof TOTAL_WATER_METADATA;
 };
 
 export type WaterRequirement =
   | WaterValidationError
   | WaterNoNumericResult
-  | TotalWaterAiResult;
+  | TotalWaterReferenceResult;
 
 export function calculateWaterRequirement(input: WaterInput): WaterRequirement {
-  const { ageYears, efsaAdultReferenceCategory, scopeRisk } = input;
+  const { adultConfirmed, efsaAdultReferenceCategory, standardAdultScope } = input;
 
-  if (!Number.isFinite(ageYears) || ageYears < 0) {
+  if (typeof adultConfirmed !== "boolean") {
     return {
       type: "VALIDATION_ERROR",
-      field: "ageYears",
-      message: "Yaş geçerli bir sayı olmalıdır.",
+      field: "adultConfirmed",
+      message: "18 yaş veya üzeri kapsamı yanıtlanmalıdır.",
     };
   }
-
-  if (ageYears < 18) {
+  if (!adultConfirmed) {
     return { type: "NO_NUMERIC_RESULT", reason: "under_18" };
   }
-
-  if (typeof scopeRisk !== "boolean") {
+  if (typeof standardAdultScope !== "boolean") {
     return {
       type: "VALIDATION_ERROR",
-      field: "scopeRisk",
-      message: "Kapsam sorusu yanıtlanmalıdır.",
+      field: "standardAdultScope",
+      message: "Kapsam onayı yanıtlanmalıdır.",
     };
   }
-
-  if (scopeRisk) {
-    return { type: "NO_NUMERIC_RESULT", reason: "scope_risk" };
+  if (!standardAdultScope) {
+    return { type: "NO_NUMERIC_RESULT", reason: "outside_standard_scope" };
   }
 
   if (efsaAdultReferenceCategory === "adult_female_reference") {
+    const litersPerDay = 2 as const;
     return {
-      type: "TOTAL_WATER_AI",
-      litersPerDay: 2,
+      type: "TOTAL_WATER_REFERENCE",
+      litersPerDay,
+      millilitersPerDay: (litersPerDay * 1000) as 2000,
       metadata: TOTAL_WATER_METADATA,
     };
   }
-
   if (efsaAdultReferenceCategory === "adult_male_reference") {
+    const litersPerDay = 2.5 as const;
     return {
-      type: "TOTAL_WATER_AI",
-      litersPerDay: 2.5,
+      type: "TOTAL_WATER_REFERENCE",
+      litersPerDay,
+      millilitersPerDay: (litersPerDay * 1000) as 2500,
       metadata: TOTAL_WATER_METADATA,
     };
   }

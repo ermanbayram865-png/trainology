@@ -1,94 +1,160 @@
-import type { Goal, MacroActivityLevel } from "./types";
+import type { Goal } from "./types";
+import { calculateProteinCalculationWeight } from "./protein-weight";
+
+export type MacroResistanceTraining = "yes" | "no";
+export type MacroScope = "standardAdult" | "outsideStandardScope";
+
+export type MacroBlockReason =
+  | "outsideStandardScope"
+  | "underweightFatLoss"
+  | "gainWithoutResistanceTraining"
+  | "incompatibleEnergyBudget";
+
+export type MacroWarning = "lowBmi" | "referenceWeightUsed";
 
 export type MacroDistribution = {
   protein: number;
   carbohydrates: number;
   fat: number;
+  proteinGramsRaw: number;
+  carbohydrateGramsRaw: number;
+  fatGramsRaw: number;
   proteinPercentage: number;
   carbohydratePercentage: number;
   fatPercentage: number;
   proteinPerKg: number;
+  bmi: number;
+  proteinCalculationWeight: number;
+  usesReferenceWeight: boolean;
+  fiberReferenceGrams: 25;
+  warnings: MacroWarning[];
 };
 
-type MacroProteinPerKgTable = Record<
-  Goal,
-  Record<MacroActivityLevel, number>
->;
+export type MacroEvaluation =
+  | { status: "ok"; distribution: MacroDistribution }
+  | { status: "blocked"; reason: MacroBlockReason; message: string };
 
-const MACRO_PROTEIN_PER_KG: MacroProteinPerKgTable = {
-  maintain: {
-    low: 1.2,
-    moderate: 1.4,
-    high: 1.5,
-  },
-  gain: {
-    low: 1.6,
-    moderate: 1.9,
-    high: 2.1,
-  },
-  lose: {
-    low: 1.6,
-    moderate: 2,
-    high: 2.2,
-  },
-};
-
-const fatPercentages: Record<MacroActivityLevel, number> = {
-  low: 0.3,
-  moderate: 0.25,
-  high: 0.2,
-};
-
-export function calculateMacroDistribution({
-  calories,
-  weight,
-  goal,
-  activityLevel,
-}: {
+export type MacroInput = {
   calories: number;
   weight: number;
+  height: number;
   goal: Goal;
-  activityLevel: MacroActivityLevel;
-}): MacroDistribution {
-  if (!Number.isFinite(calories) || calories <= 0) {
+  resistanceTraining: MacroResistanceTraining;
+  scope: MacroScope;
+};
+
+const PROTEIN_KCAL_PER_GRAM = 4;
+const CARBOHYDRATE_KCAL_PER_GRAM = 4;
+const FAT_KCAL_PER_GRAM = 9;
+const FAT_ENERGY_SHARE = 0.3;
+const FIBER_REFERENCE_GRAMS = 25 as const;
+const LOW_BMI_THRESHOLD = 18.5;
+
+function validateInput(input: MacroInput) {
+  if (!Number.isFinite(input.calories) || input.calories <= 0) {
     throw new RangeError("Kalori hedefi pozitif ve sonlu bir sayı olmalıdır.");
   }
-
-  if (!Number.isFinite(weight) || weight <= 0) {
+  if (!Number.isFinite(input.weight) || input.weight <= 0) {
     throw new RangeError("Kilo pozitif ve sonlu bir sayı olmalıdır.");
   }
-
-  if (!(["lose", "maintain", "gain"] as const).includes(goal)) {
+  if (!Number.isFinite(input.height) || input.height <= 0) {
+    throw new RangeError("Boy pozitif ve sonlu bir sayı olmalıdır.");
+  }
+  if (!(["lose", "maintain", "gain"] as const).includes(input.goal)) {
     throw new RangeError("Geçerli bir hedef seçilmelidir.");
   }
+  if (!(["yes", "no"] as const).includes(input.resistanceTraining)) {
+    throw new RangeError("Geçerli bir direnç antrenmanı seçimi yapılmalıdır.");
+  }
+  if (!(["standardAdult", "outsideStandardScope"] as const).includes(input.scope)) {
+    throw new RangeError("Geçerli bir kapsam seçimi yapılmalıdır.");
+  }
+}
 
-  if (!(["low", "moderate", "high"] as const).includes(activityLevel)) {
-    throw new RangeError("Geçerli bir aktivite seviyesi seçilmelidir.");
+function getProteinPerKg(goal: Goal, resistanceTraining: MacroResistanceTraining) {
+  if (resistanceTraining === "yes") return 1.6;
+  if (goal === "maintain") return 0.83;
+  if (goal === "lose") return 1.2;
+  return null;
+}
+
+export function calculateMacroDistribution(input: MacroInput): MacroEvaluation {
+  validateInput(input);
+
+  if (input.scope === "outsideStandardScope") {
+    return {
+      status: "blocked",
+      reason: "outsideStandardScope",
+      message:
+        "Bu araç standart sağlıklı yetişkin kapsamı için tasarlanmıştır. Bu bilgilerle sayısal makro dağılımı oluşturulmadı.",
+    };
   }
 
-  const proteinPerKg = MACRO_PROTEIN_PER_KG[goal][activityLevel];
-  const protein = Math.round(weight * proteinPerKg);
-  const proteinCalories = protein * 4;
-  const fatPercentage = fatPercentages[activityLevel];
-  const fatCalories = calories * fatPercentage;
-  const carbohydrateCalories = calories - proteinCalories - fatCalories;
+  const proteinWeight = calculateProteinCalculationWeight(input.weight, input.height);
+  const { bmi } = proteinWeight;
 
-  if (carbohydrateCalories < 0) {
-    throw new RangeError(
-      "Kalori hedefi, Makro Planlayıcının protein tahmini ve yağ payını birlikte karşılamıyor.",
-    );
+  if (bmi < LOW_BMI_THRESHOLD && input.goal === "lose") {
+    return {
+      status: "blocked",
+      reason: "underweightFatLoss",
+      message:
+        "Bu bilgilerle yağ kaybı için standart sayısal makro dağılımı oluşturulmadı.",
+    };
   }
 
-  const proteinPercentage = proteinCalories / calories;
-  const carbohydratePercentage = carbohydrateCalories / calories;
+  const proteinPerKg = getProteinPerKg(input.goal, input.resistanceTraining);
+  if (proteinPerKg === null) {
+    return {
+      status: "blocked",
+      reason: "gainWithoutResistanceTraining",
+      message:
+        "Kas kazanımı hedefinde direnç antrenmanı önemli bir bileşendir. Bu nedenle standart kas kazanımı protein hesabı uygulanmadı.",
+    };
+  }
+
+  const usesReferenceWeight = proteinWeight.usesReferenceWeight;
+  const proteinCalculationWeight = proteinWeight.calculationWeightKg;
+  const proteinGramsRaw = proteinPerKg * proteinCalculationWeight;
+  const proteinCaloriesRaw = proteinGramsRaw * PROTEIN_KCAL_PER_GRAM;
+  const fatCaloriesRaw = input.calories * FAT_ENERGY_SHARE;
+  const fatGramsRaw = fatCaloriesRaw / FAT_KCAL_PER_GRAM;
+  const carbohydrateCaloriesRaw =
+    input.calories - proteinCaloriesRaw - fatCaloriesRaw;
+
+  if (carbohydrateCaloriesRaw < 0) {
+    return {
+      status: "blocked",
+      reason: "incompatibleEnergyBudget",
+      message:
+        "Bu kalori hedefi, hesaplanan protein ve yağ başlangıç değerleriyle uyumlu bir makro dağılımı oluşturmuyor. Kalori hedefini gözden geçir.",
+    };
+  }
+
+  const carbohydrateGramsRaw =
+    carbohydrateCaloriesRaw / CARBOHYDRATE_KCAL_PER_GRAM;
+  const warnings: MacroWarning[] = [];
+  if (bmi < LOW_BMI_THRESHOLD) warnings.push("lowBmi");
+  if (usesReferenceWeight) warnings.push("referenceWeightUsed");
 
   return {
-    protein,
-    carbohydrates: Math.round(carbohydrateCalories / 4),
-    fat: Math.round(fatCalories / 9),
-    proteinPercentage: Math.round(proteinPercentage * 100),
-    carbohydratePercentage: Math.round(carbohydratePercentage * 100),
-    fatPercentage: Math.round(fatPercentage * 100),
-    proteinPerKg,
+    status: "ok",
+    distribution: {
+      protein: Math.round(proteinGramsRaw),
+      carbohydrates: Math.round(carbohydrateGramsRaw),
+      fat: Math.round(fatGramsRaw),
+      proteinGramsRaw,
+      carbohydrateGramsRaw,
+      fatGramsRaw,
+      proteinPercentage: (proteinCaloriesRaw / input.calories) * 100,
+      carbohydratePercentage:
+        (carbohydrateCaloriesRaw / input.calories) * 100,
+      fatPercentage: FAT_ENERGY_SHARE * 100,
+      proteinPerKg,
+      bmi,
+      proteinCalculationWeight,
+      usesReferenceWeight,
+      fiberReferenceGrams: FIBER_REFERENCE_GRAMS,
+      warnings,
+    },
   };
 }

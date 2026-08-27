@@ -1,64 +1,171 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
   calculateMacroDistribution,
+  type MacroInput,
 } from "../lib/calculators/index";
 
-test("Makro Planlayıcı kendi hedef ve aktivite protein tablosunu uygular", () => {
-  const expectations = [
-    ["maintain", "low", 1.2],
-    ["maintain", "moderate", 1.4],
-    ["maintain", "high", 1.5],
-    ["gain", "low", 1.6],
-    ["gain", "moderate", 1.9],
-    ["gain", "high", 2.1],
-    ["lose", "low", 1.6],
-    ["lose", "moderate", 2],
-    ["lose", "high", 2.2],
-  ] as const;
+const baseInput: MacroInput = {
+  calories: 2_400,
+  weight: 75,
+  height: 175,
+  goal: "maintain",
+  resistanceTraining: "yes",
+  scope: "standardAdult",
+};
 
-  for (const [goal, activityLevel, proteinPerKg] of expectations) {
-    const macros = calculateMacroDistribution({
-      calories: 3_000,
-      weight: 70,
-      goal,
-      activityLevel,
-    });
+function getDistribution(overrides: Partial<MacroInput> = {}) {
+  const evaluation = calculateMacroDistribution({ ...baseInput, ...overrides });
+  assert.equal(evaluation.status, "ok");
+  if (evaluation.status !== "ok") throw new Error("Sayısal dağılım bekleniyordu.");
+  return evaluation.distribution;
+}
 
-    assert.equal(macros.proteinPerKg, proteinPerKg);
-    assert.equal(macros.protein, Math.round(70 * proteinPerKg));
+test("direnç antrenmanında tüm hedefler 1,6 g/kg başlangıç değerini kullanır", () => {
+  for (const goal of ["maintain", "gain", "lose"] as const) {
+    const distribution = getDistribution({ goal, resistanceTraining: "yes" });
+    assert.equal(distribution.proteinPerKg, 1.6);
+    assert.equal(distribution.proteinGramsRaw, 120);
   }
 });
 
-test("Makro protein tahmini kalori hedefinden bağımsızdır", () => {
-  const lowerEnergy = calculateMacroDistribution({
-    calories: 2_000,
-    weight: 70,
-    goal: "maintain",
-    activityLevel: "moderate",
-  });
-  const higherEnergy = calculateMacroDistribution({
-    calories: 3_000,
-    weight: 70,
-    goal: "maintain",
-    activityLevel: "moderate",
-  });
+test("direnç antrenmanı yokken yalnız desteklenen hedef katsayıları uygulanır", () => {
+  assert.equal(
+    getDistribution({ goal: "maintain", resistanceTraining: "no" }).proteinPerKg,
+    0.83,
+  );
+  assert.equal(
+    getDistribution({ goal: "lose", resistanceTraining: "no" }).proteinPerKg,
+    1.2,
+  );
 
-  assert.equal(lowerEnergy.protein, higherEnergy.protein);
-  assert.equal(lowerEnergy.proteinPerKg, higherEnergy.proteinPerKg);
-  assert.ok(lowerEnergy.carbohydrates < higherEnergy.carbohydrates);
+  const gain = calculateMacroDistribution({
+    ...baseInput,
+    goal: "gain",
+    resistanceTraining: "no",
+  });
+  assert.deepEqual(gain.status === "blocked" && gain.reason, "gainWithoutResistanceTraining");
 });
 
-test("protein ve yağ enerjisi hedefi aşıyorsa negatif karbonhidrat üretmez", () => {
-  assert.throws(
-    () =>
-      calculateMacroDistribution({
-        calories: 1_000,
-        weight: 400,
-        goal: "lose",
-        activityLevel: "high",
-      }),
-    RangeError,
+test("BMI 30 altında gerçek ağırlık, BMI 30 ve üzerinde referans ağırlık kullanılır", () => {
+  const below = getDistribution({ weight: 80, height: 180 });
+  assert.equal(below.proteinCalculationWeight, 80);
+  assert.equal(below.usesReferenceWeight, false);
+
+  const above = getDistribution({ weight: 120, height: 180 });
+  assert.equal(above.proteinCalculationWeight, 30 * 1.8 ** 2);
+  assert.equal(above.usesReferenceWeight, true);
+  assert.ok(above.warnings.includes("referenceWeightUsed"));
+});
+
+test("yağ enerjinin sabit yüzde 30'udur ve karbonhidrat ham kalan enerjiden gelir", () => {
+  const distribution = getDistribution();
+  assert.equal(distribution.fatPercentage, 30);
+  assert.equal(distribution.fatGramsRaw, (2_400 * 0.3) / 9);
+  assert.equal(
+    distribution.carbohydrateGramsRaw,
+    (2_400 - distribution.proteinGramsRaw * 4 - 2_400 * 0.3) / 4,
   );
+  assert.equal(
+    distribution.proteinPercentage +
+      distribution.carbohydratePercentage +
+      distribution.fatPercentage,
+    100,
+  );
+});
+
+test("ara hesaplamalar yuvarlanmaz; yalnız görünür gramlar tam sayıya yuvarlanır", () => {
+  const distribution = getDistribution({ calories: 2_301, weight: 72.3 });
+  assert.equal(distribution.proteinGramsRaw, 72.3 * 1.6);
+  assert.equal(distribution.protein, Math.round(distribution.proteinGramsRaw));
+  assert.equal(distribution.fat, Math.round(distribution.fatGramsRaw));
+  assert.equal(
+    distribution.carbohydrates,
+    Math.round(distribution.carbohydrateGramsRaw),
+  );
+
+  const displayedEnergy =
+    distribution.protein * 4 +
+    distribution.carbohydrates * 4 +
+    distribution.fat * 9;
+  assert.notEqual(displayedEnergy, 2_301);
+});
+
+test("uyumsuz enerji bütçesinde katsayıları değiştirmeden sayısal sonucu durdurur", () => {
+  const evaluation = calculateMacroDistribution({
+    ...baseInput,
+    calories: 1_000,
+    weight: 400,
+    height: 250,
+  });
+  assert.deepEqual(
+    evaluation.status === "blocked" && evaluation.reason,
+    "incompatibleEnergyBudget",
+  );
+});
+
+test("standart kapsam dışındaki tüm belirtilen durumlar aynı kompakt gate ile durdurulur", () => {
+  const representedConditions = [
+    "under18",
+    "pregnancyOrBreastfeeding",
+    "activeEatingDisorderOrHighRisk",
+    "redsOrLowEnergyAvailabilityRisk",
+    "clinicalDiseaseOrSpecialDiet",
+    "physiqueCompetitionPreparation",
+  ];
+
+  for (const condition of representedConditions) {
+    const evaluation = calculateMacroDistribution({
+      ...baseInput,
+      scope: "outsideStandardScope",
+    });
+    assert.deepEqual(
+      evaluation.status === "blocked" && evaluation.reason,
+      "outsideStandardScope",
+      condition,
+    );
+  }
+});
+
+test("BMI 18,5 altında yağ kaybı durur; koruma ve kazanım uyarıyla devam eder", () => {
+  const fatLoss = calculateMacroDistribution({
+    ...baseInput,
+    weight: 50,
+    height: 175,
+    goal: "lose",
+  });
+  assert.deepEqual(fatLoss.status === "blocked" && fatLoss.reason, "underweightFatLoss");
+
+  for (const goal of ["maintain", "gain"] as const) {
+    const distribution = getDistribution({ weight: 50, height: 175, goal });
+    assert.ok(distribution.warnings.includes("lowBmi"));
+  }
+});
+
+test("lif referansı makro enerjisine eklenmeden 25 g/gün olarak taşınır", () => {
+  assert.equal(getDistribution().fiberReferenceGrams, 25);
+});
+
+test("geçersiz sayılar ve tanınmayan enum değerleri fail-closed davranır", () => {
+  for (const input of [
+    { ...baseInput, calories: Number.NaN },
+    { ...baseInput, weight: 0 },
+    { ...baseInput, height: Number.POSITIVE_INFINITY },
+    { ...baseInput, goal: "bulk" as never },
+    { ...baseInput, resistanceTraining: "sometimes" as never },
+    { ...baseInput, scope: "unknown" as never },
+  ]) {
+    assert.throws(() => calculateMacroDistribution(input), RangeError);
+  }
+});
+
+test("legacy aktivite protein ve yağ tabloları motordan kaldırılmıştır", () => {
+  const source = readFileSync(
+    new URL("../lib/calculators/macro.ts", import.meta.url),
+    "utf8",
+  );
+  assert.doesNotMatch(source, /activityLevel|MACRO_PROTEIN_PER_KG|fatPercentages/);
+  assert.doesNotMatch(source, /\b(?:1\.4|1\.5|1\.9|2\.1|2\.2|0\.25|0\.2)\b/);
 });

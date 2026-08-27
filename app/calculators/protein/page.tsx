@@ -1,264 +1,342 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
-import CalculatorForm from "@/components/calculators/CalculatorForm";
 import CalculatorLayout from "@/components/calculators/CalculatorLayout";
-import CalculatorResultCard from "@/components/calculators/CalculatorResultCard";
-import CalculatorSection from "@/components/calculators/CalculatorSection";
-import CTAButton from "@/components/ui/CTAButton";
+import {
+  EditReferenceButton,
+  FieldError,
+  MethodologyDisclosure,
+  ReferencePanel,
+  ScopeConfirmation,
+  SelectionCards,
+  referenceInputClasses,
+} from "@/components/calculators/ReferenceToolUI";
 import {
   calculateProteinRequirement,
-  PROTEIN_GOALS,
-  PROTEIN_TRAINING_PROFILES,
-  SCOPE_RISK_OPTIONS,
-  validateCalculatorField,
-  type CalculatorField,
-  type CalculatorFormValues,
-  type CalculatorResult,
-  type CalculatorValidationErrors,
+  type ProteinAgeGroup,
   type ProteinGoal,
   type ProteinRequirement,
   type ProteinTrainingProfile,
 } from "@/lib/calculators";
 
-const proteinFields: readonly CalculatorField[] = [
-  {
-    name: "ageYears",
-    label: "Yaş",
-    type: "number",
-    unit: "yıl",
-    placeholder: "Örneğin 30",
-    required: true,
-    min: 0,
-    max: 120,
-    step: 1,
-  },
-  {
-    name: "weightKg",
-    label: "Kilo",
-    type: "number",
-    unit: "kg",
-    placeholder: "Örneğin 70",
-    helperText: "Güncel vücut ağırlığını gir.",
-    required: true,
-    min: 25,
-    max: 400,
-    step: 0.1,
-  },
-  {
-    name: "trainingProfile",
-    label: "Antrenman profili",
-    type: "radio",
-    options: PROTEIN_TRAINING_PROFILES,
-    required: true,
-  },
-  {
-    name: "goal",
-    label: "Hedef (isteğe bağlı)",
-    type: "select",
-    helperText: "Hedef seçimi tek başına protein katsayısını değiştirmez.",
-    options: PROTEIN_GOALS,
-  },
-  {
-    name: "scopeRisk",
-    label: "Bu genel protein hesaplayıcısının kapsamı dışında bir durum var mı?",
-    type: "radio",
-    helperText:
-      "Gebelik/emzirme; böbrek veya karaciğer hastalığı; obezite tanısı; klinik protein kısıtlaması veya klinik beslenme tedavisi; yeme bozukluğu ya da REDs şüphesi.",
-    options: SCOPE_RISK_OPTIONS,
-    required: true,
-  },
-];
-
-const initialValues: CalculatorFormValues = {
-  ageYears: "",
-  weightKg: "",
-  trainingProfile: "",
-  goal: "",
-  scopeRisk: "",
+type ProteinForm = {
+  ageGroup: ProteinAgeGroup | "";
+  heightCm: string;
+  weightKg: string;
+  goal: ProteinGoal | "";
+  trainingProfile: ProteinTrainingProfile | "";
+  standardAdultScope: boolean;
 };
 
-function roundedGrams(value: number) {
+const initialForm: ProteinForm = {
+  ageGroup: "",
+  heightCm: "",
+  weightKg: "",
+  goal: "",
+  trainingProfile: "",
+  standardAdultScope: false,
+};
+
+const trainingOptions = [
+  { value: "none", label: "Egzersiz Yok", description: "Düzenli egzersiz yok" },
+  {
+    value: "endurance_mixed",
+    label: "Dayanıklılık / Karma",
+    description: "Düzenli egzersiz, direnç odaklı değil",
+  },
+  {
+    value: "resistance",
+    label: "Direnç Antrenmanı",
+    description: "Düzenli direnç çalışması var",
+  },
+] as const;
+
+const goalLabels: Record<ProteinGoal, string> = {
+  maintenance: "Koruma / genel sağlık",
+  fat_loss: "Yağ kaybı",
+  muscle_gain: "Kas kazanımı",
+};
+
+const trainingLabels: Record<ProteinTrainingProfile, string> = {
+  none: "Egzersiz Yok",
+  endurance_mixed: "Dayanıklılık / Karma",
+  resistance: "Direnç Antrenmanı",
+};
+
+function grams(value: number) {
   return Math.round(value).toLocaleString("tr-TR");
 }
 
-function resultMetrics(result: ProteinRequirement): readonly CalculatorResult[] {
-  if (result.type === "PRI_REFERENCE") {
-    return [
-      {
-        title: result.label,
-        value: `Yaklaşık ${roundedGrams(result.dailyGrams)}`,
-        unit: "g/gün",
-        color: "gold",
-        explanation:
-          "EFSA’nın sağlıklı yetişkinler için nüfus düzeyindeki protein yeterlilik referansıdır. Kişisel optimum veya kesin hedef değildir.",
-      },
-      {
-        title: "Kullanılan referans",
-        value: "0,83",
-        unit: "g/kg/gün",
-        color: "neutral",
-      },
-    ];
-  }
-
-  if (result.type === "PRACTICAL_RANGE") {
-    const isOlderAdultRange = result.lowGPerKg === 1;
-    return [
-      {
-        title: result.label,
-        value: `Yaklaşık ${roundedGrams(result.lowDailyGrams)}–${roundedGrams(result.highDailyGrams)}`,
-        unit: "g/gün",
-        color: "gold",
-        explanation: isOlderAdultRange
-          ? "Sağlıklı ileri yaş için kılavuz temelli pratik aralıktır. Gereksinim fiziksel aktivite ve sağlık durumuna göre değişebilir."
-          : "Sağlıklı ve düzenli egzersiz yapan yetişkinler için spor beslenmesi literatürüyle uyumlu pratik aralıktır.",
-      },
-      {
-        title: "Kullanılan aralık",
-        value: `${result.lowGPerKg.toLocaleString("tr-TR")}–${result.highGPerKg.toLocaleString("tr-TR")}`,
-        unit: "g/kg/gün",
-        color: "neutral",
-        explanation:
-          result.certainty === "conditional" && !isOlderAdultRange
-            ? "Bu sonuç sağlıklı ve egzersiz yapan yetişkinler için koşullu bir pratik aralıktır; ileri yaşın kesin gereksinimi değildir."
-            : undefined,
-      },
-    ];
-  }
-
-  if (result.type === "RESISTANCE_RANGE") {
-    return [
-      {
-        title: "Direnç antrenmanı için pratik aralık",
-        value: `Yaklaşık ${roundedGrams(result.lowDailyGrams)}–${roundedGrams(result.highDailyGrams)}`,
-        unit: "g/gün",
-        color: "gold",
-        explanation:
-          "Sağlıklı ve düzenli egzersiz yapan yetişkinler için spor beslenmesi literatürüyle uyumlu pratik aralıktır.",
-      },
-      {
-        title: result.anchorLabel,
-        value: `Yaklaşık ${roundedGrams(result.anchorDailyGrams)}`,
-        unit: "g/gün",
-        color: "success",
-        explanation:
-          "Bu başlangıç noktası kişisel optimum, minimum veya zorunlu eşik değildir.",
-      },
-      {
-        title: "Kullanılan aralık",
-        value: "1,4–2,0",
-        unit: "g/kg/gün",
-        color: "neutral",
-        explanation:
-          result.certainty === "conditional"
-            ? "Bu sonuç sağlıklı ve egzersiz yapan yetişkinler için koşullu bir pratik aralıktır; ileri yaşın kesin gereksinimi değildir."
-            : undefined,
-      },
-    ];
-  }
-
-  return [];
+function decimal(value: number) {
+  return value.toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 }
 
 export default function ProteinCalculatorPage() {
-  const [values, setValues] = useState<CalculatorFormValues>(initialValues);
-  const [errors, setErrors] = useState<CalculatorValidationErrors>({});
+  const [form, setForm] = useState<ProteinForm>(initialForm);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<ProteinRequirement | null>(null);
 
-  function handleFieldChange(name: string, value: CalculatorFormValues[string]) {
-    setValues((current) => ({ ...current, [name]: value }));
-    setErrors((current) => ({ ...current, [name]: undefined }));
+  function updateForm<K extends keyof ProteinForm>(key: K, value: ProteinForm[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+    setErrors((current) => ({ ...current, [key]: "" }));
     setResult(null);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextErrors: CalculatorValidationErrors = {};
+    const nextErrors: Record<string, string> = {};
+    const height = Number(form.heightCm);
+    const weight = Number(form.weightKg);
 
-    for (const field of proteinFields) {
-      const error = validateCalculatorField(field, values[field.name]);
-      if (error) nextErrors[field.name] = error;
+    if (!form.ageGroup) nextErrors.ageGroup = "Yaş grubunu seç.";
+    if (!Number.isFinite(height) || height < 100 || height > 250) {
+      nextErrors.heightCm = "Boy 100–250 cm arasında olmalıdır.";
     }
+    if (!Number.isFinite(weight) || weight < 25 || weight > 400) {
+      nextErrors.weightKg = "Kilo 25–400 kg arasında olmalıdır.";
+    }
+    if (!form.goal) nextErrors.goal = "Hedefini seç.";
+    if (!form.trainingProfile) nextErrors.trainingProfile = "Antrenman profilini seç.";
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
     const nextResult = calculateProteinRequirement({
-      ageYears: Number(values.ageYears),
-      weightKg: Number(values.weightKg),
-      trainingProfile: values.trainingProfile as ProteinTrainingProfile,
-      goal: values.goal ? (values.goal as ProteinGoal) : undefined,
-      scopeRisk: values.scopeRisk === "true",
+      ageGroup: form.ageGroup as ProteinAgeGroup,
+      heightCm: height,
+      weightKg: weight,
+      goal: form.goal as ProteinGoal,
+      trainingProfile: form.trainingProfile as ProteinTrainingProfile,
+      standardAdultScope: form.standardAdultScope,
     });
 
     if (nextResult.type === "VALIDATION_ERROR") {
       setErrors({ [nextResult.field]: nextResult.message });
       return;
     }
-
     setResult(nextResult);
   }
 
-  const blockedResult =
-    result?.type === "NO_NUMERIC_RESULT"
-      ? result.reason === "under_18"
-        ? {
-            title: "Bu hesaplayıcı yetişkinler için tasarlanmıştır.",
-            text: "18 yaş altında protein referansları yaşa ve gelişim dönemine göre değiştiği için bu araç sayısal sonuç üretmez.",
-          }
-        : {
-            title: "Genel hesaplayıcının kapsamı dışında",
-            text: "Belirttiğiniz durumda protein hedefi sağlık durumu ve bireysel koşullara göre değişebilir. Bu nedenle bu genel araç sayısal hedef üretmez.",
-          }
-      : null;
-
   return (
     <CalculatorLayout
-      title="Protein İhtiyacı"
+      title="Günlük Protein Referansı"
       seoPath="/calculators/protein"
-      description="Yaş, vücut ağırlığı ve antrenman profiline göre yetişkinler için protein referansını veya pratik aralığı incele."
-      info={
-        <p>
-          Hedef seçimi tek başına katsayıyı değiştirmez. Sonuçlar sağlıklı yetişkinler için nüfus referansı veya koşula bağlı pratik aralık olarak sunulur.
-        </p>
-      }
-      references={
-        <div className="space-y-3">
-          <p>EFSA NDA (2012) · ISSN/Jäger et al. (2017) · Morton et al. (2018) · ESPEN/Volkert et al. (2022)</p>
-          <details>
-            <summary className="cursor-pointer font-medium text-[#C9A14A]">Kaynak ayrıntılarını aç</summary>
-            <ul className="mt-3 list-disc space-y-2 pl-5">
-              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.2903/j.efsa.2012.2557" target="_blank" rel="noreferrer">EFSA NDA — DOI: 10.2903/j.efsa.2012.2557</a></li>
-              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.1186/s12970-017-0177-8" target="_blank" rel="noreferrer">Jäger et al. — DOI: 10.1186/s12970-017-0177-8</a></li>
-              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.1136/bjsports-2017-097608" target="_blank" rel="noreferrer">Morton et al. — DOI: 10.1136/bjsports-2017-097608</a></li>
-              <li><a className="underline-offset-4 hover:underline" href="https://doi.org/10.1016/j.clnu.2022.01.024" target="_blank" rel="noreferrer">Volkert et al. — DOI: 10.1016/j.clnu.2022.01.024</a></li>
-            </ul>
-          </details>
-        </div>
-      }
-      disclaimer="Bu araç yalnız genel yetişkin referansları sunar; kişisel optimumu veya klinik protein hedefini belirlemez."
+      description="Kilon, hedefin ve antrenman durumuna göre günlük protein referansını hesapla."
+      sectionClassName="!py-5 sm:!py-7 lg:!py-6 [@media(min-width:1024px)_and_(max-height:850px)]:!py-3"
+      contentClassName="mx-auto max-w-4xl space-y-4 [@media(min-width:1024px)_and_(max-height:850px)]:space-y-2.5"
+      disclaimer="Bu araç standart yetişkinler için başlangıç veya pratik referans sunar; kesin kişisel gereksinim ya da klinik hedef belirlemez."
     >
-      <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
-        <CalculatorSection title="Bilgilerin" description="Tüm zorunlu alanları açıkça yanıtla.">
-          <CalculatorForm fields={proteinFields} values={values} errors={errors} onChange={handleFieldChange} onSubmit={handleSubmit}>
-            <CTAButton type="submit" className="w-full">Protein Referansını Gör</CTAButton>
-          </CalculatorForm>
-        </CalculatorSection>
+      <ReferencePanel>
+        {result === null ? (
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="grid gap-3 sm:grid-cols-3 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2.5">
+              <label className="text-sm font-bold">
+                Yaş grubu
+                <select
+                  value={form.ageGroup}
+                  onChange={(event) => updateForm("ageGroup", event.target.value as ProteinAgeGroup | "")}
+                  aria-invalid={Boolean(errors.ageGroup)}
+                  aria-describedby={errors.ageGroup ? "ageGroup-error" : undefined}
+                  className={referenceInputClasses}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="adult_18_64">18–64</option>
+                  <option value="adult_65_plus">65+</option>
+                </select>
+                {errors.ageGroup && <FieldError id="ageGroup-error">{errors.ageGroup}</FieldError>}
+              </label>
 
-        {result && result.type !== "NO_NUMERIC_RESULT" && result.type !== "VALIDATION_ERROR" ? (
-          <CalculatorResultCard title="Protein Sonucun" description="Gram değerleri ekranda en yakın tam sayıya yuvarlanmıştır." results={resultMetrics(result)} />
-        ) : blockedResult ? (
-          <CalculatorSection title={blockedResult.title} description={blockedResult.text} className="border-amber-300/30" >
-            <p className="text-sm leading-6 text-neutral-500">Sayısal sonuç gösterilmedi.</p>
-          </CalculatorSection>
-        ) : (
-          <CalculatorSection title="Protein Sonucun" description="Bilgilerini girdikten sonra uygun referans veya pratik aralık burada görünecek." className="min-h-full">
-            <p className="text-sm leading-6 text-neutral-500">Sonuç yaklaşık değerlerle ve kapsam bilgisiyle birlikte sunulur.</p>
-          </CalculatorSection>
+              <label className="text-sm font-bold">
+                Boy <span className="font-normal text-[#71808b]">cm</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={100}
+                  max={250}
+                  step={0.1}
+                  value={form.heightCm}
+                  onChange={(event) => updateForm("heightCm", event.target.value)}
+                  aria-invalid={Boolean(errors.heightCm)}
+                  aria-describedby={errors.heightCm ? "heightCm-error" : undefined}
+                  placeholder="170"
+                  className={referenceInputClasses}
+                />
+                {errors.heightCm && <FieldError id="heightCm-error">{errors.heightCm}</FieldError>}
+              </label>
+
+              <label className="text-sm font-bold">
+                Kilo <span className="font-normal text-[#71808b]">kg</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={25}
+                  max={400}
+                  step={0.1}
+                  value={form.weightKg}
+                  onChange={(event) => updateForm("weightKg", event.target.value)}
+                  aria-invalid={Boolean(errors.weightKg)}
+                  aria-describedby={errors.weightKg ? "weightKg-error" : undefined}
+                  placeholder="70"
+                  className={referenceInputClasses}
+                />
+                {errors.weightKg && <FieldError id="weightKg-error">{errors.weightKg}</FieldError>}
+              </label>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,.72fr)_minmax(0,2fr)] [@media(min-width:1024px)_and_(max-height:850px)]:mt-3 [@media(min-width:1024px)_and_(max-height:850px)]:gap-3">
+              <label className="text-sm font-bold">
+                Hedef
+                <select
+                  value={form.goal}
+                  onChange={(event) => updateForm("goal", event.target.value as ProteinGoal | "")}
+                  aria-invalid={Boolean(errors.goal)}
+                  aria-describedby={errors.goal ? "goal-error" : undefined}
+                  className={referenceInputClasses}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="maintenance">Koruma / genel sağlık</option>
+                  <option value="fat_loss">Yağ kaybı</option>
+                  <option value="muscle_gain">Kas kazanımı</option>
+                </select>
+                {errors.goal && <FieldError id="goal-error">{errors.goal}</FieldError>}
+              </label>
+
+              <SelectionCards
+                legend="Antrenman profili"
+                name="trainingProfile"
+                value={form.trainingProfile}
+                options={trainingOptions}
+                error={errors.trainingProfile}
+                onChange={(value) => updateForm("trainingProfile", value)}
+              />
+            </div>
+
+            <div className="mt-4 [@media(min-width:1024px)_and_(max-height:850px)]:mt-3">
+              <ScopeConfirmation
+                checked={form.standardAdultScope}
+                onChange={(checked) => updateForm("standardAdultScope", checked)}
+                disclosure={
+                  <p>
+                    18 yaş altı; gebelik/emzirme; böbrek veya klinik karaciğer hastalığı;
+                    protein kısıtlaması; aktif tıbbi beslenme tedavisi; aktif/şüpheli yeme
+                    bozukluğu veya RED-S; ciddi malnütrisyon, frailty ya da akut ciddi hastalık
+                    özel değerlendirme gerektirir. Obezite tek başına sonucu durdurmaz.
+                  </p>
+                }
+              />
+            </div>
+
+            <div className="mt-4 flex justify-end [@media(min-width:1024px)_and_(max-height:850px)]:mt-3">
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#102536] bg-[#102536] px-5 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38]"
+              >
+                Protein Referansımı Hesapla
+                <ArrowRight aria-hidden="true" className="size-4" />
+              </button>
+            </div>
+          </form>
+        ) : result.type === "NO_NUMERIC_RESULT" ? (
+          <BlockedProteinResult onEdit={() => setResult(null)} />
+        ) : result.type === "VALIDATION_ERROR" ? null : (
+          <ProteinResultView form={form} result={result} onEdit={() => setResult(null)} />
         )}
-      </div>
+      </ReferencePanel>
     </CalculatorLayout>
+  );
+}
+
+function ProteinResultView({
+  form,
+  result,
+  onEdit,
+}: {
+  form: ProteinForm;
+  result: Exclude<ProteinRequirement, { type: "VALIDATION_ERROR" | "NO_NUMERIC_RESULT" }>;
+  onEdit: () => void;
+}) {
+  const primary =
+    result.type === "ANCHOR_AND_RANGE"
+      ? { value: grams(result.anchorDailyGrams), detail: `${decimal(result.anchorGPerKg)} g/kg/gün başlangıç referansı` }
+      : result.type === "SINGLE_REFERENCE"
+        ? { value: grams(result.dailyGrams), detail: `${decimal(result.gPerKg)} g/kg/gün başlangıç referansı` }
+        : null;
+
+  return (
+    <article aria-live="polite">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8c6a2d]">Sonucun</p>
+      <h2 className="mt-1.5 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+        Günlük Protein Referansın
+      </h2>
+
+      {primary && (
+        <div className="mt-4">
+          <p className="text-5xl font-semibold tracking-[-0.05em] text-[#102536]">
+            {primary.value} <span className="text-2xl">g / gün</span>
+          </p>
+          <p className="mt-1.5 text-sm font-semibold text-[#8c6a2d]">{primary.detail}</p>
+        </div>
+      )}
+
+      {(result.type === "PRACTICAL_RANGE" || result.type === "ANCHOR_AND_RANGE") && (
+        <div className={`${primary ? "mt-4" : "mt-5"} rounded-xl border border-[#11283a]/10 bg-white px-4 py-3`}>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#71808b]">Pratik aralık</p>
+          <p className="mt-1 text-2xl font-semibold">
+            {grams(result.lowDailyGrams)}–{grams(result.highDailyGrams)} g/gün
+          </p>
+          <p className="mt-1 text-sm text-[#657581]">
+            {decimal(result.lowGPerKg)}–{decimal(result.highGPerKg)} g/kg/gün
+          </p>
+        </div>
+      )}
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <h3 className="text-sm font-bold">Profilin</h3>
+          <p className="mt-1 text-sm text-[#5c6c78]">
+            {form.weightKg} kg · {trainingLabels[form.trainingProfile as ProteinTrainingProfile]} · {goalLabels[form.goal as ProteinGoal]}
+          </p>
+        </div>
+        <div>
+          <h3 className="text-sm font-bold">Bu ne anlama geliyor?</h3>
+          <p className="mt-1 text-sm leading-5 text-[#5c6c78]">
+            Bu değer verilen bağlama göre bir başlangıç veya pratik referanstır; kesin kişisel gereksinim değildir.
+            {result.note === "no_hypertrophy_target" && " Bu profil için hipertrofiye özel ayrı bir hedef üretilmedi."}
+            {result.note === "fat_loss_context" && " Enerji açığında gereksinim aralığın üst bölümüne doğru artabilir; otomatik tek katsayı atanmadı."}
+            {result.note === "older_adult_individualization" && " İleri yaşta bireysel değerlendirme önemlidir."}
+          </p>
+        </div>
+      </div>
+
+      <MethodologyDisclosure>
+        <p>
+          Hesaplama ağırlığı: {decimal(result.calculationWeightKg)} kg. Kullanılan protein değeri bu ağırlık üzerinden ara yuvarlama yapılmadan hesaplandı.
+        </p>
+        {result.usesReferenceWeight && (
+          <p>
+            BMI 30 veya üzerinde ürün konvansiyonu olarak <code>Wcalc = min(gerçek kilo, 30 × boy²)</code> referans ağırlığı kullanıldı. Bu fizyolojik ideal ağırlık değildir.
+          </p>
+        )}
+        <p>
+          Kaynaklar: EFSA NDA (2012); Jäger et al. (2017); Morton et al. (2018); Volkert et al. (2022).
+        </p>
+      </MethodologyDisclosure>
+      <EditReferenceButton onClick={onEdit} />
+    </article>
+  );
+}
+
+function BlockedProteinResult({ onEdit }: { onEdit: () => void }) {
+  return (
+    <article aria-live="polite">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9d6f22]">Kapsam kontrolü</p>
+      <h2 className="mt-2 text-2xl font-semibold">Standart aracın kapsamı dışında</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5c6c78]">
+        Bu bağlamda protein referansı sağlık durumu ve bireysel koşullara göre değişebilir. Sayısal protein değeri gösterilmedi.
+      </p>
+      <EditReferenceButton onClick={onEdit} />
+    </article>
   );
 }

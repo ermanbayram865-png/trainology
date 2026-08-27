@@ -20,9 +20,6 @@ const calculatorPaths = [
   "/calculators/protein",
   "/calculators/macro",
   "/calculators/ffmi",
-  "/calculators/1rm",
-  "/calculators/training-load",
-  "/calculators/performance",
   "/calculators/water",
   "/calculators/healthy-weight",
 ] as const;

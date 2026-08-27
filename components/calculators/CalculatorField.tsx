@@ -89,7 +89,7 @@ export default function CalculatorField({
           {field.options?.map((option) => (
             <label
               key={option.value}
-              className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-700 bg-zinc-900 p-4 transition hover:border-[#C9A14A]/60"
+              className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-700 bg-zinc-900 p-3 transition hover:border-[#C9A14A]/60"
             >
               <input
                 type="radio"
@@ -112,7 +112,7 @@ export default function CalculatorField({
       )}
 
       {field.type === "toggle" && (
-        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-zinc-700 bg-zinc-900 p-4 transition hover:border-[#C9A14A]/60">
+        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-zinc-700 bg-zinc-900 p-3 transition hover:border-[#C9A14A]/60">
           <span className="text-sm text-neutral-300">{field.helperText ?? field.label}</span>
           <input
             id={id}
@@ -127,7 +127,7 @@ export default function CalculatorField({
       )}
 
       {field.helperText && (
-        <p id={descriptionId} className="mt-2 text-sm text-neutral-500">
+        <p id={descriptionId} className="mt-1.5 text-sm leading-5 text-neutral-500">
           {field.helperText}
         </p>
       )}

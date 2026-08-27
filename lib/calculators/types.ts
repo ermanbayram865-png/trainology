@@ -11,24 +11,18 @@ export type ActivityLevel =
   | "active"
   | "veryActive";
 
-export type ProteinGoal =
-  | "general_health"
-  | "maintenance"
-  | "muscle_gain"
-  | "fat_loss";
+export type ProteinAgeGroup = "adult_18_64" | "adult_65_plus";
+
+export type ProteinGoal = "maintenance" | "fat_loss" | "muscle_gain";
 
 export type ProteinTrainingProfile =
   | "none"
-  | "regular_exercise"
-  | "resistance_hypertrophy";
+  | "endurance_mixed"
+  | "resistance";
 
 export type EfsaAdultReferenceCategory =
   | "adult_female_reference"
   | "adult_male_reference";
-
-export type MacroProteinPreference = "standard" | "highProtein";
-
-export type MacroActivityLevel = "low" | "moderate" | "high";
 
 export type CalculatorFieldType = "number" | "select" | "radio" | "toggle";
 

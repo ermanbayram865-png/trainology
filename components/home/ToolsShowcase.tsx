@@ -1,4 +1,4 @@
-import { Calculator, ChartBar, Scale } from "lucide-react";
+import { Calculator, Scale } from "lucide-react";
 
 import Card from "@/components/ui/Card";
 import CTAButton from "@/components/ui/CTAButton";
@@ -20,12 +20,6 @@ const tools = [
     icon: <Scale size={30} strokeWidth={1.5} />,
     href: "/calculators/macro",
   },
-  {
-    title: "Performans Analizi",
-    description: "Vücut ve antrenman verilerini daha bilinçli takip et.",
-    icon: <ChartBar size={30} strokeWidth={1.5} />,
-    href: "/calculators/performance",
-  },
 ];
 
 export default function ToolsShowcase() {
@@ -33,10 +27,10 @@ export default function ToolsShowcase() {
     <Section
       subtitle="TOOLS"
       title="Fitness kararlarını bilimsel verilerle destekle."
-      description="Kalori, makro ve performans verilerini analiz ederek daha bilinçli kararlar vermeni sağlayan araçlar."
+      description="Kalori ve makro verilerini analiz ederek daha bilinçli kararlar vermeni sağlayan araçlar."
       contentClassName="mt-8"
     >
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {tools.map((tool) => (
           <Card
             key={tool.title}

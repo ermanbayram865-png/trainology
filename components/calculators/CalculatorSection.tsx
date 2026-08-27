@@ -14,11 +14,11 @@ export default function CalculatorSection({
   className,
 }: CalculatorSectionProps) {
   return (
-    <section className={`rounded-3xl border border-white/10 bg-[#0B0B0B] p-6 sm:p-8 ${className ?? ""}`}>
+    <section className={`rounded-3xl border border-white/10 bg-[#0B0B0B] p-6 sm:p-7 ${className ?? ""}`}>
       {(title || description) && (
-        <header className="mb-8">
+        <header className="mb-5">
           {title && <h2 className="text-2xl font-semibold text-white">{title}</h2>}
-          {description && <p className="mt-3 text-neutral-400">{description}</p>}
+          {description && <p className="mt-2 leading-6 text-neutral-400">{description}</p>}
         </header>
       )}
 
