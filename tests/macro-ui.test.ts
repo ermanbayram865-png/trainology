@@ -6,6 +6,10 @@ const source = readFileSync(
   new URL("../app/calculators/macro/page.tsx", import.meta.url),
   "utf8",
 );
+const prefillSource = readFileSync(
+  new URL("../lib/calculators/macro-prefill.ts", import.meta.url),
+  "utf8",
+);
 
 test("Makro Planlayıcı iki adımlı wizard, geri ve sonuç akışını korur", () => {
   assert.match(source, /type MacroStage = 1 \| 2 \| "result"/);
@@ -31,9 +35,10 @@ test("manuel kalori ve güvenli Energy Lab prefill akışları birlikte çalış
   assert.match(source, /calories: ""/);
   assert.match(source, /height: ""/);
   assert.match(source, /useSearchParams\(\)/);
-  assert.match(source, /getCaloriePrefill\(searchParams\.get\("calories"\)\)/);
-  assert.match(source, /Number\.isInteger\(calories\)/);
-  assert.match(source, /calories >= 1000 && calories <= 8000/);
+  assert.match(source, /parseMacroCaloriePrefill\(searchParams\.get\("calories"\)\)/);
+  assert.match(prefillSource, /Number\.isInteger\(value\)/);
+  assert.match(prefillSource, /MACRO_CALORIE_PREFILL_MIN = 1000/);
+  assert.match(prefillSource, /MACRO_CALORIE_PREFILL_MAX = 8000/);
   assert.match(source, /currentValues\.calories === ""/);
   assert.match(source, /href=\{ENERGY_LAB_PATH\}/);
   assert.match(source, /Energy Lab ile hesapla/);

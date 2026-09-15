@@ -3,6 +3,7 @@ export * from "./constants";
 export * from "./ffmi";
 export * from "./ffmi-reference";
 export * from "./macro";
+export * from "./macro-prefill";
 export * from "./protein";
 export * from "./protein-weight";
 export * from "./types";

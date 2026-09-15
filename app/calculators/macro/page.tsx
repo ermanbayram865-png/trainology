@@ -11,6 +11,7 @@ import {
   calculateMacroDistribution,
   CALORIE_GOALS,
   DEFAULT_CALORIE_GOAL,
+  parseMacroCaloriePrefill,
   validateCalculatorField,
   type CalculatorField,
   type CalculatorFormValues,
@@ -181,15 +182,9 @@ export default function MacroCalculatorPage() {
 
 function CaloriePrefill({ onPrefill }: { onPrefill: (calories: string) => void }) {
   const searchParams = useSearchParams();
-  const caloriePrefill = getCaloriePrefill(searchParams.get("calories"));
+  const caloriePrefill = parseMacroCaloriePrefill(searchParams.get("calories"));
   useEffect(() => { if (caloriePrefill) onPrefill(caloriePrefill); }, [caloriePrefill, onPrefill]);
   return null;
-}
-
-function getCaloriePrefill(value: string | null) {
-  if (value === null || value.trim() === "") return "";
-  const calories = Number(value);
-  return Number.isInteger(calories) && calories >= 1000 && calories <= 8000 ? String(calories) : "";
 }
 
 function MacroStepper({ stage }: { stage: 1 | 2 }) {

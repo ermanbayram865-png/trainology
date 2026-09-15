@@ -158,7 +158,9 @@ test("macro handoff transfers one exact scenario and requires a choice for two",
   assert.match(source, /scenario\.points\.length === 1 \? 0 : null/);
   assert.match(source, /scenario\.points\.length === 2/);
   assert.match(source, /setSelectedPointIndex\(index\)/);
-  assert.match(source, /calories=\$\{selectedPoint\.displayKcal\}/);
+  assert.match(source, /getMacroCalorieHandoffHref\(selectedPoint\.displayKcal\)/);
+  assert.match(source, /href=\{handoffHref\}/);
+  assert.match(source, /otomatik makro aktarım aralığının dışında/);
   assert.doesNotMatch(source, /displayMin \+ displayMax|\/ 2/);
 });
 

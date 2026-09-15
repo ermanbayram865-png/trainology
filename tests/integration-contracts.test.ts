@@ -144,15 +144,17 @@ test("Macro Planner accepts a validated calorie prefill while direct use stays b
   const experience = readSource("components/energy-lab/EnergyLabExperience.tsx");
   const macro = readSource("app/calculators/macro/page.tsx");
 
-  assert.match(experience, /\/calculators\/macro\?calories=\$\{selectedPoint\.displayKcal\}/);
+  assert.match(experience, /getMacroCalorieHandoffHref\(selectedPoint\.displayKcal\)/);
   assert.match(experience, /Makrolarımı Planla/);
   assert.match(experience, /scenario\.points\.length === 1 \? 0 : null/);
   assert.match(experience, /Önce bir kalori hedefi seç/);
   assert.match(macro, /calories:\s*""/);
   assert.match(macro, /weight:\s*""/);
   assert.match(macro, /useSearchParams\(\)/);
-  assert.match(macro, /getCaloriePrefill\(searchParams\.get\("calories"\)\)/);
-  assert.match(macro, /calories >= 1000 && calories <= 8000/);
+  assert.match(macro, /parseMacroCaloriePrefill\(searchParams\.get\("calories"\)\)/);
+  const prefill = readSource("lib/calculators/macro-prefill.ts");
+  assert.match(prefill, /MACRO_CALORIE_PREFILL_MIN = 1000/);
+  assert.match(prefill, /MACRO_CALORIE_PREFILL_MAX = 8000/);
   assert.doesNotMatch(macro, /EnergyLab|handoff|source=energy-lab|sessionStorage/i);
 });
 

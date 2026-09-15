@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { getMacroCalorieHandoffHref } from "@/lib/calculators/macro-prefill";
 import {
   ACTIVITY_PROFILE_ORDER,
   calculateTargetScenario,
@@ -966,6 +967,9 @@ function MacroPlannerLink({
   );
   const selectedPoint =
     selectedPointIndex === null ? null : scenario.points[selectedPointIndex];
+  const handoffHref = selectedPoint
+    ? getMacroCalorieHandoffHref(selectedPoint.displayKcal)
+    : null;
 
   return (
     <div className="mt-6 rounded-2xl border border-[#d0af69]/25 bg-white/[.04] p-5 sm:p-6">
@@ -1009,14 +1013,19 @@ function MacroPlannerLink({
       )}
 
       <div className="mt-5">
-        {selectedPoint ? (
+        {handoffHref ? (
           <Link
-            href={`/calculators/macro?calories=${selectedPoint.displayKcal}`}
+            href={handoffHref}
             className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#d0af69]/40 bg-[#102536] px-6 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d0af69] sm:w-auto"
           >
             Makrolarımı Planla
             <ArrowRight aria-hidden="true" className="size-4 text-[#d0af69]" />
           </Link>
+        ) : selectedPoint ? (
+          <p className="max-w-xl text-sm leading-6 text-slate-300">
+            Bu enerji hedefi otomatik makro aktarım aralığının dışında. Makro aracını
+            ayrı olarak kullanabilirsin.
+          </p>
         ) : (
           <span
             aria-disabled="true"

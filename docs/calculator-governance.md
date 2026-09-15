@@ -15,7 +15,7 @@ This document is the single source of truth for calculator development lifecycle
 
 - `ACTIVE`: Supported production product; normal scoped maintenance is allowed.
 - `SCIENTIFIC_FINAL_LOCK`: Scientific model and claim boundaries are complete. Reopening requires material new evidence, an identified scientific error, an implementation bug, or an explicit Trainology scientific revision.
-- `FINAL_LOCK`: Legacy label retained only where older records use it; current calculators use the more explicit scientific and release states below.
+- `FINAL_LOCK`: The product's scientific and functional contracts are locked. Changes require a separately scoped unlock/review for a real P0/P1 bug or new scientific audit.
 - `IN_REVISION`: Product under an explicitly tracked revision; do not assume its current contract is final.
 - `DECOMMISSIONED`: Removed product or surface; it must not be restored without an explicit product decision.
 
@@ -25,7 +25,7 @@ Scientific status is independent from release QA. `MANUAL_BROWSER_PENDING` means
 
 | Product or surface | Canonical route | Scientific/lifecycle state | Visual state | Release QA | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Energy Lab / Kalori Hedefi Simülatörü | `/calculators/calorie` | `SCIENTIFIC_FINAL_LOCK` | `VISUAL_SYSTEM_FINALIZED` | `MANUAL_BROWSER_PENDING` | Canonical energy calculator. `/analysis` is a non-indexed legacy redirect only. Fixed 10% conservative starting deficit, 500 kcal ceiling, and raw ≤1,200 output-withholding boundary are locked. |
+| Energy Lab / Kalori Hedefi Simülatörü | `/calculators/calorie` | `ACTIVE` · `SCIENTIFIC_FINAL_LOCK` · `FINAL_LOCK` | `VISUAL_SYSTEM_FINALIZED` | `MANUAL_BROWSER_PENDING` | Canonical energy calculator. `/analysis` is a non-indexed legacy redirect only. The scientific model, functional contract, and Energy → Macro handoff contract are locked. |
 | Makro Planlayıcı | `/calculators/macro` | `SCIENTIFIC_FINAL_LOCK` | `VISUAL_SYSTEM_FINALIZED` | `MANUAL_BROWSER_PENDING` | Current protein branches, 30% starting fat allocation, carbohydrate remainder, 4/4/9 conversion, informational fiber reference, validation, and fail-closed behavior are locked. |
 | Günlük Protein Referansı | `/calculators/protein` | `SCIENTIFIC_FINAL_LOCK` | `VISUAL_SYSTEM_FINALIZED` | `MANUAL_BROWSER_PENDING` | Current age, training, goal, range, anchor, scope, safety, calculation-weight, validation, and fail-closed behavior are locked. |
 | Günlük Su Alımı Rehberi | None | `DECOMMISSIONED` | Not applicable | Not applicable | The scientifically defensible EFSA-based implementation provided a population-level total-water reference but insufficient calculator-specific personalization/value for the active Trainology calculator suite. Unsupported weight-, activity-, exercise-, or climate-based numeric formulas were intentionally not introduced to manufacture personalization. |
@@ -64,6 +64,8 @@ Adding or changing a formula, threshold, coefficient, classification, percentile
 These claims must not be silently expanded to new populations. Macro and Protein scientific engines may be reopened only for material new evidence, an identified scientific error, an implementation bug, or an explicit Trainology scientific revision.
 
 ## Final Lock Policy
+
+Energy Lab is `FINAL_LOCK`. Its NASEM 2023 EER implementation, secondary Mifflin–St Jeor RMR estimate, input boundaries, activity model, BMI and scope gates, fixed 10% fat-loss starting deficit, 500 kcal cap, raw ≤1,200 output-withholding gate, ×1.00/×1.05 gain policy, display rounding, result availability rules, and Energy → Macro prefill eligibility contract must not change during normal design or polish work in Phases 2–6. Reopening requires a separately scoped unlock/review for a real P0/P1 bug or a new scientific audit.
 
 FFMI's formulas, reference dataset, measurement gate, scientific claim language, uncertainty behavior, validation/scope behavior, and relevant regression tests are locked against unrelated changes. An explicit FFMI task may change them when it also updates scientific traceability and regression coverage.
 
