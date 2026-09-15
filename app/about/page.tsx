@@ -48,7 +48,7 @@ const platformFeatures = [
   {
     title: "Hesaplama Araçları",
     description:
-      "Energy Lab, protein, makro, su, FFMI ve BMI gibi ölçümleri pratik biçimde değerlendirmeye yardımcı olan araçlar.",
+      "Energy Lab, protein, makro ve FFMI ölçümlerini pratik biçimde değerlendirmeye yardımcı olan araçlar.",
     icon: <Calculator aria-hidden="true" />,
     cta: "Araçları Keşfet",
     href: "/calculators",

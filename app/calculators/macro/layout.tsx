@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Makro Planlayıcı",
   description:
-    "Günlük kalori hedefini vücut ağırlığı, boy, hedef ve direnç antrenmanı bağlamıyla başlangıç makro dağılımına dönüştürün.",
+    "Günlük kalori hedefini vücut ağırlığı, boy, hedef ve direnç antrenmanı durumuna göre başlangıç makro dağılımına dönüştürün.",
   alternates: { canonical: "/calculators/macro" },
 };
 

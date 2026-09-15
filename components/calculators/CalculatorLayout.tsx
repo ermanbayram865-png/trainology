@@ -49,10 +49,10 @@ export default function CalculatorLayout({
       : null;
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white">
+    <main className="calculator-shell">
       <Section
-        className={`bg-[#050505] !py-8 sm:!py-10 lg:!py-10 ${sectionClassName ?? ""}`}
-        contentClassName={contentClassName ?? "space-y-6 lg:space-y-7"}
+        className={`!px-4 !py-7 sm:!px-6 sm:!py-9 lg:!py-10 ${sectionClassName ?? ""}`}
+        contentClassName={`calculator-content ${contentClassName ?? "space-y-6 lg:space-y-7"}`}
       >
         {structuredData && (
           <script
@@ -66,7 +66,7 @@ export default function CalculatorLayout({
         <PageHeader
           title={title}
           description={description}
-          className="[&>h1]:!mt-0 [&>p]:!mt-3"
+          className="[&>h1]:!mt-0 [&>h1]:!font-semibold [&>h1]:!tracking-[-0.045em] [&>p]:!mt-3 [&>p]:!leading-7"
         />
 
         {children}

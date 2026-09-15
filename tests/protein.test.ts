@@ -5,8 +5,6 @@ import {
   calculateMacroDistribution,
   calculateProteinCalculationWeight,
   calculateProteinRequirement,
-  calculateWaterRequirement,
-  TOTAL_WATER_METADATA,
   type ProteinAgeGroup,
   type ProteinGoal,
   type ProteinInput,
@@ -157,84 +155,18 @@ test("protein motoru geçersiz sayıları ve tanınmayan enumları reddeder", ()
   }
 });
 
-test("kadın ve erkek su referansları tek canonical litre değerinden mL üretir", () => {
-  const common = { adultConfirmed: true, standardAdultScope: true };
-  const female = calculateWaterRequirement({
-    ...common,
-    efsaAdultReferenceCategory: "adult_female_reference",
-  });
-  const male = calculateWaterRequirement({
-    ...common,
-    efsaAdultReferenceCategory: "adult_male_reference",
-  });
-
-  assert.equal(female.type, "TOTAL_WATER_REFERENCE");
-  assert.equal(male.type, "TOTAL_WATER_REFERENCE");
-  if (female.type === "TOTAL_WATER_REFERENCE") {
-    assert.equal(female.litersPerDay, 2);
-    assert.equal(female.millilitersPerDay, female.litersPerDay * 1000);
+test("protein motoru UI ile aynı ağırlık ve boy sınırlarını uygular", () => {
+  for (const [field, value] of [
+    ["weightKg", 24.9],
+    ["weightKg", 400.1],
+    ["heightCm", 99.9],
+    ["heightCm", 250.1],
+  ] as const) {
+    const result = calculateProteinRequirement({ ...baseProtein, [field]: value });
+    assert.equal(result.type, "VALIDATION_ERROR");
+    assert.equal(result.type === "VALIDATION_ERROR" && result.field, field);
   }
-  if (male.type === "TOTAL_WATER_REFERENCE") {
-    assert.equal(male.litersPerDay, 2.5);
-    assert.equal(male.millilitersPerDay, male.litersPerDay * 1000);
-  }
-});
 
-test("su motoru 18+ ve standart kapsam onayı yoksa sayısal sonuç üretmez", () => {
-  const input = {
-    adultConfirmed: true,
-    standardAdultScope: true,
-    efsaAdultReferenceCategory: "adult_female_reference" as const,
-  };
-  assert.deepEqual(calculateWaterRequirement({ ...input, adultConfirmed: false }), {
-    type: "NO_NUMERIC_RESULT",
-    reason: "under_18",
-  });
-  assert.deepEqual(calculateWaterRequirement({ ...input, standardAdultScope: false }), {
-    type: "NO_NUMERIC_RESULT",
-    reason: "outside_standard_scope",
-  });
-});
-
-test("su motoru eksik boolean ve tanınmayan kategoriyi reddeder", () => {
-  assert.equal(
-    calculateWaterRequirement({
-      adultConfirmed: "yes" as never,
-      standardAdultScope: true,
-      efsaAdultReferenceCategory: "adult_female_reference",
-    }).type,
-    "VALIDATION_ERROR",
-  );
-  assert.equal(
-    calculateWaterRequirement({
-      adultConfirmed: true,
-      standardAdultScope: true,
-      efsaAdultReferenceCategory: "unknown" as never,
-    }).type,
-    "VALIDATION_ERROR",
-  );
-});
-
-test("su motoruna kapsam dışı kişiselleştirme alanları eklemek sonucu değiştirmez", () => {
-  const result = calculateWaterRequirement({
-    adultConfirmed: true,
-    standardAdultScope: true,
-    efsaAdultReferenceCategory: "adult_male_reference",
-    weightKg: 200,
-    activity: "high",
-    creatine: true,
-    temperature: 40,
-  } as never);
-  assert.equal(result.type, "TOTAL_WATER_REFERENCE");
-  if (result.type === "TOTAL_WATER_REFERENCE") assert.equal(result.litersPerDay, 2.5);
-});
-
-test("toplam su metadata yiyecek, içme suyu ve diğer içecekleri kapsar", () => {
-  assert.deepEqual(TOTAL_WATER_METADATA, {
-    construct: "total_water_intake",
-    includesFoodWater: true,
-    includesDrinkingWater: true,
-    includesOtherBeverages: true,
-    personalExactRequirement: false,
-  });
+  assert.notEqual(calculateProteinRequirement({ ...baseProtein, weightKg: 25, heightCm: 100 }).type, "VALIDATION_ERROR");
+  assert.notEqual(calculateProteinRequirement({ ...baseProtein, weightKg: 400, heightCm: 250 }).type, "VALIDATION_ERROR");
 });

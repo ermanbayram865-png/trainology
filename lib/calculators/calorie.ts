@@ -2,7 +2,6 @@ import {
   calculateMifflinStJeorRmr,
   calculateTargetScenario,
   evaluateEnergyLab,
-  getFatLossPolicy,
   type ActivityProfile,
 } from "@/lib/energy-lab";
 
@@ -75,7 +74,6 @@ export function calculateCalorieRequirement({
     heightCm: height,
     weightKg: weight,
     activityProfiles: [activityProfileMap[activityLevel]],
-    performancePriority: false,
     generalScope: "standardAdult",
   });
 
@@ -85,21 +83,13 @@ export function calculateCalorieRequirement({
     );
   }
 
-  const policy = getFatLossPolicy(
-    evaluation.bmi,
-    false,
-    evaluation.scope.fatLossAllowed,
-  );
-  const defaultLossRate = policy.defaultRate ?? 0.1;
   const lossScenario = calculateTargetScenario({
     evaluation,
-    selection: { goal: "lose", rate: defaultLossRate },
-    performancePriority: false,
+    selection: { goal: "lose" },
   });
   const gainScenario = calculateTargetScenario({
     evaluation,
     selection: { goal: "gain", mode: "smallSurplus" },
-    performancePriority: false,
   });
 
   const maintenance = evaluation.maintenance.displayMin;

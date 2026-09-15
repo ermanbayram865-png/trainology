@@ -1,50 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trainology
 
-## Getting Started
+Trainology is a statically exported Next.js application for evidence-informed fitness calculators.
 
-First, run the development server:
+## Requirements
+
+- Node.js 20.9 or newer
+- npm
+
+## Install
+
+Install the locked dependency tree:
+
+```bash
+npm ci
+```
+
+## Development
+
+Start the local development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to optimize and self-host the Geist font files.
+The full verification command runs tests, type checking, linting, a production build, and `git diff --check`:
 
-## Site URL Configuration
-
-Local development uses `http://localhost:3000` when no site URL is configured.
-
-Production builds require the public HTTPS origin to be set explicitly:
-
-```bash
-NEXT_PUBLIC_SITE_URL=https://example.com
+```powershell
+$env:NEXT_PUBLIC_SITE_URL = "https://example.com"
+npm run verify
 ```
 
-Use an origin only, without a path, query, hash, or trailing slash requirement. Both `https://example.com` and `https://example.com/` normalize to the same origin.
+Targeted and relevant regression tests should be run before the full verification command.
 
-## Learn More
+## Production Build
 
-To learn more about Next.js, take a look at the following resources:
+Production builds require `NEXT_PUBLIC_SITE_URL` to be a valid public HTTPS origin. It is public configuration, not a secret, and must contain only the origin without credentials, a path, query, or hash.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+PowerShell example:
 
-## Production Deployment
-
-The application is exported as a fully static site. Create the production output with:
-
-```bash
-NEXT_PUBLIC_SITE_URL=https://trainology.com.tr npm run build
+```powershell
+$env:NEXT_PUBLIC_SITE_URL = "https://example.com"
+npm run build
 ```
 
-Next.js writes the deployable HTML, CSS, JavaScript, and assets to `out/`. Publish the contents of that directory to the web root of any static host. A persistent Node.js process and `server.js` are not required.
+The static export is written to `out/` for deployment to a static host.
+
+## Codex
+
+Read `AGENTS.md` before starting repository work. Before changing a calculator, its scientific claims, or its lifecycle, also read `docs/calculator-governance.md`.

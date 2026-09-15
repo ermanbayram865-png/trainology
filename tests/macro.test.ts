@@ -161,6 +161,22 @@ test("geçersiz sayılar ve tanınmayan enum değerleri fail-closed davranır", 
   }
 });
 
+test("motor UI ile aynı ağırlık, boy ve kalori sınırlarında fail-closed davranır", () => {
+  for (const [field, value] of [
+    ["weight", 24.9],
+    ["weight", 400.1],
+    ["height", 99.9],
+    ["height", 250.1],
+    ["calories", 999.9],
+    ["calories", 8000.1],
+  ] as const) {
+    assert.throws(() => getDistribution({ [field]: value }), RangeError);
+  }
+
+  assert.doesNotThrow(() => getDistribution({ weight: 25, height: 100, calories: 1000 }));
+  assert.doesNotThrow(() => getDistribution({ weight: 400, height: 250, calories: 8000 }));
+});
+
 test("legacy aktivite protein ve yağ tabloları motordan kaldırılmıştır", () => {
   const source = readFileSync(
     new URL("../lib/calculators/macro.ts", import.meta.url),

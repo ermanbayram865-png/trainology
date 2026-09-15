@@ -51,14 +51,14 @@ test("hedef ve direnç antrenmanı seçimleri erişilebilir kartlarla motora akt
 });
 
 test("kompakt yetişkin kapsam kontrolü bütün kapsam dışı durumları temsil eder", () => {
-  assert.match(source, /Standart yetişkin kapsamındayım/);
-  assert.match(source, /Bu araç benim durumuma uygun olmayabilir/);
+  assert.match(source, /Genel yetişkin kapsamındayım/);
+  assert.match(source, /Bu hesaplama benim durumuma uygun olmayabilir/);
   assert.match(source, /18 yaş altı/);
   assert.match(source, /gebelik\/emzirme/);
   assert.match(source, /yeme bozukluğu/);
-  assert.match(source, /RED-S\/düşük enerji kullanılabilirliği/);
+  assert.match(source, /Sporda Göreceli Enerji Eksikliği \(RED-S\)/);
   assert.match(source, /klinik hastalık\/özel tıbbi diyet/);
-  assert.match(source, /physique yarışma hazırlığı/);
+  assert.match(source, /fizik yarışması hazırlığı/);
   assert.match(source, /scope: values\.scope as MacroScope/);
   assert.match(source, /Kimler için uygun değildir\?/);
   assert.match(source, /<details/);
@@ -74,20 +74,23 @@ test("sonuç motorun canonical gram ve yüzde değerlerini gösterir", () => {
   assert.match(source, /minimumFractionDigits: 1, maximumFractionDigits: 1/);
   assert.doesNotMatch(source, /proteinShare|carbohydrateShare|conic-gradient/);
   assert.match(source, /Günlük Makro Dağılımın/);
+  assert.match(source, /Kullandığın günlük kalori hedefi/);
+  assert.match(source, /toplam kalorinin her makrodan gelen payını gösterir/);
 });
 
 test("lif, dinamik bilimsel bağlam ve manuel kalori sınırı görünürdür", () => {
   assert.match(source, /Lif referansı/);
   assert.match(source, /≥\{distribution\.fiberReferenceGrams\} g \/ gün/);
+  assert.match(source, /makro gramlarına veya kalori hedefine ayrıca eklenmez/);
   assert.match(source, /girdiğin kalori hedefini kullanır/);
-  assert.match(source, /referans ağırlık kullanıldı/);
+  assert.match(source, /Protein hesabında kullanılan ağırlık/);
   assert.match(source, /1,6 g\/kg\/gün/);
   assert.match(source, /genel yetişkin protein yeterlilik referansı/);
 });
 
 test("blocked sonuçlar sayısal dağılım göstermeden düzenlemeye döner", () => {
   assert.match(source, /evaluation\.status === "ok"/);
-  assert.match(source, /Standart dağılım oluşturulmadı/);
+  assert.match(source, /Makro dağılımı oluşturulmadı/);
   assert.match(source, /evaluation\.message/);
   assert.match(source, /Planı Düzenle/);
   assert.match(source, /onEdit=\{\(\) => setStage\(2\)\}/);
@@ -103,6 +106,10 @@ test("metodoloji accordion ve kaynaklar erişilebilir biçimde sunulur", () => {
   assert.match(source, /Morton ve ark\./);
   assert.match(source, /WHO — Karbonhidrat ve lif kılavuzu/);
   assert.match(source, /Yuvarlama/);
+  assert.match(source, /Protein için kanıt sınırı/);
+  assert.match(source, /ihtiyatlı bir Trainology başlangıç referansıdır/);
+  assert.match(source, /ideal, sağlıklı veya hedef kilo değildir/);
+  assert.match(source, /Weijs — Obezitede protein gereksinimi ve kanıt sınırları/);
 });
 
 test("wizard düşük yükseklikli gerçek desktop viewport için kompaktlaşır", () => {

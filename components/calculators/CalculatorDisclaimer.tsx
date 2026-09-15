@@ -13,7 +13,7 @@ export default function CalculatorDisclaimer({
   className,
 }: CalculatorDisclaimerProps) {
   return (
-    <div className={`space-y-2 text-sm leading-6 text-neutral-500 ${className ?? ""}`}>
+    <div className={`space-y-2 border-t border-white/10 pt-4 text-xs leading-5 text-neutral-500 ${className ?? ""}`}>
       <p>{CALCULATOR_DISCLAIMER}</p>
       {children && <p>{children}</p>}
     </div>

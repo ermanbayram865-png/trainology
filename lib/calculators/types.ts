@@ -20,10 +20,6 @@ export type ProteinTrainingProfile =
   | "endurance_mixed"
   | "resistance";
 
-export type EfsaAdultReferenceCategory =
-  | "adult_female_reference"
-  | "adult_male_reference";
-
 export type CalculatorFieldType = "number" | "select" | "radio" | "toggle";
 
 export type CalculatorFieldValue = string | boolean;

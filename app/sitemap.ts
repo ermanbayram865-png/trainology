@@ -20,8 +20,6 @@ const calculatorPaths = [
   "/calculators/protein",
   "/calculators/macro",
   "/calculators/ffmi",
-  "/calculators/water",
-  "/calculators/healthy-weight",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -49,25 +49,42 @@ const FAT_KCAL_PER_GRAM = 9;
 const FAT_ENERGY_SHARE = 0.3;
 const FIBER_REFERENCE_GRAMS = 25 as const;
 const LOW_BMI_THRESHOLD = 18.5;
+const MACRO_INPUT_LIMITS = {
+  calories: { min: 1000, max: 8000 },
+  weight: { min: 25, max: 400 },
+  height: { min: 100, max: 250 },
+} as const;
 
 function validateInput(input: MacroInput) {
-  if (!Number.isFinite(input.calories) || input.calories <= 0) {
-    throw new RangeError("Kalori hedefi pozitif ve sonlu bir sayı olmalıdır.");
+  if (
+    !Number.isFinite(input.calories) ||
+    input.calories < MACRO_INPUT_LIMITS.calories.min ||
+    input.calories > MACRO_INPUT_LIMITS.calories.max
+  ) {
+    throw new RangeError("Kalori hedefi 1.000–8.000 kcal arasında olmalıdır.");
   }
-  if (!Number.isFinite(input.weight) || input.weight <= 0) {
-    throw new RangeError("Kilo pozitif ve sonlu bir sayı olmalıdır.");
+  if (
+    !Number.isFinite(input.weight) ||
+    input.weight < MACRO_INPUT_LIMITS.weight.min ||
+    input.weight > MACRO_INPUT_LIMITS.weight.max
+  ) {
+    throw new RangeError("Kilo 25–400 kg arasında olmalıdır.");
   }
-  if (!Number.isFinite(input.height) || input.height <= 0) {
-    throw new RangeError("Boy pozitif ve sonlu bir sayı olmalıdır.");
+  if (
+    !Number.isFinite(input.height) ||
+    input.height < MACRO_INPUT_LIMITS.height.min ||
+    input.height > MACRO_INPUT_LIMITS.height.max
+  ) {
+    throw new RangeError("Boy 100–250 cm arasında olmalıdır.");
   }
   if (!(["lose", "maintain", "gain"] as const).includes(input.goal)) {
     throw new RangeError("Geçerli bir hedef seçilmelidir.");
   }
   if (!(["yes", "no"] as const).includes(input.resistanceTraining)) {
-    throw new RangeError("Geçerli bir direnç antrenmanı seçimi yapılmalıdır.");
+    throw new RangeError("Direnç antrenmanı yapıp yapmadığını seç.");
   }
   if (!(["standardAdult", "outsideStandardScope"] as const).includes(input.scope)) {
-    throw new RangeError("Geçerli bir kapsam seçimi yapılmalıdır.");
+    throw new RangeError("Bu genel hesaplamanın sana uygun olup olmadığını seç.");
   }
 }
 
@@ -86,7 +103,7 @@ export function calculateMacroDistribution(input: MacroInput): MacroEvaluation {
       status: "blocked",
       reason: "outsideStandardScope",
       message:
-        "Bu araç standart sağlıklı yetişkin kapsamı için tasarlanmıştır. Bu bilgilerle sayısal makro dağılımı oluşturulmadı.",
+        "Bu genel hesaplama bazı özel durumlar için uygun değildir. Bu bilgilerle sayısal makro dağılımı oluşturulmadı.",
     };
   }
 
@@ -98,7 +115,7 @@ export function calculateMacroDistribution(input: MacroInput): MacroEvaluation {
       status: "blocked",
       reason: "underweightFatLoss",
       message:
-        "Bu bilgilerle yağ kaybı için standart sayısal makro dağılımı oluşturulmadı.",
+        "Bu bilgilerle yağ kaybı için sayısal makro dağılımı oluşturulmadı.",
     };
   }
 
@@ -108,7 +125,7 @@ export function calculateMacroDistribution(input: MacroInput): MacroEvaluation {
       status: "blocked",
       reason: "gainWithoutResistanceTraining",
       message:
-        "Kas kazanımı hedefinde direnç antrenmanı önemli bir bileşendir. Bu nedenle standart kas kazanımı protein hesabı uygulanmadı.",
+        "Kas kazanımı hedefinde direnç antrenmanı önemli bir bileşendir. Bu nedenle kas kazanımı için sayısal protein hesabı uygulanmadı.",
     };
   }
 

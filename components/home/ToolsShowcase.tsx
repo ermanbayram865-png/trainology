@@ -9,7 +9,7 @@ const tools = [
   {
     title: "Kalori Hedefi Simülatörü",
     description:
-      "Energy Lab ile bakım enerjisi ve kontrollü kalori hedefi için bir başlangıç tahmini oluştur.",
+      "Energy Lab ile günlük enerji ihtiyacın ve kalori hedefin için bir başlangıç tahmini oluştur.",
     icon: <Calculator size={30} strokeWidth={1.5} />,
     href: ENERGY_LAB_PATH,
   },

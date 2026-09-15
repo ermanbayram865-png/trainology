@@ -8,6 +8,7 @@
     "lint": "eslint",
     "test": "tsx --test tests/**/*.test.ts",
     "typecheck": "tsc --noEmit",
+    "verify": "npm test && npm run typecheck && npm run lint && npm run build && git diff --check",
     "trainology": "node trainology-cli/index.js"
   },
   "dependencies": {

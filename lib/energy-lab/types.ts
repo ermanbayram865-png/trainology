@@ -8,8 +8,6 @@ export type ActivityProfile =
 
 export type EnergyGoal = "maintain" | "lose" | "gain";
 
-export type DeficitRate = 0.1 | 0.15 | 0.2;
-
 export type GainMode = "maintenance" | "smallSurplus";
 
 export type GeneralScopeSelection = "standardAdult" | "mayBeOutsideScope";
@@ -20,7 +18,6 @@ export type EnergyLabInput = {
   heightCm: number;
   weightKg: number;
   activityProfiles: readonly ActivityProfile[];
-  performancePriority: boolean;
   generalScope: GeneralScopeSelection;
 };
 
@@ -96,22 +93,9 @@ export type EnergyLabEvaluation =
   | BlockedEnergyEvaluation
   | ReadyEnergyEvaluation;
 
-export type FatLossOption = {
-  rate: DeficitRate;
-  label: string;
-  enabled: boolean;
-  reason?: string;
-};
-
-export type FatLossPolicy = {
-  defaultRate: DeficitRate | null;
-  deficitCapKcal: number | null;
-  options: readonly FatLossOption[];
-};
-
 export type GoalSelection =
   | { goal: "maintain" }
-  | { goal: "lose"; rate: DeficitRate }
+  | { goal: "lose" }
   | { goal: "gain"; mode: GainMode };
 
 export type TargetPoint = {
@@ -133,10 +117,8 @@ export type AvailableTargetScenario = {
 };
 
 export type UnavailableTargetReason =
-  | "SCOPE_BLOCKED"
   | "FAT_LOSS_NOT_AVAILABLE"
-  | "OPTION_NOT_AVAILABLE"
-  | "TARGET_BELOW_1200"
+  | "TARGET_AT_OR_BELOW_1200"
   | "INVALID_SELECTION";
 
 export type UnavailableTargetScenario = {

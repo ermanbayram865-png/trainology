@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  calculateBmi,
   calculateMifflinStJeorRmr,
   calculateNasem2023AdultEer,
   calculateTargetScenario,
+  ENERGY_LAB_SOURCES,
+  ENERGY_SCIENTIFIC_DECISIONS,
   evaluateEnergyLab,
-  getFatLossPolicy,
   isValidActivitySelection,
   roundToNearest50,
   type EnergyLabInput,
@@ -18,15 +20,53 @@ const BASE_INPUT: EnergyLabInput = {
   heightCm: 165,
   weightKg: 60,
   activityProfiles: ["inactive"],
-  performancePriority: false,
   generalScope: "standardAdult",
 };
+
+test("scientific source metadata separates evidence from the conservative product rules", () => {
+  for (const source of ENERGY_LAB_SOURCES) {
+    assert.ok(source.id.length > 0);
+    assert.ok(source.title.length > 0);
+    assert.ok(source.authors.length > 0);
+    assert.ok(source.year >= 1990);
+    assert.match(source.url, /^https:\/\//);
+    assert.ok(source.supports.length > 0);
+    assert.ok(source.limits.length > 0);
+  }
+
+  const startingRule = ENERGY_SCIENTIFIC_DECISIONS.find(
+    (item) => item.id === "fat-loss-starting-rule",
+  );
+  const ceiling = ENERGY_SCIENTIFIC_DECISIONS.find((item) => item.id === "deficit-cap");
+  const outputGate = ENERGY_SCIENTIFIC_DECISIONS.find((item) => item.id === "low-calorie-gate");
+  assert.equal(startingRule?.decision, "acceptable-safety-rule");
+  assert.equal(ceiling?.decision, "acceptable-safety-rule");
+  assert.equal(outputGate?.decision, "acceptable-safety-rule");
+  assert.ok(ENERGY_LAB_SOURCES.some((source) => source.id === "das-2009-energy-restriction"));
+  assert.ok(ENERGY_LAB_SOURCES.some((source) => source.id === "nice-2025-overweight-obesity"));
+});
 
 function readyEvaluation(overrides: Partial<EnergyLabInput> = {}) {
   const result = evaluateEnergyLab({ ...BASE_INPUT, ...overrides });
   assert.equal(result.status, "ready");
   if (result.status !== "ready") throw new Error("Expected a ready Energy Lab result.");
   return result;
+}
+
+function evaluationWithMaintenance(rawKcal: number, bmi = 24.9) {
+  const evaluation = readyEvaluation();
+  return {
+    ...evaluation,
+    bmi,
+    maintenance: {
+      kind: "single" as const,
+      points: [{ profile: "inactive" as const, rawKcal, displayKcal: roundToNearest50(rawKcal) }],
+      rawMin: rawKcal,
+      rawMax: rawKcal,
+      displayMin: roundToNearest50(rawKcal),
+      displayMax: roundToNearest50(rawKcal),
+    },
+  };
 }
 
 test("NASEM 2023 adult female equations match the published Table 5-16 coefficients", () => {
@@ -122,53 +162,58 @@ test("two adjacent activity profiles produce a correctly ordered scenario range"
   assert.ok(result.maintenance.rawMin < result.maintenance.rawMax);
 });
 
-test("BMI 18.5–24.9 defaults to 10%, disables 20%, and caps deficit at 500 kcal", () => {
-  const result = readyEvaluation({ weightKg: 60 });
-  const policy = getFatLossPolicy(result.bmi, false, result.scope.fatLossAllowed);
-  assert.equal(policy.defaultRate, 0.1);
-  assert.equal(policy.deficitCapKcal, 500);
-  assert.equal(policy.options.find((option) => option.rate === 0.2)?.enabled, false);
-});
-
-test("BMI 25 or above defaults to 15%, enables 20%, and caps deficit at 750 kcal", () => {
-  const result = readyEvaluation({ weightKg: 75 });
-  const policy = getFatLossPolicy(result.bmi, false, result.scope.fatLossAllowed);
-  assert.equal(policy.defaultRate, 0.15);
-  assert.equal(policy.deficitCapKcal, 750);
-  assert.equal(policy.options.find((option) => option.rate === 0.2)?.enabled, true);
-});
-
-test("fat-loss policy boundaries are enforced on raw BMI values", () => {
-  assert.equal(getFatLossPolicy(18.499, false).defaultRate, null);
-  assert.equal(getFatLossPolicy(18.5, false).defaultRate, 0.1);
-  assert.equal(getFatLossPolicy(24.9, false).defaultRate, 0.1);
-  assert.equal(getFatLossPolicy(25, false).defaultRate, 0.15);
-  assert.throws(() => getFatLossPolicy(Number.NaN, false), RangeError);
-});
-
-test("performance priority disables 20% and applies the more protective 500 kcal cap", () => {
-  const result = readyEvaluation({ weightKg: 100, performancePriority: true });
-  const policy = getFatLossPolicy(result.bmi, true, result.scope.fatLossAllowed);
-  assert.equal(policy.deficitCapKcal, 500);
-  assert.equal(policy.options.find((option) => option.rate === 0.2)?.enabled, false);
-
-  const scenario = calculateTargetScenario({
-    evaluation: result,
-    selection: { goal: "lose", rate: 0.15 },
-    performancePriority: true,
-  });
-  assert.equal(scenario.status, "available");
-  if (scenario.status === "available") {
-    assert.ok(scenario.points.every((point) => (point.actualDeficitKcal ?? 0) <= 500));
+test("fat loss uses exactly 10% below the cap and exactly 500 kcal at and above it", () => {
+  for (const [maintenance, expectedDeficit, expectedTarget] of [
+    [3000, 300, 2700],
+    [5000, 500, 4500],
+    [6000, 500, 5500],
+  ] as const) {
+    const scenario = calculateTargetScenario({
+      evaluation: evaluationWithMaintenance(maintenance),
+      selection: { goal: "lose" },
+    });
+    assert.equal(scenario.status, "available");
+    if (scenario.status === "available") {
+      assert.equal(scenario.points[0].actualDeficitKcal, expectedDeficit);
+      assert.equal(scenario.points[0].rawKcal, expectedTarget);
+    }
   }
 });
 
-test("no 25% fat-loss option exists", () => {
-  const policy = getFatLossPolicy(30, false, true);
-  assert.deepEqual(
-    policy.options.map((option) => option.rate),
-    [0.1, 0.15, 0.2],
-  );
+test("BMI 24.9 and 25.0 use the identical fat-loss calculation", () => {
+  const below = calculateTargetScenario({
+    evaluation: evaluationWithMaintenance(3000, 24.9),
+    selection: { goal: "lose" },
+  });
+  const at = calculateTargetScenario({
+    evaluation: evaluationWithMaintenance(3000, 25),
+    selection: { goal: "lose" },
+  });
+  assert.deepEqual(below, at);
+});
+
+test("legacy 15% and 20% selections are unavailable and no 750 kcal branch remains", () => {
+  for (const rate of [0.15, 0.2]) {
+    const scenario = calculateTargetScenario({
+      evaluation: evaluationWithMaintenance(8000, 30),
+      selection: { goal: "lose", rate } as never,
+    });
+    assert.equal(scenario.status, "unavailable");
+    if (scenario.status === "unavailable") assert.equal(scenario.reason, "INVALID_SELECTION");
+  }
+
+  const valid = calculateTargetScenario({
+    evaluation: evaluationWithMaintenance(8000, 30),
+    selection: { goal: "lose" },
+  });
+  assert.equal(valid.status, "available");
+  if (valid.status === "available") assert.equal(valid.points[0].actualDeficitKcal, 500);
+});
+
+test("a legacy performance-priority property cannot change any numeric result", () => {
+  const withPriority = evaluateEnergyLab({ ...BASE_INPUT, performancePriority: true } as EnergyLabInput);
+  const withoutPriority = evaluateEnergyLab({ ...BASE_INPUT, performancePriority: false } as EnergyLabInput);
+  assert.deepEqual(withPriority, withoutPriority);
 });
 
 test("runtime-invalid loss and gain modes are rejected by the calculation layer", () => {
@@ -176,12 +221,10 @@ test("runtime-invalid loss and gain modes are rejected by the calculation layer"
   const invalidLoss = calculateTargetScenario({
     evaluation,
     selection: { goal: "lose", rate: 0.25 } as never,
-    performancePriority: false,
   });
   const invalidGain = calculateTargetScenario({
     evaluation,
     selection: { goal: "gain", mode: "plus500" } as never,
-    performancePriority: false,
   });
 
   assert.equal(invalidLoss.status, "unavailable");
@@ -190,45 +233,30 @@ test("runtime-invalid loss and gain modes are rejected by the calculation layer"
   if (invalidGain.status === "unavailable") assert.equal(invalidGain.reason, "INVALID_SELECTION");
 });
 
-test("the 1,200 kcal gate uses raw targets and permits the exact boundary", () => {
-  const evaluation = readyEvaluation({ weightKg: 80 });
-  const atBoundary = {
-    ...evaluation,
-    bmi: 30,
-    maintenance: {
-      kind: "single" as const,
-      points: [{ profile: "inactive" as const, rawKcal: 1500, displayKcal: 1500 }],
-      rawMin: 1500,
-      rawMax: 1500,
-      displayMin: 1500,
-      displayMax: 1500,
-    },
-  };
-  const belowBoundary = {
-    ...atBoundary,
-    maintenance: {
-      ...atBoundary.maintenance,
-      points: [{ profile: "inactive" as const, rawKcal: 1499.9875, displayKcal: 1500 }],
-      rawMin: 1499.9875,
-      rawMax: 1499.9875,
-    },
-  };
+test("the low-output gate uses raw target values below, at, and slightly above 1,200", () => {
+  for (const [targetRaw, expectedStatus] of [
+    [1199.9, "unavailable"],
+    [1200, "unavailable"],
+    [1200.1, "available"],
+  ] as const) {
+    const scenario = calculateTargetScenario({
+      evaluation: evaluationWithMaintenance(targetRaw / 0.9),
+      selection: { goal: "lose" },
+    });
+    assert.equal(scenario.status, expectedStatus);
+  }
+});
 
-  const exact = calculateTargetScenario({
-    evaluation: atBoundary,
-    selection: { goal: "lose", rate: 0.2 },
-    performancePriority: false,
+test("display rounding to 1,200 cannot withhold a raw target above 1,200", () => {
+  const scenario = calculateTargetScenario({
+    evaluation: evaluationWithMaintenance(1200.1 / 0.9),
+    selection: { goal: "lose" },
   });
-  const below = calculateTargetScenario({
-    evaluation: belowBoundary,
-    selection: { goal: "lose", rate: 0.2 },
-    performancePriority: false,
-  });
-
-  assert.equal(exact.status, "available");
-  if (exact.status === "available") assert.equal(exact.rawMin, 1200);
-  assert.equal(below.status, "unavailable");
-  if (below.status === "unavailable") assert.equal(below.reason, "TARGET_BELOW_1200");
+  assert.equal(scenario.status, "available");
+  if (scenario.status === "available") {
+    assert.ok(scenario.rawMin > 1200);
+    assert.equal(scenario.displayMin, 1200);
+  }
 });
 
 test("a fat-loss target below 1,200 kcal is withheld", () => {
@@ -241,18 +269,18 @@ test("a fat-loss target below 1,200 kcal is withheld", () => {
   });
   const scenario = calculateTargetScenario({
     evaluation: result,
-    selection: { goal: "lose", rate: 0.1 },
-    performancePriority: false,
+    selection: { goal: "lose" },
   });
   assert.equal(scenario.status, "unavailable");
   if (scenario.status === "unavailable") {
-    assert.equal(scenario.reason, "TARGET_BELOW_1200");
+    assert.equal(scenario.reason, "TARGET_AT_OR_BELOW_1200");
   }
 });
 
-test("under-19 inputs never run the adult numerical engine", () => {
+test("under-19 inputs fail validation and never run the adult numerical engine", () => {
   const result = evaluateEnergyLab({ ...BASE_INPUT, age: 18 });
-  assert.equal(result.status, "blocked");
+  assert.equal(result.status, "invalid");
+  if (result.status === "invalid") assert.equal(result.errors[0]?.code, "INVALID_AGE");
   assert.throws(
     () =>
       calculateNasem2023AdultEer({
@@ -312,17 +340,38 @@ test("empty, NaN and invalid activity combinations never reach a result", () => 
   if (result.status === "invalid") assert.equal(result.errors.length, 2);
 });
 
+test("malformed runtime inputs fail closed instead of producing numeric results", () => {
+  const missing = evaluateEnergyLab({} as never);
+  assert.equal(missing.status, "invalid");
+  if (missing.status === "invalid") {
+    assert.deepEqual(
+      new Set(missing.errors.map((error) => error.field)),
+      new Set(["age", "sex", "heightCm", "weightKg", "activityProfiles", "generalScope"]),
+    );
+  }
+
+  assert.throws(() => calculateBmi(Number.NaN, 170), RangeError);
+  assert.throws(
+    () =>
+      calculateMifflinStJeorRmr({
+        sex: "female",
+        age: 18,
+        heightCm: 165,
+        weightKg: 60,
+      }),
+    RangeError,
+  );
+});
+
 test("gain targets expose maintenance and a true 5% small-surplus option only", () => {
   const result = readyEvaluation();
   const maintenance = calculateTargetScenario({
     evaluation: result,
     selection: { goal: "gain", mode: "maintenance" },
-    performancePriority: false,
   });
   const surplus = calculateTargetScenario({
     evaluation: result,
     selection: { goal: "gain", mode: "smallSurplus" },
-    performancePriority: false,
   });
   assert.equal(maintenance.status, "available");
   assert.equal(surplus.status, "available");

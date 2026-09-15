@@ -81,6 +81,10 @@ const TRAINING_PROFILES: readonly ProteinTrainingProfile[] = [
   "resistance",
 ];
 const GOALS: readonly ProteinGoal[] = ["maintenance", "fat_loss", "muscle_gain"];
+const PROTEIN_INPUT_LIMITS = {
+  heightCm: { min: 100, max: 250 },
+  weightKg: { min: 25, max: 400 },
+} as const;
 
 function validationError(
   field: keyof ProteinInput,
@@ -95,11 +99,19 @@ export function calculateProteinRequirement(input: ProteinInput): ProteinRequire
   if (!AGE_GROUPS.includes(ageGroup)) {
     return validationError("ageGroup", "Geçerli bir yaş grubu seçilmelidir.");
   }
-  if (!Number.isFinite(heightCm) || heightCm <= 0) {
-    return validationError("heightCm", "Boy pozitif ve sonlu bir sayı olmalıdır.");
+  if (
+    !Number.isFinite(heightCm) ||
+    heightCm < PROTEIN_INPUT_LIMITS.heightCm.min ||
+    heightCm > PROTEIN_INPUT_LIMITS.heightCm.max
+  ) {
+    return validationError("heightCm", "Boy 100–250 cm arasında olmalıdır.");
   }
-  if (!Number.isFinite(weightKg) || weightKg <= 0) {
-    return validationError("weightKg", "Kilo pozitif ve sonlu bir sayı olmalıdır.");
+  if (
+    !Number.isFinite(weightKg) ||
+    weightKg < PROTEIN_INPUT_LIMITS.weightKg.min ||
+    weightKg > PROTEIN_INPUT_LIMITS.weightKg.max
+  ) {
+    return validationError("weightKg", "Kilo 25–400 kg arasında olmalıdır.");
   }
   if (!TRAINING_PROFILES.includes(trainingProfile)) {
     return validationError("trainingProfile", "Geçerli bir antrenman profili seçilmelidir.");
@@ -108,7 +120,7 @@ export function calculateProteinRequirement(input: ProteinInput): ProteinRequire
     return validationError("goal", "Geçerli bir hedef seçilmelidir.");
   }
   if (typeof standardAdultScope !== "boolean") {
-    return validationError("standardAdultScope", "Kapsam onayı yanıtlanmalıdır.");
+    return validationError("standardAdultScope", "Bu genel hesaplamanın sana uygun olduğunu onayla.");
   }
   if (!standardAdultScope) {
     return { type: "NO_NUMERIC_RESULT", reason: "outside_standard_scope" };

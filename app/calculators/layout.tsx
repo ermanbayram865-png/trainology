@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Bilimsel Hesaplayıcılar",
   description:
-    "Trainology bilimsel hesaplayıcılarıyla enerji, protein, performans ve vücut kompozisyonu için genel tahminleri inceleyin.",
+    "Trainology hesaplayıcılarıyla enerji, makro, protein ve vücut kompozisyonu için genel tahminleri inceleyin.",
   alternates: {
     canonical: "/calculators",
   },

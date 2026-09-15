@@ -1,11 +1,9 @@
 import type {
   ActivityProfile,
   BiologicalSex,
-  DeficitRate,
   EnergyInputError,
   EnergyLabEvaluation,
   EnergyLabInput,
-  FatLossPolicy,
   GoalSelection,
   MaintenanceEstimate,
   ReadyEnergyEvaluation,
@@ -51,7 +49,9 @@ export const ACTIVITY_PROFILE_ORDER: readonly ActivityProfile[] = [
   "veryActive",
 ];
 
-const DEFICIT_RATES: readonly DeficitRate[] = [0.1, 0.15, 0.2];
+export const FAT_LOSS_STARTING_RATE = 0.1;
+export const FAT_LOSS_DEFICIT_CAP_KCAL = 500;
+export const FAT_LOSS_OUTPUT_BOUNDARY_KCAL = 1200;
 
 export function roundToNearest50(value: number): number {
   if (!Number.isFinite(value)) {
@@ -62,6 +62,13 @@ export function roundToNearest50(value: number): number {
 }
 
 export function calculateBmi(weightKg: number, heightCm: number): number {
+  if (!Number.isFinite(weightKg) || weightKg <= 0) {
+    throw new RangeError("Kilo geçerli ve pozitif bir sayı olmalıdır.");
+  }
+  if (!Number.isFinite(heightCm) || heightCm <= 0) {
+    throw new RangeError("Boy geçerli ve pozitif bir sayı olmalıdır.");
+  }
+
   const heightMetres = heightCm / 100;
   return weightKg / heightMetres ** 2;
 }
@@ -77,6 +84,16 @@ export function calculateMifflinStJeorRmr({
   heightCm: number;
   weightKg: number;
 }): number {
+  if (sex !== "female" && sex !== "male") {
+    throw new RangeError("Geçerli biyolojik cinsiyet katsayısı seçilmelidir.");
+  }
+  if (!Number.isFinite(age) || age < 19) {
+    throw new RangeError("Mifflin–St Jeor yetişkin tahmini yalnız 19 yaş ve üzeri için kullanılır.");
+  }
+  if (!Number.isFinite(heightCm) || heightCm <= 0 || !Number.isFinite(weightKg) || weightKg <= 0) {
+    throw new RangeError("Boy ve kilo geçerli pozitif sayılar olmalıdır.");
+  }
+
   const sexAdjustment = sex === "male" ? 5 : -161;
   return 10 * weightKg + 6.25 * heightCm - 5 * age + sexAdjustment;
 }
@@ -94,8 +111,12 @@ export function calculateNasem2023AdultEer({
   weightKg: number;
   activityProfile: ActivityProfile;
 }): number {
-  if (age < 19) {
+  if (!Number.isFinite(age) || age < 19) {
     throw new RangeError("NASEM 2023 yetişkin EER denklemi yalnız 19 yaş ve üzeri için kullanılır.");
+  }
+
+  if (!Number.isFinite(heightCm) || heightCm <= 0 || !Number.isFinite(weightKg) || weightKg <= 0) {
+    throw new RangeError("Boy ve kilo geçerli pozitif sayılar olmalıdır.");
   }
 
   const coefficients = NASEM_2023_ADULT_EER_COEFFICIENTS[sex]?.[activityProfile];
@@ -119,24 +140,28 @@ export function calculateNasem2023AdultEer({
 
 export function validateEnergyLabInput(input: EnergyLabInput): readonly EnergyInputError[] {
   const errors: EnergyInputError[] = [];
+  const candidate =
+    input && typeof input === "object"
+      ? (input as Partial<EnergyLabInput>)
+      : ({} as Partial<EnergyLabInput>);
 
-  if (!Number.isInteger(input.age) || input.age < 13 || input.age > 120) {
+  if (!Number.isInteger(candidate.age) || (candidate.age as number) < 19 || (candidate.age as number) > 120) {
     errors.push({
       code: "INVALID_AGE",
       field: "age",
-      message: "Yaş 13 ile 120 arasında tam sayı olmalıdır.",
+      message: "Yaş 19 ile 120 arasında tam sayı olmalıdır.",
     });
   }
 
-  if (input.sex !== "female" && input.sex !== "male") {
+  if (candidate.sex !== "female" && candidate.sex !== "male") {
     errors.push({
       code: "INVALID_SEX",
       field: "sex",
-      message: "Hesaplama için gerekli biyolojik cinsiyet seçilmelidir.",
+      message: "Cinsiyet seçilmelidir.",
     });
   }
 
-  if (!Number.isFinite(input.heightCm) || input.heightCm < 100 || input.heightCm > 250) {
+  if (!Number.isFinite(candidate.heightCm) || (candidate.heightCm as number) < 100 || (candidate.heightCm as number) > 250) {
     errors.push({
       code: "INVALID_HEIGHT",
       field: "heightCm",
@@ -144,7 +169,7 @@ export function validateEnergyLabInput(input: EnergyLabInput): readonly EnergyIn
     });
   }
 
-  if (!Number.isFinite(input.weightKg) || input.weightKg < 25 || input.weightKg > 400) {
+  if (!Number.isFinite(candidate.weightKg) || (candidate.weightKg as number) < 25 || (candidate.weightKg as number) > 400) {
     errors.push({
       code: "INVALID_WEIGHT",
       field: "weightKg",
@@ -152,19 +177,19 @@ export function validateEnergyLabInput(input: EnergyLabInput): readonly EnergyIn
     });
   }
 
-  if (!isValidActivitySelection(input.activityProfiles)) {
+  if (!isValidActivitySelection(candidate.activityProfiles)) {
     errors.push({
       code: "INVALID_ACTIVITY_SELECTION",
       field: "activityProfiles",
-      message: "Bir aktivite profili veya birbirine komşu iki profil seçilmelidir.",
+      message: "Bir hareket düzeyi veya yan yana olan iki hareket düzeyi seçilmelidir.",
     });
   }
 
-  if (input.generalScope !== "standardAdult" && input.generalScope !== "mayBeOutsideScope") {
+  if (candidate.generalScope !== "standardAdult" && candidate.generalScope !== "mayBeOutsideScope") {
     errors.push({
       code: "INVALID_GENERAL_SCOPE",
       field: "generalScope",
-      message: "Kapsam ve güvenlik seçimi geçerli değil.",
+      message: "Bu hesaplamanın sana uygun olup olmadığını seç.",
     });
   }
 
@@ -172,7 +197,7 @@ export function validateEnergyLabInput(input: EnergyLabInput): readonly EnergyIn
 }
 
 export function isValidActivitySelection(
-  activityProfiles: readonly ActivityProfile[],
+  activityProfiles: unknown,
 ): boolean {
   if (!Array.isArray(activityProfiles) || activityProfiles.length < 1 || activityProfiles.length > 2) {
     return false;
@@ -193,7 +218,7 @@ export function evaluateScope(input: EnergyLabInput, bmi: number): ScopeDecision
   if (input.age < 19) {
     blockingReasons.push({
       code: "UNDER_19",
-      title: "Yetişkin motorunun kapsamı dışında",
+      title: "Bu hesaplama yaş grubun için uygun değil",
       message:
         "Energy Lab yetişkin denklemleri 19 yaş ve üzeri için tasarlanmıştır. Bu yaş grubunda kişiye uygun değerlendirme için sağlık profesyoneline başvurun.",
     });
@@ -204,14 +229,14 @@ export function evaluateScope(input: EnergyLabInput, bmi: number): ScopeDecision
       code: "BMI_UNDER_16",
       title: "Otomatik hedef için uygun değil",
       message:
-        "Bu genel araç bu aralıkta standart sayısal hedef üretmez. Kişisel durumunuzu değerlendirebilecek bir hekim veya diyetisyenle görüşün.",
+        "Bu genel araç bu aralıkta sayısal hedef göstermez. Kişisel durumunuzu değerlendirebilecek bir hekim veya diyetisyenle görüşün.",
     });
   } else if (bmi < 18.5) {
     limitingReasons.push({
       code: "BMI_UNDER_18_5",
       title: "Yağ kaybı seçeneği kullanılamıyor",
       message:
-        "Genel BMI referansında 18,5 altındaki değerlerde Energy Lab kilo kaybı hedefi üretmez. Bu, yargı veya tanı değil; ürün içi koruyucu bir sınırdır.",
+        "Genel BMI referansında 18,5 altındaki değerlerde Energy Lab kilo kaybı hedefi üretmez. Bu, yargı veya tanı değil; genel kullanım için koruyucu bir sınırdır.",
     });
   }
 
@@ -220,7 +245,7 @@ export function evaluateScope(input: EnergyLabInput, bmi: number): ScopeDecision
       code: "BMI_50_OR_ABOVE",
       title: "Bireysel değerlendirme gerekli",
       message:
-        "Bu genel başlangıç hesaplayıcısı bu aralıkta standart sonuç sunmaz. Güvenli ve kişiye uygun planlama için hekim veya diyetisyen değerlendirmesi önerilir.",
+        "Bu genel başlangıç hesaplayıcısı bu aralıkta sonuç göstermez. Güvenli ve kişiye uygun planlama için hekim veya diyetisyen değerlendirmesi önerilir.",
     });
   }
 
@@ -229,7 +254,7 @@ export function evaluateScope(input: EnergyLabInput, bmi: number): ScopeDecision
       code: "MAY_BE_OUTSIDE_GENERAL_SCOPE",
       title: "Bu araç durumun için uygun olmayabilir",
       message:
-        "Energy Lab bu durumda standart sayısal hedef üretmez. Kişisel durumunu değerlendirebilecek uygun bir sağlık profesyoneliyle görüşebilirsin.",
+        "Energy Lab bu durumda sayısal hedef göstermez. Kişisel durumunu değerlendirebilecek uygun bir sağlık profesyoneliyle görüşebilirsin.",
     });
   }
 
@@ -294,67 +319,19 @@ export function evaluateEnergyLab(input: EnergyLabInput): EnergyLabEvaluation {
   };
 }
 
-export function getFatLossPolicy(
-  bmi: number,
-  performancePriority: boolean,
-  fatLossAllowed = true,
-): FatLossPolicy {
-  if (!Number.isFinite(bmi) || bmi <= 0) {
-    throw new RangeError("BMI geçerli ve pozitif bir sayı olmalıdır.");
-  }
-
-  if (!fatLossAllowed || bmi < 18.5) {
-    return {
-      defaultRate: null,
-      deficitCapKcal: null,
-      options: DEFICIT_RATES.map((rate) => ({
-        rate,
-        label: deficitRateLabel(rate),
-        enabled: false,
-        reason: "BMI 18,5 altındayken yağ kaybı hedefi sunulmaz.",
-      })),
-    };
-  }
-
-  const deficitCapKcal = performancePriority || bmi < 25 ? 500 : 750;
-
-  return {
-    defaultRate: bmi >= 25 ? 0.15 : 0.1,
-    deficitCapKcal,
-    options: DEFICIT_RATES.map((rate) => {
-      const blockedByBmi = rate === 0.2 && bmi < 25;
-      const blockedByPerformance = rate === 0.2 && performancePriority;
-      const reason = blockedByPerformance
-        ? "Direnç antrenmanı veya performans önceliğinde %20 seçeneği kapalıdır."
-        : blockedByBmi
-          ? "BMI 18,5–24,9 aralığında %20 seçeneği kapalıdır."
-          : undefined;
-
-      return {
-        rate,
-        label: deficitRateLabel(rate),
-        enabled: !reason,
-        reason,
-      };
-    }),
-  };
-}
-
 export function calculateTargetScenario({
   evaluation,
   selection,
-  performancePriority,
 }: {
   evaluation: ReadyEnergyEvaluation;
   selection: GoalSelection;
-  performancePriority: boolean;
 }): TargetScenario {
   if (!isValidGoalSelection(selection)) {
     return {
       status: "unavailable",
       goal: readGoal(selection),
       reason: "INVALID_SELECTION",
-      message: "Seçilen hedef senaryosu Energy Lab kuralları içinde kullanılamıyor.",
+      message: "Hedef seçimi bu bilgilerle kullanılamıyor. Seçimini kontrol et.",
     };
   }
 
@@ -372,13 +349,6 @@ export function calculateTargetScenario({
     return availableTarget(selection, points);
   }
 
-  const policy = getFatLossPolicy(
-    evaluation.bmi,
-    performancePriority,
-    evaluation.scope.fatLossAllowed,
-  );
-  const option = policy.options.find((item) => item.rate === selection.rate);
-
   if (!evaluation.scope.fatLossAllowed) {
     return {
       status: "unavailable",
@@ -390,20 +360,9 @@ export function calculateTargetScenario({
     };
   }
 
-  if (!option?.enabled || policy.deficitCapKcal === null) {
-    return {
-      status: "unavailable",
-      goal: "lose",
-      reason: "OPTION_NOT_AVAILABLE",
-      message: option?.reason ?? "Bu yağ kaybı seçeneği mevcut profiliniz için kullanılamıyor.",
-    };
-  }
-
   const points: TargetPoint[] = evaluation.maintenance.points.map((point) => {
-    const actualDeficitKcal = Math.min(
-      point.rawKcal * selection.rate,
-      policy.deficitCapKcal as number,
-    );
+    const requestedDeficitRaw = point.rawKcal * FAT_LOSS_STARTING_RATE;
+    const actualDeficitKcal = Math.min(requestedDeficitRaw, FAT_LOSS_DEFICIT_CAP_KCAL);
     const rawKcal = point.rawKcal - actualDeficitKcal;
     return {
       profile: point.profile,
@@ -413,13 +372,13 @@ export function calculateTargetScenario({
     };
   });
 
-  if (points.some((point) => point.rawKcal < 1200)) {
+  if (points.some((point) => point.rawKcal <= FAT_LOSS_OUTPUT_BOUNDARY_KCAL)) {
     return {
       status: "unavailable",
       goal: "lose",
-      reason: "TARGET_BELOW_1200",
+      reason: "TARGET_AT_OR_BELOW_1200",
       message:
-        "Bu senaryoda hedef 1.200 kcal/gün altına düşüyor. Energy Lab sayısal hedef göstermiyor; kişisel değerlendirme için diyetisyen veya hekime başvurun. 1.200 kcal biyolojik minimum olarak sunulmaz.",
+        "Yuvarlama öncesindeki hedef, Energy Lab’ın genel kullanım için belirlediği sınırda veya altında kalıyor. Kişisel değerlendirme için diyetisyen veya hekime başvurun. 1.200 kcal biyolojik minimum değildir.",
     };
   }
 
@@ -427,9 +386,10 @@ export function calculateTargetScenario({
 }
 
 function isValidGoalSelection(value: GoalSelection): boolean {
+  if (!value || typeof value !== "object") return false;
   const candidate = value as unknown as Record<string, unknown>;
   if (candidate.goal === "maintain") return true;
-  if (candidate.goal === "lose") return DEFICIT_RATES.includes(candidate.rate as DeficitRate);
+  if (candidate.goal === "lose") return Object.keys(candidate).length === 1;
   if (candidate.goal === "gain") {
     return candidate.mode === "maintenance" || candidate.mode === "smallSurplus";
   }
@@ -437,6 +397,7 @@ function isValidGoalSelection(value: GoalSelection): boolean {
 }
 
 function readGoal(value: GoalSelection): "maintain" | "lose" | "gain" {
+  if (!value || typeof value !== "object") return "maintain";
   const goal = (value as unknown as Record<string, unknown>).goal;
   return goal === "lose" || goal === "gain" ? goal : "maintain";
 }
@@ -459,10 +420,4 @@ function availableTarget(
     displayMin: normalizedPoints[0].displayKcal,
     displayMax: normalizedPoints[normalizedPoints.length - 1].displayKcal,
   };
-}
-
-function deficitRateLabel(rate: DeficitRate): string {
-  if (rate === 0.1) return "Kontrollü başlangıç · %10";
-  if (rate === 0.15) return "Standart başlangıç · %15";
-  return "Daha hızlı başlangıç · %20";
 }

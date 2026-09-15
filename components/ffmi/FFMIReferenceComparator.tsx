@@ -82,48 +82,32 @@ export default function FFMIReferenceComparator({
     interpretation.type === "SUCCESS" ? interpretation.comparison : null;
 
   return (
-    <section
-      className="rounded-xl border border-[#9f7b38]/25 bg-[#efe5d0]/25"
-      aria-live="polite"
-    >
-      <div className="px-4 py-3 [@media(min-width:1024px)_and_(max-height:850px)]:px-3.5 [@media(min-width:1024px)_and_(max-height:850px)]:py-2">
-        <p className="text-sm font-bold text-[#102536]">Bu sayı ne anlama geliyor?</p>
-        <p className="mt-1 text-xs leading-5 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
+    <section className="mt-3" aria-live="polite">
+      <div className="rounded-xl border border-[#9f7b38]/25 bg-[#efe5d0]/35 px-4 py-3.5 sm:px-5 sm:py-4 [@media(min-width:1024px)_and_(max-height:850px)]:px-3.5 [@media(min-width:1024px)_and_(max-height:850px)]:py-2">
+        <h3 className="text-sm font-bold text-[#102536]">Bu sayı ne anlama geliyor?</h3>
+        <p className="mt-1.5 max-w-3xl text-sm leading-6 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
           FFMI yükseldikçe boya göre yağsız kütle artar. Ancak daha yüksek FFMI tek
           başına daha sağlıklı veya daha iyi anlamına gelmez.
         </p>
 
         {interpretation.type === "SUCCESS" ? (
-          <div className="mt-2.5 border-t border-[#9f7b38]/20 pt-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2 [@media(min-width:1024px)_and_(max-height:850px)]:pt-2">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#71808b]">
-                {interpretation.confidence === "matched"
-                  ? "Referans grubundaki konumun"
-                  : "Yaklaşık referans konumun"}
-              </p>
-              <p className="text-xs font-semibold text-[#6a5429]">
-                {interpretation.comparison.ageMin}–{interpretation.comparison.ageMax} yaş ·{" "}
-                {REFERENCE_CONTEXT_LABELS[interpretation.comparison.sex]}
-              </p>
-            </div>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 [@media(min-width:1024px)_and_(max-height:850px)]:mt-1.5">
-              <ReferenceBandItem
-                label="FFMI"
-                band={interpretation.comparison.ffmi.band}
-                descriptionPrefix="Boyuna göre yağsız kütlen"
-              />
-              <ReferenceBandItem
-                label="Yağ İndeksi (FMI)"
-                band={interpretation.comparison.fmi.band}
-                descriptionPrefix="Yağ indeksin"
-              />
-            </div>
-            <p className="mt-2 text-xs font-semibold text-[#6a5429] [@media(min-width:1024px)_and_(max-height:850px)]:mt-1.5">
-              Kore yetişkin referansı · KNHANES 2022–2023
+          <div className="mt-3 border-t border-[#9f7b38]/20 pt-3">
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[#71808b]">
+              {interpretation.confidence === "matched"
+                ? "Referans grubundaki konumun"
+                : "Yaklaşık referans konumun"}
             </p>
-            <p className="mt-1 text-xs leading-5 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
+            <p className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[#102536]">
+              {BROAD_REFERENCE_BAND_COPY[interpretation.comparison.ffmi.band].label}
+            </p>
+            <p className="mt-1.5 max-w-3xl text-xs leading-5 text-[#5c6c78]">
               Bu, sağlık veya “iyi/kötü” fizik değerlendirmesi değildir.
             </p>
+            {interpretation.confidence !== "matched" && (
+              <p className="mt-1 text-xs font-semibold leading-5 text-[#6a5429]">
+                Ölçüm yöntemin farklı olduğu için bu konum yaklaşık bir karşılaştırmadır.
+              </p>
+            )}
           </div>
         ) : (
           <UnavailableInterpretation
@@ -133,7 +117,8 @@ export default function FFMIReferenceComparator({
         )}
       </div>
 
-      <ReferenceMethodologyDisclosure comparison={comparison} />
+      <ReferenceDetailDisclosure comparison={comparison} />
+      <ReferenceMethodologyDisclosure />
     </section>
   );
 }
@@ -172,59 +157,67 @@ function UnavailableInterpretation({
   );
 }
 
-function ReferenceBandItem({
-  label,
-  band,
-  descriptionPrefix,
-}: {
-  label: string;
-  band: FFMIReferenceBand;
-  descriptionPrefix: string;
-}) {
-  const copy = BROAD_REFERENCE_BAND_COPY[band];
+function ReferenceDetailDisclosure({ comparison }: { comparison: FFMIReferenceComparison | null }) {
   return (
-    <div className="rounded-xl border border-[#11283a]/10 bg-white px-3.5 py-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:px-3 [@media(min-width:1024px)_and_(max-height:850px)]:py-2">
-      <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[#71808b]">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-bold text-[#102536]">{copy.label}</p>
-      <p className="mt-1 text-xs leading-5 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
-        {descriptionPrefix}, bu araştırmadaki benzer yetişkinlerin dağılımında {copy.position} yer alıyor.
-      </p>
-    </div>
+    <details className="border-t border-[#9f7b38]/20 px-4 py-0.5">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-sm font-bold text-[#102536] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+        Referans karşılaştırmasının ayrıntıları
+        <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[#8c6a2d] transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="border-t border-[#11283a]/10 py-3 text-xs leading-5 text-[#5c6c78]">
+        {comparison ? (
+          <>
+            <p>
+              Yaş grubu: {comparison.ageMin}–{comparison.ageMax} · Referans kategorisi:{" "}
+              {REFERENCE_CONTEXT_LABELS[comparison.sex]}
+            </p>
+            <p className="mt-1">
+              FFMI teknik aralığı: {technicalBandLabel(comparison.ffmi.band)} · FMI teknik
+              aralığı: {technicalBandLabel(comparison.fmi.band)}
+            </p>
+            <p className="mt-1">
+              FMI konumu: {BROAD_REFERENCE_BAND_COPY[comparison.fmi.band].label}. Yağ indeksi,
+              yağ kütlesini boya göre ölçekleyen ikincil bir göstergedir.
+            </p>
+            <p className="mt-1">
+              P etiketleri araştırma dağılımındaki yayımlanmış teknik kesim noktalarını
+              gösterir; puan veya kalite derecesi değildir.
+            </p>
+          </>
+        ) : (
+          <p>Bu sonuç için sayısal referans karşılaştırması gösterilemiyor.</p>
+        )}
+      </div>
+    </details>
   );
 }
 
-function ReferenceMethodologyDisclosure({
-  comparison,
-}: {
-  comparison: FFMIReferenceComparison | null;
-}) {
+function ReferenceMethodologyDisclosure() {
   return (
-    <details className="border-t border-[#9f7b38]/20 px-4 py-0.5">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-xs font-bold text-[#6a5429] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
+    <details className="calculator-disclosure group mt-2 px-4 py-0.5">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-sm font-bold text-[#102536] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
         Bilimsel kaynak ve yöntem
-        <ChevronDown aria-hidden="true" className="size-4 shrink-0" />
+        <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[#8c6a2d] transition-transform group-open:rotate-180" />
       </summary>
-      <div className="border-t border-[#9f7b38]/15 pt-2 text-xs leading-5 text-[#5c6c78]">
+      <div className="border-t border-[#11283a]/10 py-3 text-xs leading-5 text-[#5c6c78]">
         <p>{FFMI_REFERENCE_METADATA.displayLabel}</p>
-        {comparison && (
-          <p className="mt-1">
-            Yaş grubu: {comparison.ageMin}–{comparison.ageMax} · Referans kategorisi:{" "}
-            {REFERENCE_CONTEXT_LABELS[comparison.sex]} · FFMI teknik aralığı:{" "}
-            {technicalBandLabel(comparison.ffmi.band)} · FMI teknik aralığı:{" "}
-            {technicalBandLabel(comparison.fmi.band)}
-          </p>
-        )}
         <p className="mt-1">
           P değerleri, sonucun araştırmadaki referans grubunda yaklaşık nerede bulunduğunu gösterir.
           Kesim noktaları kaynağın yayımladığı P5, P10, P25, P50, P75, P90 ve P95
-          değerleridir; arada percentile tahmini yapılmaz.
+          değerleridir; aradaki yüzdelik dilimler tahmin edilmez.
         </p>
         <p className="mt-1">
           Kaynak referansı InBody 970 doğrudan segmental çok frekanslı BIA ölçümlerine
           dayanır. DEXA ve deri kıvrımı sonuçlarında konum yaklaşık olarak sunulur;
           farklı yöntem ve ölçüm koşulları sonuçları etkileyebilir.
+        </p>
+        <p className="mt-1">
+          Yağsız kütle yalnızca kas dokusundan oluşmadığı için FFMI doğrudan kas kütlesi
+          ölçümü değildir. FFMI için herkese uyan tek bir normal veya ideal hedef yoktur.
+        </p>
+        <p className="mt-1">
+          Değişimi izlerken aynı yağ oranı ölçüm yöntemini ve benzer ölçüm koşullarını
+          kullanmak daha anlamlıdır; küçük farklar ölçüm değişkenliğinden kaynaklanabilir.
         </p>
         <p className="mt-1 text-[0.7rem] text-[#71808b]">
           Kaynak: {FFMI_REFERENCE_METADATA.publication} · DOI {FFMI_REFERENCE_METADATA.doi} ·

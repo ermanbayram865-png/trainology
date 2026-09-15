@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import CalculatorLayout from "@/components/calculators/CalculatorLayout";
 import {
@@ -43,13 +43,13 @@ const trainingOptions = [
   { value: "none", label: "Egzersiz Yok", description: "Düzenli egzersiz yok" },
   {
     value: "endurance_mixed",
-    label: "Dayanıklılık / Karma",
-    description: "Düzenli egzersiz, direnç odaklı değil",
+    label: "Kardiyo veya Karma Antrenman",
+    description: "Koşu, bisiklet veya farklı egzersizlerin karışımı",
   },
   {
     value: "resistance",
     label: "Direnç Antrenmanı",
-    description: "Düzenli direnç çalışması var",
+    description: "Ağırlık, makine veya vücut ağırlığıyla kuvvet çalışması",
   },
 ] as const;
 
@@ -61,7 +61,7 @@ const goalLabels: Record<ProteinGoal, string> = {
 
 const trainingLabels: Record<ProteinTrainingProfile, string> = {
   none: "Egzersiz Yok",
-  endurance_mixed: "Dayanıklılık / Karma",
+  endurance_mixed: "Kardiyo veya Karma Antrenman",
   resistance: "Direnç Antrenmanı",
 };
 
@@ -77,6 +77,13 @@ export default function ProteinCalculatorPage() {
   const [form, setForm] = useState<ProteinForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<ProteinRequirement | null>(null);
+  const resultHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (result && result.type !== "VALIDATION_ERROR") {
+      resultHeadingRef.current?.focus();
+    }
+  }, [result]);
 
   function updateForm<K extends keyof ProteinForm>(key: K, value: ProteinForm[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -126,7 +133,7 @@ export default function ProteinCalculatorPage() {
       description="Kilon, hedefin ve antrenman durumuna göre günlük protein referansını hesapla."
       sectionClassName="!py-5 sm:!py-7 lg:!py-6 [@media(min-width:1024px)_and_(max-height:850px)]:!py-3"
       contentClassName="mx-auto max-w-4xl space-y-4 [@media(min-width:1024px)_and_(max-height:850px)]:space-y-2.5"
-      disclaimer="Bu araç standart yetişkinler için başlangıç veya pratik referans sunar; kesin kişisel gereksinim ya da klinik hedef belirlemez."
+      disclaimer="Bu araç genel yetişkinler için başlangıç veya pratik referans sunar; kesin kişisel gereksinim ya da klinik hedef belirlemez."
     >
       <ReferencePanel>
         {result === null ? (
@@ -221,7 +228,8 @@ export default function ProteinCalculatorPage() {
                   <p>
                     18 yaş altı; gebelik/emzirme; böbrek veya klinik karaciğer hastalığı;
                     protein kısıtlaması; aktif tıbbi beslenme tedavisi; aktif/şüpheli yeme
-                    bozukluğu veya RED-S; ciddi malnütrisyon, frailty ya da akut ciddi hastalık
+                    bozukluğu veya Sporda Göreceli Enerji Eksikliği (RED-S); ciddi yetersiz
+                    beslenme, belirgin güçsüzlük ve kırılganlık ya da akut ciddi hastalık
                     özel değerlendirme gerektirir. Obezite tek başına sonucu durdurmaz.
                   </p>
                 }
@@ -231,7 +239,7 @@ export default function ProteinCalculatorPage() {
             <div className="mt-4 flex justify-end [@media(min-width:1024px)_and_(max-height:850px)]:mt-3">
               <button
                 type="submit"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#102536] bg-[#102536] px-5 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38]"
+                className="calculator-action inline-flex min-h-11 items-center justify-center gap-2 px-5 text-sm font-bold"
               >
                 Protein Referansımı Hesapla
                 <ArrowRight aria-hidden="true" className="size-4" />
@@ -239,9 +247,9 @@ export default function ProteinCalculatorPage() {
             </div>
           </form>
         ) : result.type === "NO_NUMERIC_RESULT" ? (
-          <BlockedProteinResult onEdit={() => setResult(null)} />
+          <BlockedProteinResult headingRef={resultHeadingRef} onEdit={() => setResult(null)} />
         ) : result.type === "VALIDATION_ERROR" ? null : (
-          <ProteinResultView form={form} result={result} onEdit={() => setResult(null)} />
+          <ProteinResultView form={form} result={result} headingRef={resultHeadingRef} onEdit={() => setResult(null)} />
         )}
       </ReferencePanel>
     </CalculatorLayout>
@@ -251,10 +259,12 @@ export default function ProteinCalculatorPage() {
 function ProteinResultView({
   form,
   result,
+  headingRef,
   onEdit,
 }: {
   form: ProteinForm;
   result: Exclude<ProteinRequirement, { type: "VALIDATION_ERROR" | "NO_NUMERIC_RESULT" }>;
+  headingRef: React.RefObject<HTMLHeadingElement | null>;
   onEdit: () => void;
 }) {
   const primary =
@@ -265,14 +275,14 @@ function ProteinResultView({
         : null;
 
   return (
-    <article aria-live="polite">
+    <article aria-live="polite" className="calculator-result-light p-5 sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8c6a2d]">Sonucun</p>
-      <h2 className="mt-1.5 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
+      <h2 ref={headingRef} tabIndex={-1} className="mt-1.5 text-2xl font-semibold tracking-[-0.035em] outline-none sm:text-3xl">
         Günlük Protein Referansın
       </h2>
 
       {primary && (
-        <div className="mt-4">
+        <div className="mt-4 border-l-2 border-[#9f7b38] pl-4">
           <p className="text-5xl font-semibold tracking-[-0.05em] text-[#102536]">
             {primary.value} <span className="text-2xl">g / gün</span>
           </p>
@@ -289,6 +299,9 @@ function ProteinResultView({
           <p className="mt-1 text-sm text-[#657581]">
             {decimal(result.lowGPerKg)}–{decimal(result.highGPerKg)} g/kg/gün
           </p>
+          <p className="mt-2 text-xs leading-5 text-[#657581]">
+            Bu aralık tek ve zorunlu bir hedef değildir. Araç, aralık içinde sana özel bir nokta seçmez.
+          </p>
         </div>
       )}
 
@@ -302,8 +315,8 @@ function ProteinResultView({
         <div>
           <h3 className="text-sm font-bold">Bu ne anlama geliyor?</h3>
           <p className="mt-1 text-sm leading-5 text-[#5c6c78]">
-            Bu değer verilen bağlama göre bir başlangıç veya pratik referanstır; kesin kişisel gereksinim değildir.
-            {result.note === "no_hypertrophy_target" && " Bu profil için hipertrofiye özel ayrı bir hedef üretilmedi."}
+            Bu değer verdiğin bilgilere göre bir başlangıç veya pratik referanstır; kesin kişisel gereksinim değildir.
+            {result.note === "no_hypertrophy_target" && " Bu profil için kas gelişimine özel ayrı bir hedef üretilmedi."}
             {result.note === "fat_loss_context" && " Enerji açığında gereksinim aralığın üst bölümüne doğru artabilir; otomatik tek katsayı atanmadı."}
             {result.note === "older_adult_individualization" && " İleri yaşta bireysel değerlendirme önemlidir."}
           </p>
@@ -316,11 +329,17 @@ function ProteinResultView({
         </p>
         {result.usesReferenceWeight && (
           <p>
-            BMI 30 veya üzerinde ürün konvansiyonu olarak <code>Wcalc = min(gerçek kilo, 30 × boy²)</code> referans ağırlığı kullanıldı. Bu fizyolojik ideal ağırlık değildir.
+            BMI 30 veya üzerinde <code>Wcalc = min(gerçek kilo, 30 × boy²)</code> kullanıldı. Bu, protein hesabının yüksek vücut ağırlıklarında sınırsız artmasını önleyen ihtiyatlı bir Trainology hesaplama yaklaşımıdır. Kanıtı dolaylı ve popülasyona bağlıdır; bu değer ideal, sağlıklı veya hedef kilo değildir.
           </p>
         )}
         <p>
-          Kaynaklar: EFSA NDA (2012); Jäger et al. (2017); Morton et al. (2018); Volkert et al. (2022).
+          EFSA’nın 0,83 g/kg/gün değeri genel yetişkin nüfus referansıdır. ESPEN’in 1,0–1,2 g/kg/gün aralığı ileri yaş bağlamını destekler. Jäger ve arkadaşlarının 1,4–2,0 g/kg/gün aralığı egzersiz yapan sağlıklı yetişkinleri; Morton ve arkadaşlarının yaklaşık 1,6 g/kg/gün bulgusu direnç antrenmanı bağlamını destekler.
+        </p>
+        <p>
+          Yağ kaybındaki 1,2 g/kg/gün, tüm yetişkinler için doğrulanmış tek bir gereksinim değildir. Enerji kısıtlamasında daha yüksek protein alımını destekleyen kanıtlardan türetilmiş ihtiyatlı bir Trainology başlangıç referansıdır. Direnç antrenmanı ve yağ kaybında 1,6 g/kg/gün başlangıç referansı, 1,6–2,0 g/kg/gün ise kişiye özel tek nokta seçmeyen pratik aralıktır.
+        </p>
+        <p>
+          Kaynaklar: EFSA NDA (2012); Jäger et al. (2017); Morton et al. (2018); Volkert et al. (2022); Weijs (2025).
         </p>
       </MethodologyDisclosure>
       <EditReferenceButton onClick={onEdit} />
@@ -328,13 +347,13 @@ function ProteinResultView({
   );
 }
 
-function BlockedProteinResult({ onEdit }: { onEdit: () => void }) {
+function BlockedProteinResult({ headingRef, onEdit }: { headingRef: React.RefObject<HTMLHeadingElement | null>; onEdit: () => void }) {
   return (
-    <article aria-live="polite">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9d6f22]">Kapsam kontrolü</p>
-      <h2 className="mt-2 text-2xl font-semibold">Standart aracın kapsamı dışında</h2>
+    <article aria-live="polite" className="calculator-result-light p-5 sm:p-7">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9d6f22]">Uygunluk kontrolü</p>
+      <h2 ref={headingRef} tabIndex={-1} className="mt-2 text-2xl font-semibold outline-none">Bu genel hesaplama sana uygun olmayabilir</h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5c6c78]">
-        Bu bağlamda protein referansı sağlık durumu ve bireysel koşullara göre değişebilir. Sayısal protein değeri gösterilmedi.
+        Bu bilgilerle protein referansı sağlık durumu ve bireysel koşullara göre değişebilir. Sayısal protein değeri gösterilmedi.
       </p>
       <EditReferenceButton onClick={onEdit} />
     </article>

@@ -6,7 +6,7 @@ import Section from "@/components/ui/Section";
 const values = [
   {
     title: "Bilimsel Hesaplayıcılar",
-    description: "Protein, kalori, makro ve performans analizlerini bilimsel yaklaşımlarla hesapla.",
+    description: "Enerji, makro, protein ve vücut ölçümlerini anlaşılır araçlarla incele.",
     icon: <Sigma aria-hidden="true" />,
     href: "/calculators",
   },

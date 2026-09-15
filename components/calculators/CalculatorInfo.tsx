@@ -12,9 +12,9 @@ export default function CalculatorInfo({
   className,
 }: CalculatorInfoProps) {
   return (
-    <aside className={`rounded-3xl border border-[#C9A14A]/20 bg-[#C9A14A]/5 p-6 ${className ?? ""}`}>
-      <h2 className="text-lg font-semibold text-white">{title}</h2>
-      <div className="mt-3 text-sm leading-6 text-neutral-400">{children}</div>
+    <aside className={`calculator-disclosure p-5 text-[var(--calculator-text-primary)] sm:p-6 ${className ?? ""}`}>
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <div className="mt-3 text-sm leading-6 text-[var(--calculator-text-secondary)]">{children}</div>
     </aside>
   );
 }

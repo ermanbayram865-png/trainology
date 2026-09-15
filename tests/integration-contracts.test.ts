@@ -117,14 +117,14 @@ test("the general scope gate collects no detailed health category", () => {
   const engine = readSource("lib/energy-lab/engine.ts");
 
   assert.match(experience, /Bu hesaplama senin için uygun mu\?/);
-  assert.match(experience, /standart yetişkin kapsamıyla devam etmek istiyorum/i);
+  assert.match(experience, /Genel yetişkin kapsamındayım\./);
   assert.match(experience, /Bu araç benim durumuma uygun olmayabilir/);
-  assert.match(experience, /kaydedilmez veya sunucuya gönderilmez/);
+  assert.doesNotMatch(experience, /Yanıtın kaydedilmez veya sunucuya gönderilmez/);
   assert.doesNotMatch(experience, /safetyFlags|pregnancyOrBreastfeeding|eatingDisorderOrRedsRisk/);
   assert.doesNotMatch(experience, /medicalReviewContext|competitionOrExtremeAthleteContext/);
   assert.doesNotMatch(experience, /name="safetyFlags"|type="checkbox"[^>]+name="safety/);
   assert.match(engine, /generalScope === "mayBeOutsideScope"/);
-  assert.match(engine, /standart sayısal hedef üretmez/);
+  assert.match(engine, /bu durumda sayısal hedef göstermez/i);
 });
 
 test("removed calibration UI and storage keys do not remain in application source", () => {
@@ -147,13 +147,32 @@ test("Macro Planner accepts a validated calorie prefill while direct use stays b
   assert.match(experience, /\/calculators\/macro\?calories=\$\{selectedPoint\.displayKcal\}/);
   assert.match(experience, /Makrolarımı Planla/);
   assert.match(experience, /scenario\.points\.length === 1 \? 0 : null/);
-  assert.match(experience, /Önce bir senaryo seç/);
+  assert.match(experience, /Önce bir kalori hedefi seç/);
   assert.match(macro, /calories:\s*""/);
   assert.match(macro, /weight:\s*""/);
   assert.match(macro, /useSearchParams\(\)/);
   assert.match(macro, /getCaloriePrefill\(searchParams\.get\("calories"\)\)/);
   assert.match(macro, /calories >= 1000 && calories <= 8000/);
   assert.doesNotMatch(macro, /EnergyLab|handoff|source=energy-lab|sessionStorage/i);
+});
+
+test("governance separates scientific final locks from pending manual browser release QA", () => {
+  const governance = readSource("docs/calculator-governance.md");
+  for (const calculator of [
+    "Energy Lab / Kalori Hedefi Simülatörü",
+    "Makro Planlayıcı",
+    "Günlük Protein Referansı",
+    "FFMI Analizi",
+  ]) {
+    assert.match(
+      governance,
+      new RegExp(`${calculator.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}[^\\n]+SCIENTIFIC_FINAL_LOCK[^\\n]+MANUAL_BROWSER_PENDING`),
+    );
+  }
+  assert.match(governance, /conservative Trainology calculation convention/);
+  assert.match(governance, /1\.2 g\/kg\/day[\s\S]*not universal, optimal, mandatory, minimum, or maximum/);
+  assert.match(governance, /Günlük Su Alımı Rehberi[^\n]+DECOMMISSIONED/);
+  assert.match(governance, /insufficient calculator-specific personalization\/value/);
 });
 
 test("Energy Lab uses a compact responsive wizard instead of the legacy sticky profile", () => {

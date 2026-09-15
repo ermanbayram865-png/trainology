@@ -2,10 +2,8 @@
 
 import {
   Calculator,
-  Droplets,
   Dumbbell,
   Ruler,
-  Target,
   Utensils,
 } from "lucide-react";
 
@@ -23,7 +21,7 @@ const calculatorGroups = [
       {
         title: "Kalori Hedefi Simülatörü / Energy Lab",
         description:
-          "Bakım enerjin ve kontrollü kalori hedefin için bir başlangıç tahmini oluştur.",
+          "Günlük enerji ihtiyacın ve kalori hedefin için bir başlangıç tahmini oluştur.",
         href: ENERGY_LAB_PATH,
         icon: <Calculator aria-hidden="true" />,
       },
@@ -39,12 +37,6 @@ const calculatorGroups = [
         href: "/calculators/protein",
         icon: <Dumbbell aria-hidden="true" />,
       },
-      {
-        title: "Su & Hidrasyon",
-        description: "Günlük toplam su referansını ve egzersiz hidrasyonunu ayrı modlarda değerlendir.",
-        href: "/calculators/water",
-        icon: <Droplets aria-hidden="true" />,
-      },
     ],
   },
   {
@@ -57,12 +49,6 @@ const calculatorGroups = [
         href: "/calculators/ffmi",
         icon: <Ruler aria-hidden="true" />,
       },
-      {
-        title: "Vücut Kitle İndeksi (BMI) ve Ağırlık Aralığı",
-        description: "Boyuna göre Vücut Kitle İndeksi (BMI) temelli genel ağırlık referans aralığını incele.",
-        href: "/calculators/healthy-weight",
-        icon: <Target aria-hidden="true" />,
-      },
     ],
   },
 ] as const;
@@ -74,11 +60,11 @@ export default function CalculatorsPage() {
         <PageHeader
           badge={<Badge variant="gold">Bilimsel Araçlar</Badge>}
           title="Bilimsel Hesaplayıcılar"
-          description="Kanıta dayalı hesaplayıcılarla beslenmeni, performansını ve vücut kompozisyonunu analiz et."
+          description="Kanıta dayalı hesaplayıcılarla enerji, beslenme ve vücut ölçümlerini incele."
           className="[&>h1]:!mt-2 [&>h1]:!text-3xl sm:[&>h1]:!text-4xl [&>p]:!mt-2 [&>p]:!leading-6"
         />
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {calculatorGroups.map((group) =>
             group.calculators.map((calculator) => (
               <CalculatorCard key={calculator.title} {...calculator} compact />

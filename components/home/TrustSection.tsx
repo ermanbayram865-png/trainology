@@ -7,7 +7,7 @@ const principles = [
   {
     title: "Kanıta Dayalı Bilgi",
     description:
-      "Antrenman, beslenme ve performans hesaplarını güncel bilimsel yaklaşımlar üzerinden değerlendiririz.",
+      "Enerji, beslenme ve vücut ölçümü hesaplarını güncel bilimsel yaklaşımlar üzerinden değerlendiririz.",
     icon: <BookOpenCheck aria-hidden="true" />,
   },
   {

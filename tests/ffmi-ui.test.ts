@@ -29,7 +29,7 @@ test("ölçüm yöntemi radio grubu, yardım yolu ve kapsam kilidi erişilebilir
   assert.match(experience, /aria-invalid/);
   assert.match(experience, /aria-describedby/);
   assert.match(experience, /Yağ oranını nasıl öğrenebilirim\?/);
-  assert.match(experience, /Standart yetişkin kapsamındayım \(18\+\)/);
+  assert.match(experience, /Genel yetişkin kapsamındayım \(18\+\)/);
   assert.match(experience, /Kimler için uygun değildir\?/);
   assert.match(experience, /min-h-11|min-h-14/);
 });
@@ -70,6 +70,12 @@ test("her geçerli sonuç sade FFMI anlamını, üç ikincil metriği ve ölçü
   assert.match(experience, /FFMI ne anlatır\?/);
   assert.match(experience, /Nasıl hesaplandı\?/);
   assert.match(experience, /aria-live="polite"/);
+});
+
+test("sonuç oluşturulduğunda FFMI başlığına programatik odak taşınır", () => {
+  assert.match(experience, /resultHeadingRef/);
+  assert.match(experience, /ref=\{headingRef\} tabIndex=\{-1\}/);
+  assert.match(experience, /resultHeadingRef\.current\?\.focus\(\)/);
 });
 
 test("FMI bilgi affordance klavye ve dokunmayla açılabilen semantic disclosure kullanır", () => {
@@ -181,7 +187,7 @@ test("scientific veto interpolation ve değer yargısı üreten comparator copy'
 test("sonuç aksiyonları eşit yükseklikte outlined secondary family içinde kalır", () => {
   assert.match(experience, /Değerleri Düzenle/);
   assert.match(experience, /Yeni Hesaplama/);
-  assert.match(experience, /border-\[#11283a\]\/10 bg-white\/70/);
+  assert.match(experience, /calculator-action calculator-action--secondary/);
   assert.match(experience, /setForm\(initialForm\)/);
 });
 
@@ -214,7 +220,7 @@ test("1366×768 hedefi düşük-height spacing ile çözülür, ölçek hilesi k
 
 test("ana sonuç aksiyonları teknik detaylardan önce gelir ve 44 px hedefleri korunur", () => {
   const editActionIndex = experience.indexOf("Değerleri Düzenle");
-  const measurementContextIndex = experience.indexOf("Ölçüm bağlamı");
+  const measurementContextIndex = experience.indexOf("Ölçüm yönteminin etkisi");
   const methodologyIndex = experience.indexOf("FFMI ne anlatır?");
   assert.ok(editActionIndex > -1);
   assert.ok(editActionIndex < measurementContextIndex);

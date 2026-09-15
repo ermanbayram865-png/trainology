@@ -14,14 +14,12 @@ import { useEffect, useRef, useState } from "react";
 
 import {
   ACTIVITY_PROFILE_ORDER,
-  calculateBmi,
   calculateTargetScenario,
   evaluateEnergyLab,
-  getFatLossPolicy,
+  FAT_LOSS_DEFICIT_CAP_KCAL,
   roundToNearest50,
   type ActivityProfile,
   type BiologicalSex,
-  type DeficitRate,
   type EnergyGoal,
   type EnergyLabEvaluation,
   type GainMode,
@@ -39,7 +37,6 @@ type FormState = {
   heightCm: string;
   weightKg: string;
   activityProfiles: ActivityProfile[];
-  performancePriority: boolean;
   generalScope: GeneralScopeSelection | "";
 };
 
@@ -49,7 +46,6 @@ const initialForm: FormState = {
   heightCm: "",
   weightKg: "",
   activityProfiles: [],
-  performancePriority: false,
   generalScope: "",
 };
 
@@ -60,23 +56,23 @@ const activityOptions: readonly {
 }[] = [
   {
     value: "inactive",
-    title: "Hareketsiz (Inactive)",
-    description: "Masa başı çalışma, düşük günlük hareket ve sınırlı fiziksel aktivite.",
+    title: "Az hareketli",
+    description: "Bağımsız günlük yaşamın ötesinde az hareket; çok az ya da hiç fiziksel iş yok.",
   },
   {
     value: "lowActive",
-    title: "Düşük Aktif (Low Active)",
-    description: "Oturma ağırlıklı yaşamın yanında düzenli yürüyüş veya egzersiz.",
+    title: "Biraz hareketli",
+    description: "Günlük yaşamın yanında daha fazla yürüme ve bir miktar iş veya serbest zaman aktivitesi.",
   },
   {
     value: "active",
-    title: "Aktif (Active)",
-    description: "Gün içinde sık hareket, aktif iş veya yüksek toplam fiziksel aktivite.",
+    title: "Hareketli",
+    description: "Günlük yaşam boyunca düzenli hareket ile belirgin iş, ulaşım veya egzersiz aktivitesi.",
   },
   {
     value: "veryActive",
-    title: "Çok Aktif (Very Active)",
-    description: "Yoğun fiziksel iş ve/veya çok yüksek günlük aktivite.",
+    title: "Çok hareketli",
+    description: "Günün büyük bölümüne yayılan yoğun fiziksel iş ve/veya yüksek hacimli aktivite.",
   },
 ] as const;
 
@@ -97,16 +93,10 @@ const goalOptions: readonly {
   },
   {
     value: "gain",
-    title: "Kas Kazan",
-    description: "Kas kazanımını desteklemek istiyorum.",
+    title: "Kilo Artışı İçin Başla",
+    description: "Kilomu korumaya yakın veya günlük ihtiyacımın biraz üzerinde başlamak istiyorum.",
   },
 ] as const;
-
-const lossRateLabels: Record<DeficitRate, string> = {
-  0.1: "Kontrollü başlangıç",
-  0.15: "Dengeli başlangıç",
-  0.2: "Daha yüksek açık",
-};
 
 const wizardLabels = ["Temel Bilgiler", "Günlük Hareket", "Hedef"] as const;
 
@@ -114,24 +104,51 @@ export default function EnergyLabExperience() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [step, setStep] = useState<WizardStep>(1);
   const [goal, setGoal] = useState<EnergyGoal | "">("");
-  const [lossRate, setLossRate] = useState<DeficitRate>(0.1);
   const [gainMode, setGainMode] = useState<GainMode>("maintenance");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [evaluation, setEvaluation] = useState<EnergyLabEvaluation | null>(null);
+  const activeStepRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const shouldMoveToStepRef = useRef(false);
+  const shouldMoveToResultRef = useRef(false);
+
+  function moveTo(target: HTMLElement | null) {
+    if (!target) return;
+    target.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+    target.focus({ preventScroll: true });
+  }
+
+  function changeStep(nextStep: WizardStep) {
+    shouldMoveToStepRef.current = true;
+    setStep(nextStep);
+  }
 
   function resetWizard() {
+    shouldMoveToStepRef.current = true;
     setForm(initialForm);
     setStep(1);
     setGoal("");
-    setLossRate(0.1);
     setGainMode("maintenance");
     setErrors({});
     setEvaluation(null);
-    window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>("#energy-lab-form")?.focus();
-    });
   }
+
+  useEffect(() => {
+    if (!shouldMoveToStepRef.current || evaluation !== null) return;
+    shouldMoveToStepRef.current = false;
+    window.requestAnimationFrame(() => moveTo(activeStepRef.current));
+  }, [step, evaluation]);
+
+  useEffect(() => {
+    if (!shouldMoveToResultRef.current || evaluation === null) return;
+    shouldMoveToResultRef.current = false;
+    window.requestAnimationFrame(() => moveTo(resultRef.current));
+  }, [evaluation]);
 
   useEffect(() => {
     function resetRestoredPage(event: PageTransitionEvent) {
@@ -139,7 +156,6 @@ export default function EnergyLabExperience() {
       setForm(initialForm);
       setStep(1);
       setGoal("");
-      setLossRate(0.1);
       setGainMode("maintenance");
       setErrors({});
       setEvaluation(null);
@@ -155,13 +171,6 @@ export default function EnergyLabExperience() {
     setErrors((current) => ({ ...current, [key]: "" }));
     setEvaluation(null);
 
-    if (
-      goal === "lose" &&
-      (key === "performancePriority" || key === "heightCm" || key === "weightKg")
-    ) {
-      const policy = getPreviewLossPolicy(nextForm);
-      if (policy.defaultRate) setLossRate(policy.defaultRate);
-    }
   }
 
   function toggleActivity(profile: ActivityProfile) {
@@ -195,10 +204,6 @@ export default function EnergyLabExperience() {
     setErrors((current) => ({ ...current, goal: "" }));
     setEvaluation(null);
 
-    if (nextGoal === "lose") {
-      const policy = getPreviewLossPolicy(form);
-      if (policy.defaultRate) setLossRate(policy.defaultRate);
-    }
   }
 
   function goForward() {
@@ -210,7 +215,7 @@ export default function EnergyLabExperience() {
     }
 
     setErrors({});
-    setStep((current) => (current === 1 ? 2 : 3));
+    changeStep(step === 1 ? 2 : 3);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -234,7 +239,6 @@ export default function EnergyLabExperience() {
       heightCm: Number(form.heightCm),
       weightKg: Number(form.weightKg),
       activityProfiles: form.activityProfiles,
-      performancePriority: form.performancePriority,
       generalScope: form.generalScope as GeneralScopeSelection,
     });
 
@@ -248,16 +252,8 @@ export default function EnergyLabExperience() {
     }
 
     setErrors({});
+    shouldMoveToResultRef.current = true;
     setEvaluation(nextEvaluation);
-    window.requestAnimationFrame(() => {
-      resultRef.current?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "auto"
-          : "smooth",
-        block: "start",
-      });
-      resultRef.current?.focus({ preventScroll: true });
-    });
   }
 
   function focusFirstError(nextErrors: Record<string, string>) {
@@ -279,9 +275,10 @@ export default function EnergyLabExperience() {
   return (
     <section
       id="simulator"
-      className="bg-[#f4f1e9] px-5 py-8 text-[#102536] sm:px-6 sm:py-10 lg:min-h-[calc(100svh-14.25rem)] lg:py-3 [@media(min-width:1024px)_and_(max-height:850px)]:py-2"
+      className="relative isolate px-4 py-8 text-[#102536] sm:px-6 sm:py-12 lg:min-h-[calc(100svh-14.25rem)] lg:py-8"
     >
-      <div className="mx-auto max-w-5xl">
+      <TechnicalGrid className="text-[#d0af69] opacity-[.025]" patternId="energy-form-grid" />
+      <div className="calculator-content relative">
         {evaluation === null ? (
           <form
             id="energy-lab-form"
@@ -289,11 +286,15 @@ export default function EnergyLabExperience() {
             autoComplete="off"
             noValidate
             tabIndex={-1}
-            className="min-w-0 rounded-[1.75rem] border border-[#11283a]/10 bg-[#fbfaf6] p-5 shadow-[0_24px_70px_rgba(17,40,58,.08)] sm:p-7 lg:px-7 lg:py-5 [@media(min-width:1024px)_and_(max-height:850px)]:px-6 [@media(min-width:1024px)_and_(max-height:850px)]:py-3.5"
+            className="calculator-surface min-w-0 p-5 sm:p-8 lg:p-10"
           >
             <WizardProgress step={step} />
 
-            <div className="pt-7 sm:pt-8 lg:pt-4 [@media(min-width:1024px)_and_(max-height:850px)]:pt-2.5">
+            <div
+              ref={activeStepRef}
+              tabIndex={-1}
+              className="scroll-mt-28 pt-8 outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] sm:scroll-mt-32 sm:pt-10"
+            >
               {step === 1 && (
                 <BasicInformationStep form={form} errors={errors} onChange={updateForm} />
               )}
@@ -308,27 +309,24 @@ export default function EnergyLabExperience() {
                 <GoalStep
                   form={form}
                   goal={goal}
-                  lossRate={lossRate}
                   gainMode={gainMode}
                   errors={errors}
-                  lossPolicy={getPreviewLossPolicy(form)}
                   onGoalChange={handleGoalChange}
-                  onLossRateChange={setLossRate}
                   onGainModeChange={setGainMode}
                   onFormChange={updateForm}
                 />
               )}
             </div>
 
-            <div className="mt-6 flex flex-col-reverse gap-3 border-t border-[#11283a]/10 pt-5 sm:flex-row sm:items-center sm:justify-between lg:mt-4 lg:pt-4 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:pt-2.5">
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#11283a]/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
               {step > 1 ? (
                 <button
                   type="button"
                   onClick={() => {
                     setErrors({});
-                    setStep((current) => (current === 3 ? 2 : 1));
+                    changeStep(step === 3 ? 2 : 1);
                   }}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#11283a]/15 px-5 text-sm font-bold text-[#102536] transition hover:border-[#9f7b38]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11"
+                  className="calculator-action calculator-action--secondary inline-flex min-h-12 items-center justify-center gap-2 px-5 text-sm font-bold"
                 >
                   <ArrowLeft aria-hidden="true" className="size-4" />
                   Geri
@@ -339,23 +337,28 @@ export default function EnergyLabExperience() {
 
               <button
                 type="submit"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#102536] bg-[#102536] px-6 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11"
+                className="calculator-action inline-flex min-h-12 items-center justify-center gap-3 px-6 text-sm font-bold"
               >
                 {step === 3 ? "Hedefimi Hesapla" : "Devam Et"}
-                <ArrowRight aria-hidden="true" className="size-4" />
+                <ArrowRight aria-hidden="true" className="size-4 text-[#d0af69]" />
               </button>
             </div>
           </form>
         ) : (
-          <div ref={resultRef} tabIndex={-1} className="outline-none">
+          <div
+            ref={resultRef}
+            tabIndex={-1}
+            role="region"
+            aria-live="polite"
+            aria-label="Energy Lab sonucu"
+            className="scroll-mt-28 rounded-[1.5rem] outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] sm:scroll-mt-32"
+          >
             {evaluation.status === "ready" ? (
               <ReadyResults
                 evaluation={evaluation}
                 age={Number(form.age)}
                 goal={goal as EnergyGoal}
-                lossRate={lossRate}
                 gainMode={gainMode}
-                performancePriority={form.performancePriority}
                 onReset={resetWizard}
               />
             ) : evaluation.status === "blocked" ? (
@@ -370,7 +373,7 @@ export default function EnergyLabExperience() {
 
 function WizardProgress({ step }: { step: WizardStep }) {
   return (
-    <ol aria-label="Hesaplama adımları" className="grid grid-cols-3 gap-2">
+    <ol aria-label="Hesaplama adımları" className="grid grid-cols-3 gap-3 sm:gap-5">
       {wizardLabels.map((label, index) => {
         const itemStep = (index + 1) as WizardStep;
         const active = step === itemStep;
@@ -379,14 +382,16 @@ function WizardProgress({ step }: { step: WizardStep }) {
           <li
             key={label}
             aria-current={active ? "step" : undefined}
-            className={`border-t-2 pt-3 text-center text-[11px] font-bold sm:text-sm lg:pt-1.5 [@media(min-width:1024px)_and_(max-height:850px)]:pt-1 ${
-              active || complete
+            className={`border-t pt-3 text-left text-[10px] font-bold uppercase tracking-[0.08em] sm:text-xs sm:tracking-[0.14em] ${
+              active
                 ? "border-[#9f7b38] text-[#8c6a2d]"
+                : complete
+                  ? "border-[#102536] text-[#102536]"
                 : "border-[#11283a]/12 text-[#7b8790]"
             }`}
           >
-            <span className="hidden sm:inline">{index + 1} — </span>
-            {label}
+            <span className="mr-1 inline-flex min-w-5 items-center justify-center font-mono">{complete ? <Check aria-hidden="true" className="size-3.5" /> : String(index + 1).padStart(2, "0")}</span>
+            <span>{label}</span>
           </li>
         );
       })}
@@ -408,26 +413,26 @@ function BasicInformationStep({
       <StepHeading
         id="basic-step-title"
         title="Temel bilgilerin"
-        description="Bakım enerjisi tahmini için gerekli dört bilgiyi gir."
+        description="Günlük enerji ihtiyacını tahmin etmek için gerekli dört bilgiyi gir."
       />
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:mt-4 lg:gap-3">
+      <div className="mt-7 grid gap-5 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5">
         <NumberField
           id="age"
           label="Yaş"
           value={form.age}
-          min={13}
+          min={19}
           max={120}
           step={1}
           inputMode="numeric"
           placeholder="Örn. 30"
-          helper="Yetişkin Energy Lab motoru 19 yaş ve üzeri için çalışır."
+          helper="Bu hesaplama 19 yaş ve üzeri yetişkinler içindir."
           error={errors.age}
           onChange={(value) => onChange("age", value)}
         />
         <fieldset>
-          <legend className="text-sm font-bold text-[#102536]">Biyolojik cinsiyet</legend>
+          <legend className="text-sm font-bold text-[#102536]">Cinsiyet</legend>
           <p id="sex-helper" className="mt-1 text-xs leading-5 text-[#6b7883] lg:mt-0.5 lg:leading-4">
-            NASEM ve Mifflin denklemlerindeki katsayı seçimi için gereklidir.
+            Enerji hesaplamasında kullanılan denklemin katsayısı için gereklidir.
           </p>
           <div
             className="mt-3 grid grid-cols-2 gap-3 lg:mt-1.5 lg:gap-2"
@@ -438,7 +443,7 @@ function BasicInformationStep({
                 key={sex}
                 className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm font-semibold transition focus-within:ring-2 focus-within:ring-[#9f7b38] lg:min-h-13 lg:px-3 ${
                   form.sex === sex
-                    ? "border-[#9f7b38] bg-[#efe5d0]"
+                    ? "border-[#9f7b38] bg-[#d0af69]/[.08]"
                     : "border-[#11283a]/15 bg-white hover:border-[#9f7b38]/60"
                 }`}
               >
@@ -501,14 +506,15 @@ function ActivityStep({
         title="Günlük hareketini anlayalım"
         description="Günlük yaşamına en yakın hareket profilini belirlemene yardımcı olacağız."
       />
-      <fieldset className="mt-7 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2.5">
+      <fieldset className="mt-7">
         <legend className="sr-only">Günlük hareket profilini seç</legend>
         <p id="activity-help" className="text-sm leading-6 text-[#5c6c78]">
-          En yakın profili seç. İki profil arasında kalıyorsan yalnız komşu profili de
-          seçebilirsin; adım veya antrenman süresinden otomatik sınıflandırma yapılmaz.
+          Sana en yakın hareket düzeyini seç. İki düzey arasında kalıyorsan yan yana olan
+          iki seçeneği işaretleyebilirsin. Adım veya antrenman süresinden otomatik
+          sınıflandırma yapılmaz.
         </p>
         <div
-          className="mt-5 grid gap-3 sm:grid-cols-2 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2 [@media(min-width:1024px)_and_(max-height:850px)]:grid-cols-4 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2"
+          className="mt-5 grid gap-3 sm:grid-cols-2"
           aria-describedby={`activity-help${error ? " activity-error" : ""}`}
         >
           {activityOptions.map((option) => {
@@ -522,9 +528,9 @@ function ActivityStep({
                 aria-checked={selected}
                 aria-invalid={Boolean(error)}
                 onClick={() => onToggle(option.value)}
-                className={`flex min-h-28 w-full items-start gap-4 rounded-2xl border p-5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:min-h-24 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:p-3 ${
+                className={`flex min-h-28 w-full items-start gap-4 rounded-2xl border p-5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] ${
                   selected
-                    ? "border-[#9f7b38] bg-[#efe5d0] shadow-[inset_3px_0_0_#9f7b38]"
+                    ? "border-[#9f7b38] bg-[#d0af69]/[.07]"
                     : "border-[#11283a]/12 bg-white hover:border-[#9f7b38]/50"
                 }`}
               >
@@ -539,7 +545,7 @@ function ActivityStep({
                 </span>
                 <span>
                   <span className="block font-bold text-[#102536]">{option.title}</span>
-                  <span className="mt-1 block text-sm leading-6 text-[#62717d] [@media(min-width:1024px)_and_(max-height:850px)]:leading-5">
+                  <span className="mt-1 block text-sm leading-6 text-[#62717d]">
                     {option.description}
                   </span>
                 </span>
@@ -549,11 +555,6 @@ function ActivityStep({
         </div>
         {error && <FieldError id="activity-error">{error}</FieldError>}
       </fieldset>
-      {profiles.length === 2 && (
-        <p className="mt-4 rounded-xl border border-[#9f7b38]/20 bg-[#efe5d0]/60 p-4 text-sm leading-6 text-[#5f4a22] [@media(min-width:1024px)_and_(max-height:850px)]:mt-2 [@media(min-width:1024px)_and_(max-height:850px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:leading-5">
-          Bu bir istatistiksel güven aralığı değildir; iki olası aktivite senaryosudur.
-        </p>
-      )}
     </section>
   );
 }
@@ -561,23 +562,17 @@ function ActivityStep({
 function GoalStep({
   form,
   goal,
-  lossRate,
   gainMode,
   errors,
-  lossPolicy,
   onGoalChange,
-  onLossRateChange,
   onGainModeChange,
   onFormChange,
 }: {
   form: FormState;
   goal: EnergyGoal | "";
-  lossRate: DeficitRate;
   gainMode: GainMode;
   errors: Record<string, string>;
-  lossPolicy: ReturnType<typeof getFatLossPolicy>;
   onGoalChange: (goal: EnergyGoal) => void;
-  onLossRateChange: (rate: DeficitRate) => void;
   onGainModeChange: (mode: GainMode) => void;
   onFormChange: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
 }) {
@@ -590,131 +585,119 @@ function GoalStep({
       />
       <fieldset aria-describedby={errors.goal ? "goal-error" : undefined}>
         <legend className="sr-only">Hedefini seç</legend>
-        <div className="mt-6 grid gap-3 md:grid-cols-3 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2">
-        {goalOptions.map((option) => {
-          const selected = goal === option.value;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              data-field="goal"
-              aria-pressed={selected}
-              onClick={() => onGoalChange(option.value)}
-              className={`min-h-28 rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:min-h-20 [@media(min-width:1024px)_and_(max-height:850px)]:p-3 ${
-                selected
-                  ? "border-[#9f7b38] bg-[#efe5d0] shadow-[inset_0_3px_0_#9f7b38]"
-                  : "border-[#11283a]/12 bg-white hover:border-[#9f7b38]/50"
-              }`}
-            >
-              <span className="flex items-center justify-between gap-3 font-bold text-[#102536]">
-                {option.title}
-                {selected && <Check aria-hidden="true" className="size-4 text-[#8c6a2d]" />}
-              </span>
-              <span className="mt-2 block text-sm leading-6 text-[#62717d] [@media(min-width:1024px)_and_(max-height:850px)]:mt-1 [@media(min-width:1024px)_and_(max-height:850px)]:leading-5">
-                {option.description}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      {errors.goal && <FieldError id="goal-error">{errors.goal}</FieldError>}
-      </fieldset>
-
-      {goal === "lose" && (
-        <div className="mt-6 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2.5">
-          <p className="text-sm font-bold text-[#102536]">Başlangıç yaklaşımı</p>
-          <div className="mt-3 grid gap-3 md:grid-cols-3 [@media(min-width:1024px)_and_(max-height:850px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2">
-            {lossPolicy.options.map((option) => (
-              <button
-                key={option.rate}
-                type="button"
-                disabled={!option.enabled}
-                aria-pressed={lossRate === option.rate}
-                onClick={() => onLossRateChange(option.rate)}
-                className={`rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] disabled:cursor-not-allowed disabled:opacity-55 [@media(min-width:1024px)_and_(max-height:850px)]:p-2.5 ${
-                  lossRate === option.rate && option.enabled
-                    ? "border-[#9f7b38] bg-[#efe5d0]"
-                    : "border-[#11283a]/12 bg-white hover:border-[#9f7b38]/50"
+        <div className="mt-7 grid items-start gap-3 md:grid-cols-3">
+          {goalOptions.map((option) => {
+            const selected = goal === option.value;
+            return (
+              <div
+                key={option.value}
+                data-goal-card={option.value}
+                data-selected={selected || undefined}
+                className={`overflow-hidden rounded-2xl border bg-white transition ${
+                  selected
+                    ? "border-[#9f7b38] bg-[#d0af69]/[.06]"
+                    : "border-[#11283a]/12 hover:border-[#9f7b38]/50"
                 }`}
               >
-                <span className="flex items-center justify-between gap-2 font-bold text-[#102536]">
-                  {lossRateLabels[option.rate]}
-                  {lossRate === option.rate && option.enabled && (
-                    <Check aria-hidden="true" className="size-4 text-[#8c6a2d]" />
-                  )}
-                </span>
-                <span className="mt-1 block text-xs leading-5 text-[#657581]">
-                  {option.enabled ? option.label : option.reason}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+                <button
+                  type="button"
+                  data-field="goal"
+                  aria-pressed={selected}
+                  onClick={() => onGoalChange(option.value)}
+                  className="min-h-28 w-full p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#9f7b38]"
+                >
+                  <span className="flex items-center justify-between gap-3 font-bold text-[#102536]">
+                    {option.title}
+                    <span
+                      className={`flex size-6 shrink-0 items-center justify-center rounded-full border ${
+                        selected
+                          ? "border-[#9f7b38] bg-[#9f7b38] text-white"
+                          : "border-[#11283a]/20 text-transparent"
+                      }`}
+                    >
+                      <Check aria-hidden="true" className="size-3.5" />
+                    </span>
+                  </span>
+                  <span className="mt-2 block text-sm leading-6 text-[#62717d]">
+                    {option.description}
+                  </span>
+                </button>
 
-      {goal === "gain" && (
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2">
-          {([
-            ["maintenance", "Bakım çevresinde başla"],
-            ["smallSurplus", "Küçük enerji fazlasıyla başla"],
-          ] as const).map(([mode, label]) => (
-            <button
-              key={mode}
-              type="button"
-              aria-pressed={gainMode === mode}
-              onClick={() => onGainModeChange(mode)}
-              className={`rounded-xl border p-4 text-left font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11 [@media(min-width:1024px)_and_(max-height:850px)]:p-2.5 ${
-                gainMode === mode
-                  ? "border-[#9f7b38] bg-[#efe5d0]"
-                  : "border-[#11283a]/12 bg-white hover:border-[#9f7b38]/50"
-              }`}
-            >
-              <span className="flex items-center justify-between gap-3">
-                {label}
-                {gainMode === mode && (
-                  <Check aria-hidden="true" className="size-4 text-[#8c6a2d]" />
+                {selected && option.value === "lose" && (
+                  <div
+                    data-goal-nested="lose"
+                    className="border-t border-[#9f7b38]/20 px-5 py-4"
+                  >
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8c6a2d]">
+                      Yağ kaybı için başlangıç
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-[#657581]">
+                      Günlük enerji ihtiyacı tahmininden %10, en fazla 500 kcal/gün azaltılır.
+                      Bu, kişiselleştirilmiş reçete değildir.
+                    </p>
+                  </div>
                 )}
-              </span>
-            </button>
-          ))}
+
+                {selected && option.value === "gain" && (
+                  <fieldset
+                    data-goal-nested="gain"
+                    className="border-t border-[#9f7b38]/20 px-4 py-4"
+                  >
+                    <legend className="px-1 text-xs font-bold uppercase tracking-[0.12em] text-[#8c6a2d]">
+                      Başlangıç yaklaşımı
+                    </legend>
+                    <div className="mt-2 space-y-2">
+                      {([
+                        ["maintenance", "Kilomu korumaya yakın başla"],
+                        ["smallSurplus", "Günlük ihtiyacımın biraz üzerinde başla"],
+                      ] as const).map(([mode, label]) => (
+                        <label
+                          key={mode}
+                          className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-xs font-bold focus-within:ring-2 focus-within:ring-[#9f7b38] ${
+                            gainMode === mode
+                              ? "border-[#9f7b38] bg-white"
+                              : "border-[#11283a]/12 bg-white/70"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="gainMode"
+                            value={mode}
+                            checked={gainMode === mode}
+                            onChange={() => onGainModeChange(mode)}
+                            className="accent-[#9f7b38]"
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
+              </div>
+            );
+          })}
         </div>
-      )}
+        {errors.goal && <FieldError id="goal-error">{errors.goal}</FieldError>}
+      </fieldset>
 
-      <div className="mt-6 space-y-3 border-t border-[#11283a]/10 pt-5 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2.5 [@media(min-width:1024px)_and_(max-height:850px)]:grid [@media(min-width:1024px)_and_(max-height:850px)]:grid-cols-[0.75fr_1.25fr] [@media(min-width:1024px)_and_(max-height:850px)]:gap-3 [@media(min-width:1024px)_and_(max-height:850px)]:space-y-0 [@media(min-width:1024px)_and_(max-height:850px)]:pt-2.5">
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#11283a]/12 bg-white p-4 focus-within:ring-2 focus-within:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:p-3">
-          <input
-            type="checkbox"
-            checked={form.performancePriority}
-            onChange={(event) => onFormChange("performancePriority", event.target.checked)}
-            className="mt-1 size-4 accent-[#9f7b38]"
-          />
-          <span>
-            <span className="block text-sm font-bold">Performans önceliğim var</span>
-            <span className="mt-1 block text-xs leading-5 text-[#657581]">
-              Bu seçim yalnız yağ kaybı yaklaşımının uygunluk kurallarını etkiler.
-            </span>
-          </span>
-        </label>
-
+      <div className="mt-7 border-t border-[#11283a]/10 pt-6">
         <fieldset aria-describedby={errors.generalScope ? "generalScope-error" : undefined}>
           <legend className="text-sm font-bold">Bu hesaplama senin için uygun mu?</legend>
-          <p className="mt-1 text-xs leading-5 text-[#657581] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
-            Hamilelik veya emzirme, yeme bozukluğu ya da Sporda Göreceli Enerji
-            Eksikliği (RED-S) riski, yarışma hazırlığı ve enerji ihtiyacını etkileyen
-            sağlık durumu veya ilaç kullanımı genel kapsamın dışında olabilir. Yanıtın
-            kaydedilmez veya sunucuya gönderilmez.
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-[#657581]">
+            Hamilelik/emzirme, özel tıbbi durumlar veya yarışma hazırlığı gibi durumlarda
+            bu genel hesaplama uygun olmayabilir.
           </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 [@media(min-width:1024px)_and_(max-height:850px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {([
-              ["standardAdult", "Standart yetişkin kapsamıyla devam etmek istiyorum"],
+              ["standardAdult", "Genel yetişkin kapsamındayım."],
               ["mayBeOutsideScope", "Bu araç benim durumuma uygun olmayabilir"],
             ] as const).map(([value, label]) => (
               <label
                 key={value}
-                className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm font-semibold focus-within:ring-2 focus-within:ring-[#9f7b38] [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2 [@media(min-width:1024px)_and_(max-height:850px)]:p-2 ${
+                className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 text-sm font-semibold focus-within:ring-2 focus-within:ring-[#9f7b38] ${
                   form.generalScope === value
-                    ? "border-[#9f7b38] bg-[#efe5d0]"
-                    : "border-[#11283a]/12 bg-white"
+                    ? "border-[#9f7b38] bg-[#d0af69]/[.07]"
+                    : "border-[#11283a]/12"
                 }`}
               >
                 <input
@@ -746,25 +729,28 @@ function BlockedResult({
   onReset: () => void;
 }) {
   return (
-    <section className="rounded-[1.75rem] border border-[#9f7b38]/30 bg-[#fbfaf6] p-6 shadow-[0_24px_70px_rgba(17,40,58,.08)] sm:p-9">
-      <div className="flex size-12 items-center justify-center rounded-2xl bg-[#efe5d0] text-[#8c6a2d]">
+    <section className="relative isolate overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#071523] p-6 text-white shadow-[0_28px_80px_rgba(7,21,35,.22)] sm:p-9">
+      <TechnicalGrid className="text-[#d0af69] opacity-[.045]" patternId="energy-blocked-grid" />
+      <div className="relative">
+      <div className="flex size-12 items-center justify-center rounded-full border border-[#d0af69]/30 text-[#d0af69]">
         <ShieldCheck aria-hidden="true" className="size-5" />
       </div>
       <p className="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-[#8c6a2d]">
         Sayısal hedef gösterilmiyor
       </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em]">
+      <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.035em]">
         Bu bilgiler genel Energy Lab kapsamının dışında.
       </h2>
       <div className="mt-6 space-y-3">
         {evaluation.scope.reasons.map((reason) => (
-          <div key={reason.code} className="rounded-xl border border-[#11283a]/10 bg-white p-4">
+          <div key={reason.code} className="rounded-xl border border-white/10 bg-white/[.04] p-4">
             <p className="font-bold">{reason.title}</p>
-            <p className="mt-1 text-sm leading-6 text-[#5c6c78]">{reason.message}</p>
+            <p className="mt-1 text-sm leading-6 text-slate-300">{reason.message}</p>
           </div>
         ))}
       </div>
-      <ResetButton onClick={onReset} />
+      <ResetButton onClick={onReset} dark />
+      </div>
     </section>
   );
 }
@@ -773,114 +759,134 @@ function ReadyResults({
   evaluation,
   age,
   goal,
-  lossRate,
   gainMode,
-  performancePriority,
   onReset,
 }: {
   evaluation: ReadyEnergyEvaluation;
   age: number;
   goal: EnergyGoal;
-  lossRate: DeficitRate;
   gainMode: GainMode;
-  performancePriority: boolean;
   onReset: () => void;
 }) {
   const selection: GoalSelection =
     goal === "maintain"
       ? { goal: "maintain" }
       : goal === "lose"
-        ? { goal: "lose", rate: lossRate }
+        ? { goal: "lose" }
         : { goal: "gain", mode: gainMode };
-  const lossPolicy = getFatLossPolicy(
-    evaluation.bmi,
-    performancePriority,
-    evaluation.scope.fatLossAllowed,
-  );
   const targetScenario = calculateTargetScenario({
     evaluation,
     selection,
-    performancePriority,
   });
+  const differenceValues =
+    targetScenario.status === "available"
+      ? targetScenario.points.map((point, index) =>
+          roundToNearest50(point.rawKcal - evaluation.maintenance.points[index].rawKcal),
+        )
+      : [];
 
   return (
-    <section className="overflow-hidden rounded-[1.75rem] border border-[#11283a]/10 bg-[#fbfaf6] shadow-[0_24px_70px_rgba(17,40,58,.08)]">
-      <div className="bg-[#071523] p-6 text-white sm:p-9 lg:p-10">
+    <section className="calculator-result relative isolate overflow-hidden">
+      <TechnicalGrid className="text-[#d0af69] opacity-[.045]" patternId="energy-result-grid" />
+      <div className="relative p-6 sm:p-9 lg:p-11">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#d0af69]">
-          Günlük başlangıç hedefin
+          Tahmini günlük enerji ihtiyacın
         </p>
-        {targetScenario.status === "available" ? (
-          <>
-            <p className="mt-4 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-              {formatKcalScenario(targetScenario.displayMin, targetScenario.displayMax)}
-            </p>
-            <p className="mt-3 text-sm font-semibold text-[#ead5a8] sm:text-base">
-              {goalResultLabel(selection)}
-            </p>
-          </>
-        ) : (
-          <div className="mt-5 rounded-xl border border-[#d0af69]/25 bg-white/[.05] p-5">
-            <p className="flex items-start gap-3 text-sm leading-7 text-slate-200">
-              <AlertTriangle aria-hidden="true" className="mt-1 size-4 shrink-0 text-[#d0af69]" />
-              {targetScenario.message}
-            </p>
-          </div>
-        )}
+        <p className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1">
+          <span className="text-[clamp(3rem,9vw,5.75rem)] font-semibold leading-[.9] tracking-[-0.055em]">
+          {formatKcalNumber(
+            evaluation.maintenance.displayMin,
+            evaluation.maintenance.displayMax,
+          )}
+          </span>
+          <span className="pb-1 text-sm font-bold uppercase tracking-[0.12em] text-slate-400 sm:pb-2">
+            kcal / gün
+          </span>
+        </p>
+        <div aria-hidden="true" className="mt-6 h-px w-16 bg-[#d0af69]" />
+        <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
+          Mevcut kilonu korumak için günlük yaklaşık enerji ihtiyacın.
+        </p>
 
-        <div className="mt-7 border-t border-white/10 pt-6">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-            Tahmini bakım enerjin
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-white">
-            {formatKcalScenario(
-              evaluation.maintenance.displayMin,
-              evaluation.maintenance.displayMax,
-            )}
-          </p>
+        <div className="mt-8 border-y border-white/10 bg-white/[.025] px-5 py-6 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-8">
+          {targetScenario.status === "available" ? (
+            <>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Günlük kalori hedefin
+                </p>
+                <p className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
+                  {formatKcalScenario(targetScenario.displayMin, targetScenario.displayMax)}
+                </p>
+                <p className="mt-2 text-sm font-semibold text-[#ead5a8]">
+                  {goalResultLabel(selection)}
+                </p>
+              </div>
+              <p className="mt-4 border-t border-white/10 pt-4 text-sm text-slate-300 sm:mt-0 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0">
+                Günlük enerji ihtiyacından fark: {formatSignedKcalScenario(differenceValues)}
+              </p>
+            </>
+          ) : (
+            <div className="sm:col-span-2">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+                Günlük kalori hedefin
+              </p>
+              <div className="mt-3 rounded-xl border border-[#d0af69]/25 bg-white/[.05] p-5">
+                <p className="flex items-start gap-3 text-sm leading-7 text-slate-200">
+                  <AlertTriangle aria-hidden="true" className="mt-1 size-4 shrink-0 text-[#d0af69]" />
+                  {targetScenario.message}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="mt-7 grid gap-3 sm:grid-cols-3">
+        <div className="mt-7 grid gap-5 border-b border-white/10 pb-8 sm:grid-cols-2 sm:gap-8">
           <ResultMini
             label="Aktivite Profili"
             value={evaluation.maintenance.points
               .map((point) => activityLabel(point.profile))
               .join(" + ")}
           />
-          <ResultMini
-            label="Vücut Kitle İndeksi (BMI)"
-            value={evaluation.bmi.toLocaleString("tr-TR", { maximumFractionDigits: 2 })}
-          />
           {age <= 78 && (
             <ResultMini
-              label="Dinlenme Metabolizma Hızı (RMR)"
+              label="Tahmini dinlenme enerjisi (RMR)"
               value={`${Math.round(evaluation.mifflinRmr).toLocaleString("tr-TR")} kcal/gün`}
+              helper="Bu bir günlük kalori hedefi değildir. Vücudunun dinlenirken kullandığı tahmini enerjidir."
             />
           )}
         </div>
-      </div>
-
-      <div className="space-y-6 p-6 sm:p-9 lg:p-10">
-        <div>
-          <h2 className="text-xl font-semibold">Bu sayı ne anlama geliyor?</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#596a77]">
-            Bu değer ölçülmüş kesin enerji ihtiyacın değil, verdiğin bilgilere göre
-            hesaplanan tahmini bir başlangıç noktasıdır. Gerçek enerji ihtiyacın kişiden
-            kişiye ve zaman içinde değişebilir.
-          </p>
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold tracking-[-0.02em]">Bu sayı ne anlama geliyor?</h2>
+          <div className="mt-4 divide-y divide-white/10 border-y border-white/10">
+            <ResultInfoRow
+              label="Başlangıç tahmini"
+              text="Bu değer ölçülmüş kesin enerji ihtiyacın değil; verdiğin bilgilere göre hesaplanan bir başlangıç noktasıdır."
+            />
+            <ResultInfoRow
+              label="Gerçek ihtiyaç değişebilir"
+              text="Tahmin denklemi, aktivite seçimi, günlük hareket farkı ve kişisel metabolik değişkenlik sonucu etkileyebilir."
+            />
+            {selection.goal === "lose" && (
+              <ResultInfoRow
+                label="Eğilimi izle"
+                text="Yağ kaybı hedefi kesin bir kişisel reçete veya haftalık kayıp vaadi değildir. Kilonun birkaç haftalık eğilimi, antrenman performansı ve uygulamadaki uyum daha anlamlıdır."
+              />
+            )}
+          </div>
         </div>
 
         <MethodDetails
           evaluation={evaluation}
           selection={selection}
           scenario={targetScenario}
-          deficitCapKcal={lossPolicy.deficitCapKcal}
         />
 
         {targetScenario.status === "available" && (
           <MacroPlannerLink scenario={targetScenario} />
         )}
 
-        <ResetButton onClick={onReset} />
+        <ResetButton onClick={onReset} dark />
       </div>
     </section>
   );
@@ -890,12 +896,10 @@ function MethodDetails({
   evaluation,
   selection,
   scenario,
-  deficitCapKcal,
 }: {
   evaluation: ReadyEnergyEvaluation;
   selection: GoalSelection;
   scenario: TargetScenario;
-  deficitCapKcal: number | null;
 }) {
   const deficitValues =
     scenario.status === "available"
@@ -905,7 +909,7 @@ function MethodDetails({
       : [];
 
   return (
-    <details className="group rounded-2xl border border-[#11283a]/10 bg-white p-5 open:border-[#9f7b38]/30">
+    <details className="group mt-6 rounded-2xl border border-white/10 bg-white/[.035] p-5 open:border-[#d0af69]/35">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
         Nasıl hesaplandı?
         <ChevronDown
@@ -913,11 +917,11 @@ function MethodDetails({
           className="size-4 text-[#8c6a2d] transition-transform group-open:rotate-180"
         />
       </summary>
-      <div className="mt-4 space-y-3 border-t border-[#11283a]/10 pt-4 text-sm leading-7 text-[#596a77]">
+      <div className="mt-4 space-y-3 border-t border-white/10 pt-4 text-sm leading-7 text-slate-300">
         <p>
-          Bakım tahmini; yaş, biyolojik cinsiyet, boy, kilo ve seçilen aktivite profilini
+          Günlük enerji ihtiyacı tahmini; yaş, biyolojik cinsiyet, boy, kilo ve seçilen aktivite profilini
           NASEM 2023 yetişkin Tahmini Enerji Gereksinimi (EER) denklemlerinde birlikte
-          kullanır. Bakım enerjisi, RMR ile bir aktivite çarpanının çarpılmasıyla
+          kullanır. Günlük enerji ihtiyacı, RMR ile bir aktivite çarpanının çarpılmasıyla
           hesaplanmaz.
         </p>
         <p>
@@ -932,9 +936,7 @@ function MethodDetails({
               roundToNearest50(Math.min(...deficitValues)),
               roundToNearest50(Math.max(...deficitValues)),
             )}.
-            {deficitCapKcal !== null
-              ? ` Yağ kaybı politikasındaki ${deficitCapKcal.toLocaleString("tr-TR")} kcal/gün tavanı gerektiğinde uygulanır.`
-              : ""}
+            {` Başlangıç enerji farkı gerektiğinde ${FAT_LOSS_DEFICIT_CAP_KCAL.toLocaleString("tr-TR")} kcal/gün ile sınırlandırılır.`}
           </p>
         )}
         {evaluation.maintenance.kind === "range" && (
@@ -945,7 +947,7 @@ function MethodDetails({
         )}
         <a
           href="#bilimsel-kaynaklar"
-          className="inline-flex font-bold text-[#8c6a2d] underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38]"
+          className="inline-flex font-bold text-[#d0af69] underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d0af69]"
         >
           Yöntem ve bilimsel kaynakları incele
         </a>
@@ -966,25 +968,25 @@ function MacroPlannerLink({
     selectedPointIndex === null ? null : scenario.points[selectedPointIndex];
 
   return (
-    <div className="rounded-2xl border border-[#9f7b38]/20 bg-[#f3ecdd] p-5 sm:p-6">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8c6a2d]">
+    <div className="mt-6 rounded-2xl border border-[#d0af69]/25 bg-white/[.04] p-5 sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d0af69]">
         Sıradaki adım
       </p>
-      <p className="mt-2 font-bold text-[#102536]">
+      <p className="mt-2 font-bold text-white">
         Bu kalori hedefini protein, karbonhidrat ve yağlara dağıt.
       </p>
 
       {scenario.points.length === 2 && (
         <fieldset className="mt-5">
-          <legend className="text-sm font-bold text-[#102536]">
-            Makro planında kullanacağın başlangıç senaryosunu seç
+          <legend className="text-sm font-bold text-white">
+            Makro planında kullanacağın kalori hedefini seç
           </legend>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {scenario.points.map((point, index) => (
               <label
                 key={point.profile}
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 focus-within:ring-2 focus-within:ring-[#9f7b38] ${
-                  selectedPointIndex === index ? "border-[#9f7b38]" : "border-[#11283a]/12"
+                className={`flex cursor-pointer items-start gap-3 rounded-xl border bg-[#0b1e2e] p-4 focus-within:ring-2 focus-within:ring-[#d0af69] ${
+                  selectedPointIndex === index ? "border-[#d0af69]" : "border-white/10"
                 }`}
               >
                 <input
@@ -992,11 +994,11 @@ function MacroPlannerLink({
                   name="macroScenario"
                   checked={selectedPointIndex === index}
                   onChange={() => setSelectedPointIndex(index)}
-                  className="mt-1 accent-[#9f7b38]"
+                  className="mt-1 accent-[#d0af69]"
                 />
                 <span>
                   <span className="block text-sm font-bold">{activityLabel(point.profile)}</span>
-                  <span className="mt-1 block text-sm text-[#596a77]">
+                  <span className="mt-1 block text-sm text-slate-300">
                     {point.displayKcal.toLocaleString("tr-TR")} kcal/gün
                   </span>
                 </span>
@@ -1010,17 +1012,17 @@ function MacroPlannerLink({
         {selectedPoint ? (
           <Link
             href={`/calculators/macro?calories=${selectedPoint.displayKcal}`}
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#102536] bg-[#102536] px-6 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] sm:w-auto"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#d0af69]/40 bg-[#102536] px-6 text-sm font-bold text-white transition hover:bg-[#173247] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d0af69] sm:w-auto"
           >
             Makrolarımı Planla
-            <ArrowRight aria-hidden="true" className="size-4" />
+            <ArrowRight aria-hidden="true" className="size-4 text-[#d0af69]" />
           </Link>
         ) : (
           <span
             aria-disabled="true"
-            className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[#102536]/20 bg-[#102536]/10 px-6 text-sm font-bold text-[#64727d] sm:w-auto"
+            className="inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-6 text-sm font-bold text-slate-500 sm:w-auto"
           >
-            Önce bir senaryo seç
+            Önce bir kalori hedefi seç
           </span>
         )}
       </div>
@@ -1028,12 +1030,16 @@ function MacroPlannerLink({
   );
 }
 
-function ResetButton({ onClick }: { onClick: () => void }) {
+function ResetButton({ onClick, dark = false }: { onClick: () => void; dark?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#11283a]/15 px-5 text-sm font-bold text-[#102536] transition hover:border-[#9f7b38]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38]"
+      className={`mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-5 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] ${
+        dark
+          ? "border-white/15 text-slate-200 hover:border-[#d0af69]/60 hover:text-white"
+          : "border-[#11283a]/15 text-[#102536] hover:border-[#9f7b38]/60"
+      }`}
     >
       <RotateCcw aria-hidden="true" className="size-4" />
       Hesabı Yeniden Yap
@@ -1052,20 +1058,61 @@ function StepHeading({
 }) {
   return (
     <header>
-      <h2 id={id} className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl lg:text-2xl">
+      <h2 id={id} className="text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">
         {title}
       </h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5c6c78] lg:mt-1 lg:leading-5 [@media(min-width:1024px)_and_(max-height:850px)]:mt-0.5">{description}</p>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5c6c78]">{description}</p>
     </header>
   );
 }
 
-function ResultMini({ label, value }: { label: string; value: string }) {
+function ResultMini({
+  label,
+  value,
+  helper,
+}: {
+  label: string;
+  value: string;
+  helper?: string;
+}) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+    <div>
       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold text-[#ead5a8]">{value}</p>
+      <p className="mt-2 text-sm font-semibold text-slate-200">{value}</p>
+      {helper && <p className="mt-1 text-xs leading-5 text-slate-400">{helper}</p>}
     </div>
+  );
+}
+
+function ResultInfoRow({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="grid gap-2 py-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-6">
+      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#d0af69]">{label}</p>
+      <p className="max-w-2xl text-sm leading-6 text-slate-300">{text}</p>
+    </div>
+  );
+}
+
+function TechnicalGrid({
+  className,
+  patternId,
+}: {
+  className: string;
+  patternId: string;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-0 size-full ${className}`}
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <pattern id={patternId} width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M48 0H0V48" fill="none" stroke="currentColor" strokeWidth="1" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
+    </svg>
   );
 }
 
@@ -1146,10 +1193,10 @@ function validateBasics(form: FormState): Record<string, string> {
   const height = Number(form.heightCm);
   const weight = Number(form.weightKg);
 
-  if (!form.age || !Number.isInteger(age) || age < 13 || age > 120) {
-    errors.age = "Yaş 13 ile 120 arasında tam sayı olmalıdır.";
+  if (!form.age || !Number.isInteger(age) || age < 19 || age > 120) {
+    errors.age = "Yaş 19 ile 120 arasında tam sayı olmalıdır.";
   }
-  if (!form.sex) errors.sex = "Hesaplama için biyolojik cinsiyet seçilmelidir.";
+  if (!form.sex) errors.sex = "Hesaplama için cinsiyet seçilmelidir.";
   if (!form.heightCm || !Number.isFinite(height) || height < 100 || height > 250) {
     errors.heightCm = "Boy 100 ile 250 cm arasında olmalıdır.";
   }
@@ -1178,16 +1225,22 @@ function validateForm(
   return errors;
 }
 
-function getPreviewLossPolicy(form: FormState) {
-  const height = Number(form.heightCm);
-  const weight = Number(form.weightKg);
-  const bmi = calculateBmi(weight, height);
-  return getFatLossPolicy(bmi, form.performancePriority, bmi >= 18.5 && bmi < 50);
-}
-
 function formatKcalScenario(minimum: number, maximum: number): string {
   if (minimum === maximum) return `${minimum.toLocaleString("tr-TR")} kcal / gün`;
   return `${minimum.toLocaleString("tr-TR")}–${maximum.toLocaleString("tr-TR")} kcal / gün`;
+}
+
+function formatKcalNumber(minimum: number, maximum: number): string {
+  if (minimum === maximum) return minimum.toLocaleString("tr-TR");
+  return `${minimum.toLocaleString("tr-TR")}–${maximum.toLocaleString("tr-TR")}`;
+}
+
+function formatSignedKcalScenario(values: readonly number[]): string {
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const format = (value: number) =>
+    `${value > 0 ? "+" : value < 0 ? "−" : "±"}${Math.abs(value).toLocaleString("tr-TR")} kcal / gün`;
+  return minimum === maximum ? format(minimum) : `${format(minimum)} – ${format(maximum)}`;
 }
 
 function activityLabel(profile: ActivityProfile): string {
@@ -1196,8 +1249,8 @@ function activityLabel(profile: ActivityProfile): string {
 
 function goalResultLabel(selection: GoalSelection): string {
   if (selection.goal === "maintain") return "Kilo Koruma";
-  if (selection.goal === "lose") return `Yağ Kaybı · ${lossRateLabels[selection.rate]}`;
+  if (selection.goal === "lose") return "Yağ Kaybı · Muhafazakâr başlangıç";
   return selection.mode === "maintenance"
-    ? "Kas Kazanımı · Bakım çevresinde başlangıç"
-    : "Kas Kazanımı · Küçük enerji fazlası";
+    ? "Kilo artışı yaklaşımı · Kilomu korumaya yakın başlangıç"
+    : "Kilo artışı yaklaşımı · Günlük ihtiyacımın biraz üzerinde başlangıç";
 }

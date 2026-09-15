@@ -5,7 +5,7 @@ import { ENERGY_LAB_PATH } from "@/lib/routes";
 export const metadata: Metadata = {
   title: "Kalori Hedefi Simülatörü — Energy Lab",
   description:
-    "NASEM 2023 ile bakım kalorisi ve günlük enerji ihtiyacı için başlangıç tahmini oluşturun; kontrollü kalori hedefinizi seçin.",
+    "Günlük enerji ihtiyacınızı tahmin edin ve hedefinize uygun kontrollü bir kalori başlangıcı oluşturun.",
   alternates: { canonical: ENERGY_LAB_PATH },
   openGraph: {
     title: "Kalori Hedefi Simülatörü | Trainology Energy Lab",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1734,
         height: 907,
-        alt: "Trainology Energy Lab 2.0 — Kalori Hedefi Simülatörü",
+        alt: "Trainology Energy Lab — Kalori Hedefi Simülatörü",
       },
     ],
   },
