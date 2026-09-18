@@ -40,7 +40,7 @@ export default function ToolsShowcase() {
     <Section
       subtitle="TOOLS"
       title="Fitness kararlarını bilimsel verilerle destekle."
-      description="Kalori ve makro verilerini analiz ederek daha bilinçli kararlar vermeni sağlayan araçlar."
+      description="Enerji ve beslenme planlamasından vücut kompozisyonu bağlamına kadar, daha bilinçli kararlar için bilimsel araçlar."
       className="!py-[var(--space-section)]"
       contentClassName="mt-4"
     >

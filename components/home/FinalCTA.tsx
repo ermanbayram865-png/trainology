@@ -20,7 +20,7 @@ export default function FinalCTA() {
           </p>
         </div>
         <CTAButton href={ENERGY_LAB_PATH} className="w-full lg:w-auto">
-          Ücretsiz Analizini Başlat
+          Kalori Hedefini Hesapla
           <ArrowRight aria-hidden="true" className="ml-2 size-4" />
         </CTAButton>
       </div>

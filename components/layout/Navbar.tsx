@@ -72,7 +72,7 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden xl:block">
-            <CTAButton href={ENERGY_LAB_PATH}>Ücretsiz Analiz</CTAButton>
+            <CTAButton href={ENERGY_LAB_PATH}>Kalori Hedefi</CTAButton>
           </div>
 
           <button
@@ -110,7 +110,7 @@ export default function Navbar() {
               })}
 
               <div onClick={() => setIsMenuOpen(false)}>
-                <CTAButton href={ENERGY_LAB_PATH}>Ücretsiz Analiz</CTAButton>
+                <CTAButton href={ENERGY_LAB_PATH}>Kalori Hedefi</CTAButton>
               </div>
             </div>
           </nav>

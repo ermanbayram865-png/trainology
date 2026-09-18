@@ -32,7 +32,7 @@ export default function HeroSection() {
 
         <div className="mt-5 flex flex-col items-stretch gap-2 sm:w-fit sm:flex-row sm:items-center">
           <CTAButton href={ENERGY_LAB_PATH} className="w-full sm:w-auto">
-            Ücretsiz Analizini Başlat <ArrowRight aria-hidden="true" className="ml-2 size-4" />
+            Kalori Hedefini Hesapla <ArrowRight aria-hidden="true" className="ml-2 size-4" />
           </CTAButton>
           <CTAButton href="/calculators" variant="ghost" className="w-full sm:w-auto">
             Bilimsel Araçları Keşfet
