@@ -50,4 +50,8 @@ test("protein düzenleme aksiyonu form değerlerini resetlemeden korur", () => {
   assert.match(proteinPage, /onEdit=\{\(\) => setResult\(null\)\}/);
   assert.doesNotMatch(proteinPage, /onEdit=[\s\S]*setForm\(initialForm\)/);
   assert.match(sharedUi, /Referansı Düzenle/);
+  const edit = proteinPage.indexOf("<EditReferenceButton", proteinPage.indexOf("function ProteinResultView"));
+  const methodology = proteinPage.indexOf("<MethodologyDisclosure>", edit);
+  assert.ok(edit >= 0);
+  assert.ok(methodology > edit);
 });

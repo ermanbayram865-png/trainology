@@ -323,6 +323,7 @@ function ProteinResultView({
         </div>
       </div>
 
+      <EditReferenceButton onClick={onEdit} />
       <MethodologyDisclosure>
         <p>
           Hesaplama ağırlığı: {decimal(result.calculationWeightKg)} kg. Kullanılan protein değeri bu ağırlık üzerinden ara yuvarlama yapılmadan hesaplandı.
@@ -342,7 +343,6 @@ function ProteinResultView({
           Kaynaklar: EFSA NDA (2012); Jäger et al. (2017); Morton et al. (2018); Volkert et al. (2022); Weijs (2025).
         </p>
       </MethodologyDisclosure>
-      <EditReferenceButton onClick={onEdit} />
     </article>
   );
 }

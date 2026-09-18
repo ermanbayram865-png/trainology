@@ -130,14 +130,16 @@ test("wizard foundation spacing ile responsive ve kompakt kalır", () => {
   assert.doesNotMatch(source, /transform:\s*scale|zoom:|overflow-hidden/);
 });
 
-test("ana sonuç ve düzenleme aksiyonu uzun açıklamalardan önce gelir", () => {
+test("ana sonuç, anlam, düzenleme aksiyonu ve teknik detay doğru sırada gelir", () => {
   const macroCards = source.indexOf("<dl className=");
   const fiber = source.indexOf("Lif referansı");
-  const edit = source.indexOf("Planı Düzenle", fiber);
-  const explanation = source.indexOf("Bu dağılım ne anlama geliyor?");
+  const explanation = source.indexOf("Bu dağılım ne anlama geliyor?", fiber);
+  const edit = source.indexOf("Planı Düzenle", explanation);
+  const methodology = source.indexOf("Nasıl hesaplandı?", edit);
 
   assert.ok(macroCards >= 0);
   assert.ok(fiber > macroCards);
-  assert.ok(edit > fiber);
-  assert.ok(explanation > edit);
+  assert.ok(explanation > fiber);
+  assert.ok(edit > explanation);
+  assert.ok(methodology > edit);
 });

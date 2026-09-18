@@ -124,6 +124,14 @@ test("results preserve safety, hierarchy, estimation and RMR display contracts",
   assert.match(source, /Kilonun birkaç haftalık eğilimi, antrenman performansı ve uygulamadaki uyum/);
   assert.match(source, /Günlük enerji ihtiyacı, RMR ile bir aktivite/);
   assert.match(source, /en yakın 50 kcal’ye yuvarlanır/);
+  const meaning = source.indexOf("Bu sayı ne anlama geliyor?");
+  const macroAction = source.indexOf("<MacroPlannerLink", meaning);
+  const resetAction = source.indexOf("<ResetButton", macroAction);
+  const methodology = source.indexOf("<MethodDetails", resetAction);
+  assert.ok(meaning >= 0);
+  assert.ok(macroAction > meaning);
+  assert.ok(resetAction > macroAction);
+  assert.ok(methodology > resetAction);
   assert.doesNotMatch(source, /label="Vücut Kitle İndeksi \(BMI\)"/);
   assert.doesNotMatch(source, /kg\s*\/\s*hafta|haftada\s+[\d,.]+\s*kg/i);
   assert.doesNotMatch(source, /ideal|optimal|guaranteed/i);

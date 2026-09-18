@@ -861,17 +861,17 @@ function ReadyResults({
           </div>
         </div>
 
-        <MethodDetails
-          evaluation={evaluation}
-          selection={selection}
-          scenario={targetScenario}
-        />
-
         {targetScenario.status === "available" && (
           <MacroPlannerLink scenario={targetScenario} />
         )}
 
         <ResetButton onClick={onReset} dark />
+
+        <MethodDetails
+          evaluation={evaluation}
+          selection={selection}
+          scenario={targetScenario}
+        />
       </div>
     </section>
   );
