@@ -14,7 +14,7 @@ export function ReferencePanel({
   className?: string;
 }) {
   return (
-    <div className={`calculator-surface p-5 sm:p-7 lg:px-8 lg:py-6 [@media(min-width:1024px)_and_(max-height:850px)]:px-7 [@media(min-width:1024px)_and_(max-height:850px)]:py-4 ${className ?? ""}`}>
+    <div className={`calculator-surface calculator-compact-panel p-5 sm:p-7 lg:px-8 lg:py-6 [@media(min-width:1024px)_and_(max-height:850px)]:px-7 [@media(min-width:1024px)_and_(max-height:850px)]:py-4 ${className ?? ""}`}>
       {children}
     </div>
   );
@@ -47,7 +47,7 @@ export function SelectionCards<T extends string>({
 
   return (
     <fieldset aria-describedby={error ? errorId : undefined}>
-      <legend className="text-sm font-bold text-[#102536]">{legend}</legend>
+      <legend className="calculator-label">{legend}</legend>
       <div className={`mt-2 grid gap-2.5 ${columns === 2 ? "sm:grid-cols-2" : "lg:grid-cols-3"}`}>
         {options.map((option) => {
           const selected = value === option.value;
@@ -163,7 +163,7 @@ export function EditReferenceButton({ onClick }: { onClick: () => void }) {
 
 export function FieldError({ id, children }: { id?: string; children: ReactNode }) {
   return (
-    <p id={id} role="alert" className="mt-1.5 text-xs font-semibold text-[#9d322f]">
+    <p id={id} role="alert" className="calculator-error">
       {children}
     </p>
   );

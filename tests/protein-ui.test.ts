@@ -36,6 +36,16 @@ test("protein sonucu tek referans, başlangıç ve gerçek aralık yapılarını
   assert.doesNotMatch(proteinPage, /donut|progress-ring|optimal zone/i);
 });
 
+test("protein presentation ortak editorial sistemi ve range-first semantiğini korur", () => {
+  assert.match(proteinPage, /sectionClassName="!py-\[var\(--space-section-compact\)\]/);
+  assert.match(proteinPage, /calculator-label/);
+  assert.match(proteinPage, /calculator-result-light/);
+  assert.match(proteinPage, /font-mono text-\[var\(--type-technical-label-size\)\]/);
+  assert.match(proteinPage, /primary \? "mt-5 border-y[\s\S]*: "mt-5 border-l-2/);
+  assert.match(proteinPage, /text-\[clamp\(3rem,7vw,4\.5rem\)\]/);
+  assert.doesNotMatch(proteinPage, /calculator-result mx-auto|bg-\[#102536\]/);
+});
+
 test("protein düzenleme aksiyonu form değerlerini resetlemeden korur", () => {
   assert.match(proteinPage, /onEdit=\{\(\) => setResult\(null\)\}/);
   assert.doesNotMatch(proteinPage, /onEdit=[\s\S]*setForm\(initialForm\)/);

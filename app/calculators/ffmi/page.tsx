@@ -7,8 +7,8 @@ export default function FFMICalculatorPage() {
       title="Yağsız Kütle İndeksi (FFMI)"
       seoPath="/calculators/ffmi"
       description="Boyun, kilon ve yağ oranından tahmini FFMI, yağsız kütle ve yağ kütlesi göstergelerini hesapla."
-      sectionClassName="!py-5 sm:!py-7 lg:!py-6 [@media(min-width:1024px)_and_(max-height:850px)]:!py-1"
-      contentClassName="mx-auto max-w-6xl space-y-4 [@media(min-width:1024px)_and_(max-height:850px)]:max-w-7xl [@media(min-width:1024px)_and_(max-height:850px)]:space-y-1 [@media(min-width:1024px)_and_(max-height:850px)]:[&>header]:max-w-4xl [@media(min-width:1024px)_and_(max-height:850px)]:[&>header>p]:!mt-1 [@media(min-width:1024px)_and_(max-height:850px)]:[&>header>p]:max-w-4xl"
+      sectionClassName="!py-[var(--space-section-compact)] sm:!py-8 lg:!py-5"
+      contentClassName="mx-auto max-w-6xl space-y-[var(--space-field-group)] lg:space-y-3 [&>header]:max-w-4xl [&>header]:border-b [&>header]:border-[var(--calculator-border)] [&>header]:pb-[var(--space-field-group)] lg:[&>header]:pb-3"
       info={
         <>
           <p>

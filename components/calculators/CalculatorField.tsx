@@ -13,7 +13,7 @@ type CalculatorFieldProps = {
 };
 
 const inputClasses =
-  "w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-[#C9A14A] focus-visible:ring-2 focus-visible:ring-[#C9A14A]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0B]";
+  "calculator-input px-4 py-3";
 
 export default function CalculatorField({
   field,
@@ -39,11 +39,11 @@ export default function CalculatorField({
   return (
     <div>
       <div className="mb-2 flex items-center justify-between gap-4">
-        <label htmlFor={id} className="text-lg font-medium text-white">
+        <label htmlFor={id} className="calculator-label">
           {field.label}
-          {field.required && <span className="ml-1 text-[#C9A14A]">*</span>}
+          {field.required && <span className="ml-1 text-[var(--calculator-gold)]">*</span>}
         </label>
-        {field.unit && <span className="text-sm text-neutral-500">{field.unit}</span>}
+        {field.unit && <span className="calculator-helper !mt-0">{field.unit}</span>}
       </div>
 
       {field.type === "number" && (
@@ -89,7 +89,8 @@ export default function CalculatorField({
           {field.options?.map((option) => (
             <label
               key={option.value}
-              className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-700 bg-zinc-900 p-3 transition hover:border-[#C9A14A]/60"
+              data-selected={value === option.value}
+              className="calculator-choice flex min-h-12 cursor-pointer items-start gap-3 p-3"
             >
               <input
                 type="radio"
@@ -98,12 +99,12 @@ export default function CalculatorField({
                 checked={value === option.value}
                 required={field.required}
                 onChange={handleTextChange}
-                className="mt-1 accent-[#C9A14A]"
+                className="mt-1 accent-[var(--calculator-gold)]"
               />
               <span>
-                <span className="block font-medium text-white">{option.label}</span>
+                <span className="block font-medium text-[var(--calculator-text-primary)]">{option.label}</span>
                 {option.description && (
-                  <span className="mt-1 block text-sm text-neutral-400">{option.description}</span>
+                  <span className="calculator-helper block">{option.description}</span>
                 )}
               </span>
             </label>
@@ -112,8 +113,8 @@ export default function CalculatorField({
       )}
 
       {field.type === "toggle" && (
-        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-zinc-700 bg-zinc-900 p-3 transition hover:border-[#C9A14A]/60">
-          <span className="text-sm text-neutral-300">{field.helperText ?? field.label}</span>
+        <label data-selected={value === true} className="calculator-choice flex min-h-12 cursor-pointer items-center justify-between gap-4 p-3">
+          <span className="calculator-label">{field.helperText ?? field.label}</span>
           <input
             id={id}
             name={field.name}
@@ -121,19 +122,19 @@ export default function CalculatorField({
             checked={value === true}
             required={field.required}
             onChange={(event) => onChange(field.name, event.target.checked)}
-            className="h-5 w-5 accent-[#C9A14A]"
+            className="h-5 w-5 accent-[var(--calculator-gold)]"
           />
         </label>
       )}
 
       {field.helperText && (
-        <p id={descriptionId} className="mt-1.5 text-sm leading-5 text-neutral-500">
+        <p id={descriptionId} className="calculator-helper">
           {field.helperText}
         </p>
       )}
 
       {error && (
-        <p id={errorId} role="alert" className="mt-2 text-sm text-amber-300">
+        <p id={errorId} role="alert" className="calculator-error">
           {error}
         </p>
       )}

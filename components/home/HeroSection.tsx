@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 import Badge from "@/components/ui/Badge";
@@ -9,39 +9,38 @@ import { ENERGY_LAB_PATH } from "@/lib/routes";
 export default function HeroSection() {
   return (
     <Section
-      className="relative py-0"
-      contentClassName="relative grid gap-7 py-7 sm:gap-9 sm:py-9 lg:h-[calc(100svh-6rem)] lg:-translate-y-24 lg:grid-cols-[minmax(0,.45fr)_minmax(0,.55fr)] lg:items-center lg:gap-0 lg:pt-0 lg:pb-6"
+      className="relative overflow-hidden !py-0 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_75%_25%,rgba(201,161,74,.08),transparent_34rem)]"
+      contentClassName="relative grid min-h-[calc(100svh-5rem)] items-center gap-8 py-[var(--space-section-compact)] lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,.8fr)] lg:items-start lg:gap-10 lg:py-[var(--space-panel)]"
     >
-      <div className="relative z-10 max-w-3xl">
-        <div className="mb-5 flex items-center gap-4">
-          <Badge variant="gold">Bilimsel Fitness Platformu</Badge>
-          <div className="hidden h-px w-20 bg-[#C9A14A]/40 sm:block" />
+      <div className="relative z-10 max-w-[52rem] lg:self-start lg:pt-[clamp(2rem,6vh,4rem)]">
+        <div className="mb-4 flex items-center gap-3">
+          <Badge variant="gold" className="!px-2.5 !py-0.5 !text-[0.625rem] !tracking-[0.13em] opacity-80">
+            Bilimsel Fitness Platformu
+          </Badge>
+          <div className="hidden h-px w-20 bg-[var(--border-emphasis)] sm:block" />
         </div>
 
-        <h1 className="max-w-3xl text-[clamp(3rem,5.2vw,6.5rem)] font-black leading-[0.88] tracking-[-0.06em] text-white">
-          <span className="block">BİLİMLE</span>
-          <span className="block text-[#C9A14A]">GÜÇLEN.</span>
-          <span className="block">KANITLA</span>
-          <span className="block text-[#C9A14A]">İLERLE.</span>
+        <h1 className="text-[3.25rem] font-[var(--type-display-weight)] leading-[0.92] tracking-[-0.055em] text-[var(--site-text-primary)] sm:text-[4rem] lg:text-[clamp(4.5rem,5.6vw,6.25rem)] lg:leading-[0.9]">
+          <span className="block xl:whitespace-nowrap">BİLİMLE <span className="text-[var(--brand-gold)]">GÜÇLEN.</span></span>
+          <span className="mt-2 block lg:mt-1 xl:whitespace-nowrap">KANITLA <span className="text-[var(--brand-gold)]">İLERLE.</span></span>
         </h1>
 
-        <p className="mt-4 max-w-xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
+        <p className="mt-4 max-w-lg text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
           Trainology; beslenme, performans ve hareket bilgisini anlaşılır,
           kanıta dayalı araçlarla bir araya getirir.
         </p>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
+        <div className="mt-5 flex flex-col items-stretch gap-2 sm:w-fit sm:flex-row sm:items-center">
           <CTAButton href={ENERGY_LAB_PATH} className="w-full sm:w-auto">
             Ücretsiz Analizini Başlat <ArrowRight aria-hidden="true" className="ml-2 size-4" />
           </CTAButton>
-          <CTAButton href="/calculators" variant="secondary" className="w-full sm:w-auto">
-            <Sparkles aria-hidden="true" className="mr-2 size-4" />
+          <CTAButton href="/calculators" variant="ghost" className="w-full sm:w-auto">
             Bilimsel Araçları Keşfet
           </CTAButton>
         </div>
       </div>
 
-      <div className="relative mt-2 flex aspect-[16/9] w-full items-center justify-center lg:col-start-2 lg:row-start-1 lg:mt-0 lg:h-full lg:self-stretch lg:aspect-auto">
+      <div className="relative mx-auto flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden border-y border-[var(--border-dark)] sm:aspect-[16/10] lg:aspect-[4/5] lg:max-h-[40rem] lg:max-w-[34rem] lg:self-center lg:border-y-0 lg:border-l">
         <Image
           src="/images/homepage/heromainfinal.png"
           alt="Trainology altın T monogram heykeli"
@@ -49,8 +48,8 @@ export default function HeroSection() {
           priority
           quality={100}
           unoptimized
-          sizes="(min-width: 1024px) 55vw, 100vw"
-          className="object-contain object-center"
+          sizes="(min-width: 1024px) 42vw, 100vw"
+          className="object-contain object-center p-4 sm:p-8 lg:p-10"
         />
       </div>
 

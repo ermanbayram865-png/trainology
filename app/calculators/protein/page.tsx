@@ -131,15 +131,15 @@ export default function ProteinCalculatorPage() {
       title="Günlük Protein Referansı"
       seoPath="/calculators/protein"
       description="Kilon, hedefin ve antrenman durumuna göre günlük protein referansını hesapla."
-      sectionClassName="!py-5 sm:!py-7 lg:!py-6 [@media(min-width:1024px)_and_(max-height:850px)]:!py-3"
-      contentClassName="mx-auto max-w-4xl space-y-4 [@media(min-width:1024px)_and_(max-height:850px)]:space-y-2.5"
+      sectionClassName="!py-[var(--space-section-compact)] sm:!py-8 lg:!py-8"
+      contentClassName="mx-auto max-w-4xl space-y-5 lg:space-y-6 [&>header]:border-b [&>header]:border-[var(--border-dark)] [&>header]:pb-5 [&>header>h1]:!text-[var(--type-page-title-size)] [&>header>h1]:!font-[var(--type-page-title-weight)] [&>header>h1]:!leading-[var(--type-page-title-leading)] [&>header>p]:!mt-3 [&>header>p]:!max-w-xl [&>header>p]:!text-sm [&>header>p]:!leading-6"
       disclaimer="Bu araç genel yetişkinler için başlangıç veya pratik referans sunar; kesin kişisel gereksinim ya da klinik hedef belirlemez."
     >
       <ReferencePanel>
         {result === null ? (
           <form onSubmit={handleSubmit} noValidate>
-            <div className="grid gap-3 sm:grid-cols-3 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2.5">
-              <label className="text-sm font-bold">
+            <div className="grid gap-[var(--space-field-group)] sm:grid-cols-3">
+              <label className="calculator-label">
                 Yaş grubu
                 <select
                   value={form.ageGroup}
@@ -155,7 +155,7 @@ export default function ProteinCalculatorPage() {
                 {errors.ageGroup && <FieldError id="ageGroup-error">{errors.ageGroup}</FieldError>}
               </label>
 
-              <label className="text-sm font-bold">
+              <label className="calculator-label">
                 Boy <span className="font-normal text-[#71808b]">cm</span>
                 <input
                   type="number"
@@ -173,7 +173,7 @@ export default function ProteinCalculatorPage() {
                 {errors.heightCm && <FieldError id="heightCm-error">{errors.heightCm}</FieldError>}
               </label>
 
-              <label className="text-sm font-bold">
+              <label className="calculator-label">
                 Kilo <span className="font-normal text-[#71808b]">kg</span>
                 <input
                   type="number"
@@ -192,8 +192,8 @@ export default function ProteinCalculatorPage() {
               </label>
             </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,.72fr)_minmax(0,2fr)] [@media(min-width:1024px)_and_(max-height:850px)]:mt-3 [@media(min-width:1024px)_and_(max-height:850px)]:gap-3">
-              <label className="text-sm font-bold">
+            <div className="mt-[var(--space-field-group)] grid gap-[var(--space-field-group)] border-t border-[var(--calculator-border)] pt-[var(--space-field-group)] lg:grid-cols-[minmax(0,.72fr)_minmax(0,2fr)]">
+              <label className="calculator-label">
                 Hedef
                 <select
                   value={form.goal}
@@ -220,7 +220,7 @@ export default function ProteinCalculatorPage() {
               />
             </div>
 
-            <div className="mt-4 [@media(min-width:1024px)_and_(max-height:850px)]:mt-3">
+            <div className="mt-[var(--space-field-group)] border-t border-[var(--calculator-border)] pt-[var(--space-field-group)]">
               <ScopeConfirmation
                 checked={form.standardAdultScope}
                 onChange={(checked) => updateForm("standardAdultScope", checked)}
@@ -236,7 +236,7 @@ export default function ProteinCalculatorPage() {
               />
             </div>
 
-            <div className="mt-4 flex justify-end [@media(min-width:1024px)_and_(max-height:850px)]:mt-3">
+            <div className="mt-[var(--space-field-group)] flex justify-end border-t border-[var(--calculator-border)] pt-[var(--space-field-group)]">
               <button
                 type="submit"
                 className="calculator-action inline-flex min-h-11 items-center justify-center gap-2 px-5 text-sm font-bold"
@@ -275,15 +275,15 @@ function ProteinResultView({
         : null;
 
   return (
-    <article aria-live="polite" className="calculator-result-light p-5 sm:p-7">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8c6a2d]">Sonucun</p>
-      <h2 ref={headingRef} tabIndex={-1} className="mt-1.5 text-2xl font-semibold tracking-[-0.035em] outline-none sm:text-3xl">
+    <article aria-live="polite" className="calculator-result-light p-[var(--space-panel-compact)] sm:p-[var(--space-panel)]">
+      <p className="font-mono text-[var(--type-technical-label-size)] font-bold uppercase tracking-[var(--type-technical-label-tracking)] text-[var(--calculator-gold)]">Sonucun</p>
+      <h2 ref={headingRef} tabIndex={-1} className="mt-2 text-2xl font-semibold tracking-[-0.035em] outline-none sm:text-3xl">
         Günlük Protein Referansın
       </h2>
 
       {primary && (
-        <div className="mt-4 border-l-2 border-[#9f7b38] pl-4">
-          <p className="text-5xl font-semibold tracking-[-0.05em] text-[#102536]">
+        <div className="mt-5 border-l-2 border-[var(--calculator-gold)] pl-4 sm:pl-5">
+          <p className="text-[clamp(3rem,7vw,4.5rem)] font-semibold leading-none tracking-[-0.055em] text-[var(--calculator-text-primary)]">
             {primary.value} <span className="text-2xl">g / gün</span>
           </p>
           <p className="mt-1.5 text-sm font-semibold text-[#8c6a2d]">{primary.detail}</p>
@@ -291,9 +291,9 @@ function ProteinResultView({
       )}
 
       {(result.type === "PRACTICAL_RANGE" || result.type === "ANCHOR_AND_RANGE") && (
-        <div className={`${primary ? "mt-4" : "mt-5"} rounded-xl border border-[#11283a]/10 bg-white px-4 py-3`}>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#71808b]">Pratik aralık</p>
-          <p className="mt-1 text-2xl font-semibold">
+        <div className={`${primary ? "mt-5 border-y border-[var(--calculator-border)] py-4" : "mt-5 border-l-2 border-[var(--calculator-gold)] pl-4 sm:pl-5"}`}>
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[var(--calculator-text-secondary)]">Pratik aralık</p>
+          <p className={`${primary ? "mt-1.5 text-2xl" : "mt-2 text-[clamp(3rem,7vw,4.5rem)] leading-none tracking-[-0.055em]"} font-semibold text-[var(--calculator-text-primary)]`}>
             {grams(result.lowDailyGrams)}–{grams(result.highDailyGrams)} g/gün
           </p>
           <p className="mt-1 text-sm text-[#657581]">
@@ -305,14 +305,14 @@ function ProteinResultView({
         </div>
       )}
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div>
+      <div className="mt-5 grid border-y border-[var(--calculator-border)] sm:grid-cols-2">
+        <div className="py-4 sm:pr-5">
           <h3 className="text-sm font-bold">Profilin</h3>
           <p className="mt-1 text-sm text-[#5c6c78]">
             {form.weightKg} kg · {trainingLabels[form.trainingProfile as ProteinTrainingProfile]} · {goalLabels[form.goal as ProteinGoal]}
           </p>
         </div>
-        <div>
+        <div className="border-t border-[var(--calculator-border)] py-4 sm:border-l sm:border-t-0 sm:pl-5">
           <h3 className="text-sm font-bold">Bu ne anlama geliyor?</h3>
           <p className="mt-1 text-sm leading-5 text-[#5c6c78]">
             Bu değer verdiğin bilgilere göre bir başlangıç veya pratik referanstır; kesin kişisel gereksinim değildir.
@@ -349,10 +349,10 @@ function ProteinResultView({
 
 function BlockedProteinResult({ headingRef, onEdit }: { headingRef: React.RefObject<HTMLHeadingElement | null>; onEdit: () => void }) {
   return (
-    <article aria-live="polite" className="calculator-result-light p-5 sm:p-7">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9d6f22]">Uygunluk kontrolü</p>
-      <h2 ref={headingRef} tabIndex={-1} className="mt-2 text-2xl font-semibold outline-none">Bu genel hesaplama sana uygun olmayabilir</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5c6c78]">
+    <article aria-live="polite" className="calculator-result-light p-[var(--space-panel-compact)] sm:p-[var(--space-panel)]">
+      <p className="font-mono text-[var(--type-technical-label-size)] font-bold uppercase tracking-[var(--type-technical-label-tracking)] text-[var(--calculator-gold)]">Uygunluk kontrolü</p>
+      <h2 ref={headingRef} tabIndex={-1} className="mt-3 text-2xl font-semibold outline-none">Bu genel hesaplama sana uygun olmayabilir</h2>
+      <p className="mt-4 max-w-2xl border-l-2 border-[var(--calculator-gold)] pl-4 text-sm leading-6 text-[#5c6c78]">
         Bu bilgilerle protein referansı sağlık durumu ve bireysel koşullara göre değişebilir. Sayısal protein değeri gösterilmedi.
       </p>
       <EditReferenceButton onClick={onEdit} />

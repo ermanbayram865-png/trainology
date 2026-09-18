@@ -23,7 +23,7 @@ export default function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <header className={`flex max-w-3xl flex-col ${alignmentClasses[alignment]} ${className ?? ""}`}>
+    <header className={`site-page-header flex max-w-3xl flex-col ${alignmentClasses[alignment]} ${className ?? ""}`}>
       {badge && <div>{badge}</div>}
 
       <h1 className="mt-4 text-4xl font-bold text-white sm:text-5xl">{title}</h1>

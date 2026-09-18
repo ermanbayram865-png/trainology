@@ -20,7 +20,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#050505]">
       <Container>
-        <div className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-10">
+        <div className="site-footer-main grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-10">
           <div className="max-w-sm">
             <Link href="/" className="inline-flex items-center gap-4">
               <Image src="/images/logo.png" alt="Trainology" width={48} height={48} />
@@ -43,7 +43,7 @@ export default function Footer() {
           <FooterLinkGroup title="Yasal ve İletişim" links={legalLinks} />
         </div>
 
-        <div className="border-t border-white/5 py-8">
+        <div className="site-footer-legal border-t border-white/5 py-8">
           <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C9A14A]/80">
             Yasal Uyarı
           </h3>
@@ -54,7 +54,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-white/5 py-7 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="site-footer-meta flex flex-col gap-4 border-t border-white/5 py-7 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Trainology</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <a href="https://www.instagram.com/trainologyfit/" target="_blank" rel="noreferrer" className="transition-colors hover:text-[#C9A14A] focus-visible:outline-none focus-visible:underline">Instagram · @trainologyfit</a>

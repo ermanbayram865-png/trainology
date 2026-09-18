@@ -1,6 +1,3 @@
-import { BookOpenCheck, ShieldCheck, UsersRound, Waves } from "lucide-react";
-
-import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
 
 const principles = [
@@ -8,25 +5,21 @@ const principles = [
     title: "Kanıta Dayalı Bilgi",
     description:
       "Enerji, beslenme ve vücut ölçümü hesaplarını güncel bilimsel yaklaşımlar üzerinden değerlendiririz.",
-    icon: <BookOpenCheck aria-hidden="true" />,
   },
   {
     title: "Bilimsel Editörlük",
     description:
       "Araçlar ve açıklamalar doğruluk, yöntem kalitesi ve bilimsel standartlar gözetilerek hazırlanır.",
-    icon: <ShieldCheck aria-hidden="true" />,
   },
   {
     title: "Abartısız Yaklaşım",
     description:
       "Hızlı sonuç vaatleri yerine sürdürülebilir ve gerçekçi çözümler sunarız.",
-    icon: <Waves aria-hidden="true" />,
   },
   {
     title: "Kullanıcı Odaklı Sistem",
     description:
       "Karmaşık fitness bilgisini herkesin uygulayabileceği sistemlere dönüştürürüz.",
-    icon: <UsersRound aria-hidden="true" />,
   },
 ];
 
@@ -36,20 +29,20 @@ export default function TrustSection() {
       subtitle="YAKLAŞIMIMIZ"
       title="Neden Trainology?"
       description="Fitness bilgisini daha güvenilir, anlaşılır ve uygulanabilir hale getiren bilimsel yaklaşım."
-      contentClassName="mt-8"
+      className="bg-[var(--site-surface)] !py-[var(--space-section-compact)]"
+      contentClassName="mt-4"
     >
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {principles.map((principle) => (
-          <Card
-            key={principle.title}
-            title={principle.title}
-            description={principle.description}
-            icon={principle.icon}
-            variant="subtle"
-            className="p-6"
-          />
+      <ol className="grid border-t border-[var(--border-dark)] md:grid-cols-2">
+        {principles.map((principle, index) => (
+          <li key={principle.title} className="grid grid-cols-[2.5rem_1fr] gap-4 border-b border-[var(--border-dark)] py-7 md:odd:pr-8 md:even:border-l md:even:pl-8">
+            <span className="font-mono text-xs text-[var(--brand-gold)]">0{index + 1}</span>
+            <div>
+              <h3 className="text-xl font-semibold tracking-[-0.02em] text-white">{principle.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[var(--site-text-secondary)]">{principle.description}</p>
+            </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </Section>
   );
 }

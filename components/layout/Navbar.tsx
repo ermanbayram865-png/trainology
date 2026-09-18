@@ -29,7 +29,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050505]/90 backdrop-blur">
       <Container>
-        <div className="flex h-24 items-center justify-between">
+        <div className="site-navbar-row flex h-24 items-center justify-between">
           <Link href="/" className="flex items-center gap-4">
             <Image
               src="/images/logo.png"

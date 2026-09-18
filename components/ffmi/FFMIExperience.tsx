@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, ChevronDown, Info, Pencil, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Info, Pencil, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -16,7 +16,9 @@ import {
   type FFMIReferenceSex,
   type FFMISuccess,
 } from "@/lib/calculators";
-import FFMIReferenceComparator from "@/components/ffmi/FFMIReferenceComparator";
+import FFMIReferenceComparator, {
+  FFMIReferenceDetails,
+} from "@/components/ffmi/FFMIReferenceComparator";
 
 type FFMIForm = {
   heightCm: string;
@@ -111,6 +113,7 @@ function validateForm(form: FFMIForm) {
 }
 
 export default function FFMIExperience() {
+  const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FFMIForm>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<FFMISuccess | null>(null);
@@ -148,17 +151,36 @@ export default function FFMIExperience() {
     setResult(nextResult);
   }
 
+  function continueToReferenceStep() {
+    const validation = validateForm(form);
+    const stepOneErrors = Object.fromEntries(
+      Object.entries(validation.errors).filter(([key]) =>
+        ["heightCm", "weightKg", "bodyFatPercentage", "measurementMethod"].includes(key),
+      ),
+    );
+    setErrors(stepOneErrors);
+    if (Object.keys(stepOneErrors).length === 0) setStep(2);
+  }
+
   function startNewCalculation() {
     setForm(initialForm);
     setErrors({});
     setResult(null);
+    setStep(1);
   }
 
   return (
-    <ReferencePanel className="[@media(min-width:1024px)_and_(max-height:850px)]:!px-4 [@media(min-width:1024px)_and_(max-height:850px)]:!py-2">
+    <ReferencePanel className="lg:!px-6 lg:!py-4">
       {result === null ? (
         <form onSubmit={handleSubmit} noValidate>
-          <div className="grid gap-3 lg:grid-cols-3 [@media(min-width:1024px)_and_(max-height:850px)]:gap-2.5">
+          <FFMIStepIndicator step={step} />
+          {step === 1 ? (
+            <>
+          <header className="mt-4 border-t border-[var(--calculator-border)] pt-4 lg:mt-3 lg:pt-3">
+            <p className="font-mono text-[var(--type-technical-label-size)] font-bold uppercase tracking-[var(--type-technical-label-tracking)] text-[var(--calculator-gold)]">Adım 01</p>
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[#102536]">Temel ölçümlerini gir</h2>
+          </header>
+          <div className="grid gap-[var(--space-field-group)] lg:grid-cols-3 lg:gap-3">
             <NumericField
               id="ffmi-height"
               label="Boy"
@@ -197,7 +219,7 @@ export default function FFMIExperience() {
             />
           </div>
 
-          <details className="mt-1.5 rounded-xl border border-[#11283a]/10 bg-white px-3.5 py-0.5 [@media(min-width:1024px)_and_(max-height:850px)]:mt-1 [@media(min-width:1024px)_and_(max-height:850px)]:py-0">
+          <details className="calculator-disclosure group mt-2 px-3.5 py-0.5">
             <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs font-bold text-[#6a5429] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
               Yağ oranını nasıl öğrenebilirim?
               <ChevronDown aria-hidden="true" className="size-4" />
@@ -210,15 +232,49 @@ export default function FFMIExperience() {
             </p>
           </details>
 
-          <fieldset className="mt-3 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2">
-            <legend className="text-sm font-bold text-[#102536]">
+          <fieldset
+            className="mt-3 border-t border-[var(--calculator-border)] pt-3"
+            aria-invalid={Boolean(errors.measurementMethod)}
+            aria-describedby={errors.measurementMethod ? "measurement-method-error" : undefined}
+          >
+            <legend className="calculator-label">Vücut yağ oranını nasıl ölçtün?</legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              {measurementOptions.map((option) => {
+                const selected = form.measurementMethod === option.value;
+                return (
+                  <label key={option.value} data-selected={selected} className="calculator-choice flex min-h-14 cursor-pointer items-start gap-1.5 px-2.5 py-2 text-xs leading-4 lg:px-2 lg:py-1.5">
+                    <input type="radio" name="measurementMethod" value={option.value} checked={selected} onChange={() => updateForm("measurementMethod", option.value)} className="sr-only" />
+                    <span aria-hidden="true" className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${selected ? "border-[#9f7b38] bg-[#9f7b38] text-white" : "border-[#11283a]/25 text-transparent"}`}><Check className="size-3" /></span>
+                    <span className="min-w-0"><span className="block font-bold xl:text-sm">{option.label}</span><span className="mt-0.5 block text-[0.68rem] font-medium leading-4 text-[#657581]">{option.description}</span></span>
+                  </label>
+                );
+              })}
+            </div>
+            {errors.measurementMethod && <FieldError id="measurement-method-error">{errors.measurementMethod}</FieldError>}
+          </fieldset>
+
+          <div className="mt-3 flex justify-end border-t border-[var(--calculator-border)] pt-3">
+            <button type="button" onClick={continueToReferenceStep} className="calculator-action inline-flex min-h-11 items-center justify-center gap-2 px-5 text-sm font-bold">
+              Devam Et <ArrowRight aria-hidden="true" className="size-4" />
+            </button>
+          </div>
+            </>
+          ) : (
+            <>
+          <header className="mt-4 border-t border-[var(--calculator-border)] pt-4 lg:mt-3 lg:pt-3">
+            <p className="font-mono text-[var(--type-technical-label-size)] font-bold uppercase tracking-[var(--type-technical-label-tracking)] text-[var(--calculator-gold)]">Adım 02</p>
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[#102536]">Referans &amp; Kapsam</h2>
+          </header>
+
+          <fieldset className="mt-3 border-t border-[var(--calculator-border)] pt-3">
+            <legend className="calculator-label">
               Yorumlama bilgileri <span className="font-normal text-[#71808b]">(isteğe bağlı)</span>
             </legend>
-            <p className="mt-0.5 text-xs leading-5 text-[#657581] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
+            <p className="calculator-helper">
               Yaş ve referans seçimi yalnız araştırma karşılaştırmasında kullanılır;
               FFMI hesabını değiştirmez.
             </p>
-            <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] [@media(min-width:1024px)_and_(max-height:850px)]:mt-1.5">
+            <div className="mt-2 grid gap-[var(--space-field-group)] sm:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-3">
               <NumericField
                 id="ffmi-age"
                 label="Yaş"
@@ -235,7 +291,7 @@ export default function FFMIExperience() {
                 aria-invalid={Boolean(errors.referenceSex)}
                 aria-describedby={errors.referenceSex ? "ffmi-reference-sex-error" : undefined}
               >
-                <legend className="text-sm font-bold">Referans kategorisi</legend>
+                <legend className="calculator-label">Referans kategorisi</legend>
                 <div className="mt-1.5 grid grid-cols-2 gap-2">
                   {(
                     [
@@ -270,58 +326,9 @@ export default function FFMIExperience() {
             </div>
           </fieldset>
 
-          <fieldset
-            className="mt-3 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2"
-            aria-invalid={Boolean(errors.measurementMethod)}
-            aria-describedby={errors.measurementMethod ? "measurement-method-error" : undefined}
-          >
-            <legend className="text-sm font-bold text-[#102536]">
-              Vücut yağ oranını nasıl ölçtün?
-            </legend>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-5 [@media(min-width:1024px)_and_(max-height:850px)]:mt-1.5">
-              {measurementOptions.map((option) => {
-                const selected = form.measurementMethod === option.value;
-                return (
-                  <label
-                    key={option.value}
-                    data-selected={selected}
-                    className="calculator-choice flex min-h-14 cursor-pointer items-start gap-1.5 px-2.5 py-2 text-xs leading-4 [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11 [@media(min-width:1024px)_and_(max-height:850px)]:py-1.5"
-                  >
-                    <input
-                      type="radio"
-                      name="measurementMethod"
-                      value={option.value}
-                      checked={selected}
-                      onChange={() => updateForm("measurementMethod", option.value)}
-                      className="sr-only"
-                    />
-                    <span
-                      aria-hidden="true"
-                      className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${
-                        selected
-                          ? "border-[#9f7b38] bg-[#9f7b38] text-white"
-                          : "border-[#11283a]/25 text-transparent"
-                      }`}
-                    >
-                      <Check className="size-3" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-bold xl:text-sm">{option.label}</span>
-                      <span className="mt-0.5 block text-[0.68rem] font-medium leading-4 text-[#657581] [@media(min-width:1024px)_and_(max-height:850px)]:leading-[0.9rem]">
-                        {option.description}
-                      </span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-            {errors.measurementMethod && (
-              <FieldError id="measurement-method-error">{errors.measurementMethod}</FieldError>
-            )}
-          </fieldset>
-
-          <div className="mt-3 rounded-xl border border-[#11283a]/10 bg-white px-3.5 py-1.5 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2 [@media(min-width:1024px)_and_(max-height:850px)]:py-0">
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-bold">
+          <div className="mt-[var(--space-field-group)] border-t border-[var(--calculator-border)] pt-[var(--space-field-group)] lg:mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-4 lg:pt-3">
+            <div>
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-bold">
               <input
                 type="checkbox"
                 checked={form.standardAdultScope}
@@ -331,47 +338,68 @@ export default function FFMIExperience() {
                 className="size-4 accent-[#9f7b38]"
               />
               Genel yetişkin kapsamındayım (18+)
-            </label>
-            <details className="border-t border-[#11283a]/8 pt-0.5">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs font-bold text-[#6a5429] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
-                Kimler için uygun değildir?
-                <ChevronDown aria-hidden="true" className="size-4" />
-              </summary>
-              <p className="pt-2 text-xs leading-5 text-[#657581]">
-                18 yaş altı; gebelik; aktif yeme bozukluğu veya Sporda Göreceli Enerji
-                Eksikliği (RED-S);
-                belirgin ödem ya da sıvı tutulumu; amputasyon veya majör anatomik
-                farklılık ve vücut kompozisyonu yorumunu ciddi biçimde bozan ilgili
-                klinik durumlar genel hesaplama kapsamı dışındadır.
-              </p>
-            </details>
-            {errors.standardAdultScope && (
-              <FieldError id="standard-scope-error">{errors.standardAdultScope}</FieldError>
-            )}
+              </label>
+              <div>
+                <details className="border-t border-[#11283a]/8 pt-0.5">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-xs font-bold text-[#6a5429] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
+                    Kimler için uygun değildir?
+                    <ChevronDown aria-hidden="true" className="size-4" />
+                  </summary>
+                  <p className="pt-2 text-xs leading-5 text-[#657581]">
+                    18 yaş altı; gebelik; aktif yeme bozukluğu veya Sporda Göreceli Enerji
+                    Eksikliği (RED-S); belirgin ödem ya da sıvı tutulumu; amputasyon veya
+                    majör anatomik farklılık ve vücut kompozisyonu yorumunu ciddi biçimde
+                    bozan ilgili klinik durumlar genel hesaplama kapsamı dışındadır.
+                  </p>
+                </details>
+              </div>
+              {errors.standardAdultScope && (
+                <FieldError id="standard-scope-error">{errors.standardAdultScope}</FieldError>
+              )}
+            </div>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row lg:mt-0">
+              <button type="button" onClick={() => setStep(1)} className="calculator-action calculator-action--secondary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-bold">
+                <ArrowLeft aria-hidden="true" className="size-4" /> Geri
+              </button>
+              <button type="submit" className="calculator-action inline-flex min-h-11 items-center justify-center gap-2 px-5 text-sm font-bold">
+                FFMI&apos;Yİ HESAPLA <ArrowRight aria-hidden="true" className="size-4" />
+              </button>
+            </div>
           </div>
 
           {errors.form && <FieldError>{errors.form}</FieldError>}
-
-          <div className="mt-3 flex justify-end [@media(min-width:1024px)_and_(max-height:850px)]:mt-2">
-            <button
-              type="submit"
-              className="calculator-action inline-flex min-h-11 w-full items-center justify-center gap-2 px-5 text-sm font-bold sm:w-auto"
-            >
-              FFMI&apos;Yİ HESAPLA
-              <ArrowRight aria-hidden="true" className="size-4" />
-            </button>
-          </div>
+            </>
+          )}
         </form>
       ) : (
         <FFMIResultView
           form={form}
           result={result}
           headingRef={resultHeadingRef}
-          onEdit={() => setResult(null)}
+          onEdit={() => {
+            setResult(null);
+            setStep(1);
+          }}
           onReset={startNewCalculation}
         />
       )}
     </ReferencePanel>
+  );
+}
+
+function FFMIStepIndicator({ step }: { step: 1 | 2 }) {
+  return (
+    <nav aria-label="FFMI hesaplama adımları" className="grid grid-cols-[auto_minmax(2rem,1fr)_auto] items-center gap-3">
+      <div className="flex items-center gap-3" aria-current={step === 1 ? "step" : undefined}>
+        <span className="flex size-9 items-center justify-center rounded-full border border-[var(--calculator-gold)] bg-[var(--calculator-gold)] font-mono text-xs font-bold text-white">01</span>
+        <span><span className="block text-sm font-bold text-[#102536]">Ölçümler</span><span className="hidden text-xs text-[#657581] sm:block">Temel vücut bilgilerin</span></span>
+      </div>
+      <span aria-hidden="true" className={`h-px ${step === 2 ? "bg-[var(--calculator-gold)]" : "bg-[var(--calculator-border)]"}`} />
+      <div className="flex items-center gap-3" aria-current={step === 2 ? "step" : undefined}>
+        <span className={`flex size-9 items-center justify-center rounded-full border font-mono text-xs font-bold ${step === 2 ? "border-[var(--calculator-gold)] bg-[var(--calculator-gold)] text-white" : "border-[var(--calculator-border)] bg-white text-[#71808b]"}`}>02</span>
+        <span><span className="block text-sm font-bold text-[#102536]">Referans &amp; Kapsam</span><span className="hidden text-xs text-[#657581] sm:block">İsteğe bağlı bilgiler</span></span>
+      </div>
+    </nav>
   );
 }
 
@@ -402,7 +430,7 @@ function NumericField({
 }) {
   const errorId = `${id}-error`;
   return (
-    <label htmlFor={id} className="text-sm font-bold">
+    <label htmlFor={id} className="calculator-label">
       {label} <span className="font-normal text-[#71808b]">{unit}</span>
       <input
         id={id}
@@ -417,14 +445,14 @@ function NumericField({
         required={required}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
-        className={`${referenceInputClasses} [@media(min-width:1024px)_and_(max-height:850px)]:mt-1 [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11`}
+        className={referenceInputClasses}
       />
       {error && <FieldError id={errorId}>{error}</FieldError>}
     </label>
   );
 }
 
-function FFMIResultView({
+export function FFMIResultView({
   form,
   result,
   headingRef,
@@ -464,75 +492,44 @@ function FFMIResultView({
   const context = contextMessages[result.metadata.bodyFatMeasurementMethod];
 
   return (
-    <article aria-live="polite" className="calculator-result-light p-4 sm:p-5">
-      <div>
-        <div className="rounded-xl border border-[#9f7b38]/25 bg-white px-4 py-3.5 shadow-[0_12px_30px_rgba(17,40,58,.06)] [@media(min-width:1024px)_and_(max-height:850px)]:px-3.5 [@media(min-width:1024px)_and_(max-height:850px)]:py-2.5">
-          <h2 ref={headingRef} tabIndex={-1} className="text-xs font-bold uppercase tracking-[0.18em] text-[#8c6a2d] outline-none">
-            FFMI Sonucun
-          </h2>
-          <p className="mt-1 text-5xl font-semibold tracking-[-0.06em] text-[#102536] sm:text-6xl">
-            {formatFFMIDisplayValue(result.ffmi)}
-          </p>
-          <p className="mt-2 max-w-md text-sm leading-5 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:mt-1 [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
-            FFMI, boyuna göre yağsız vücut kütleni gösteren bir ölçüdür. Değer
-            yükseldikçe boya göre yağsız kütle genel olarak artar.
-          </p>
-          <p className="mt-1.5 text-xs leading-5 text-[#71808b] [@media(min-width:1024px)_and_(max-height:850px)]:mt-1 [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
-            Bu değer, girdiğin yağ oranına göre tahmini olarak hesaplandı.
-          </p>
+    <article aria-live="polite" className="calculator-result-light p-[var(--space-panel-compact)] sm:p-[var(--space-panel)]">
+      <div className="lg:grid lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:gap-6">
+        <div className="border-l-2 border-[var(--calculator-gold)] pl-4 sm:pl-5">
+          <h2 ref={headingRef} tabIndex={-1} className="font-mono text-[var(--type-technical-label-size)] font-bold uppercase tracking-[var(--type-technical-label-tracking)] text-[var(--calculator-gold)] outline-none">FFMI Sonucun</h2>
+          <p className="mt-2 text-[clamp(3rem,8vw,4.5rem)] font-semibold leading-none tracking-[-0.06em] text-[#102536]">{formatFFMIDisplayValue(result.ffmi)}</p>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#5c6c78]">FFMI, boyuna göre yağsız vücut kütleni gösteren bir ölçüdür.</p>
         </div>
-
+        <FFMIReferenceComparator ffmi={result.ffmi} fmi={result.fmi} measurementMethod={result.metadata.bodyFatMeasurementMethod} ageYears={Number(form.ageYears)} referenceSex={form.referenceSex} />
       </div>
 
-      <FFMIReferenceComparator
-        ffmi={result.ffmi}
-        fmi={result.fmi}
-        measurementMethod={result.metadata.bodyFatMeasurementMethod}
-        ageYears={Number(form.ageYears)}
-        referenceSex={form.referenceSex}
-      />
-
-      <div className="mt-3 grid gap-2 sm:grid-cols-3 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2">
+      <div data-result-order="level-one-metrics" className="mt-4 grid border-y border-[var(--calculator-border)] sm:grid-cols-2 sm:divide-x sm:divide-[var(--calculator-border)]">
         <Metric label="Yağsız Kütle" value={formatFFMIDisplayValue(result.fatFreeMassKg)} unit="kg" />
-        <Metric
-          label="Yağ İndeksi"
-          technicalLabel="FMI"
-          value={formatFFMIDisplayValue(result.fmi)}
-          info="Yağ indeksin, yağ kütleni boyuna göre ölçekler."
-        />
         <Metric label="Yağ Kütlesi" value={formatFFMIDisplayValue(result.fatMassKg)} unit="kg" />
       </div>
 
-      <div className="mt-3 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center [@media(min-width:1024px)_and_(max-height:850px)]:mt-2">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="calculator-action calculator-action--secondary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-bold"
-        >
-          <Pencil aria-hidden="true" className="size-4 shrink-0" />
-          Değerleri Düzenle
-        </button>
-        <button
-          type="button"
-          onClick={onReset}
-          className="calculator-action calculator-action--secondary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-bold text-[#6a5429]"
-        >
-          <RotateCcw aria-hidden="true" className="size-4 shrink-0" />
-          Yeni Hesaplama
-        </button>
+      <div data-result-order="result-actions" className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+        <button type="button" onClick={onEdit} className="calculator-action calculator-action--secondary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-bold"><Pencil aria-hidden="true" className="size-4 shrink-0" />Değerleri Düzenle</button>
+        <button type="button" onClick={onReset} className="calculator-action calculator-action--secondary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm font-bold text-[#6a5429]"><RotateCcw aria-hidden="true" className="size-4 shrink-0" />Yeni Hesaplama</button>
       </div>
 
-      <section className="mt-3 rounded-xl border border-[#11283a]/10 bg-white px-4 py-3 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2 [@media(min-width:1024px)_and_(max-height:850px)]:px-3.5 [@media(min-width:1024px)_and_(max-height:850px)]:py-2">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#71808b]">
-          Ölçüm yönteminin etkisi
-        </p>
-        <p className="mt-1 text-xs font-bold leading-5 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">{context.summary}</p>
-        {context.detail && (
-          <p className="mt-0.5 text-xs leading-5 text-[#71808b] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">{context.detail}</p>
-        )}
-      </section>
+      <details data-result-order="details-entry" className="calculator-disclosure group mt-4 px-4 py-1">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#102536] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
+          Sonucunu daha ayrıntılı incele
+          <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[var(--calculator-gold)] transition-transform group-open:rotate-180" />
+        </summary>
+        <div data-result-order="level-two-details" className="border-t border-[var(--calculator-border)] pb-2 pt-4">
+          <Metric label="Yağ İndeksi" technicalLabel="FMI" value={formatFFMIDisplayValue(result.fmi)} info="Yağ indeksin, yağ kütleni boyuna göre ölçekler." />
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 [&>details]:!mt-0 [&>details>summary]:!min-h-11 [@media(min-width:1024px)_and_(max-height:850px)]:mt-2">
+          <section className="mt-4 border-l-2 border-[var(--calculator-gold)] pl-4">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#71808b]">Ölçüm yönteminin etkisi</p>
+            <p className="mt-1 text-xs leading-5 text-[#71808b]">Bu değer, girdiğin yağ oranına göre tahmini olarak hesaplandı.</p>
+            <p className="mt-1 text-xs font-bold leading-5 text-[#5c6c78]">{context.summary}</p>
+            {context.detail && <p className="mt-0.5 text-xs leading-5 text-[#71808b]">{context.detail}</p>}
+          </section>
+
+          <FFMIReferenceDetails ffmi={result.ffmi} fmi={result.fmi} measurementMethod={result.metadata.bodyFatMeasurementMethod} ageYears={Number(form.ageYears)} referenceSex={form.referenceSex} />
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 [&>details]:!mt-0 [&>details>summary]:!min-h-11">
         <MethodologyDisclosure label="FFMI ne anlatır?">
           <p>
             FFMI, yağsız vücut kütleni boyuna göre ölçekleyen bir indekstir.
@@ -563,8 +560,9 @@ function FFMIResultView({
           </p>
           <p>Ara hesaplamalarda yuvarlama yapılmadı.</p>
         </MethodologyDisclosure>
-      </div>
-
+          </div>
+        </div>
+      </details>
     </article>
   );
 }
@@ -583,7 +581,7 @@ function Metric({
   info?: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#11283a]/10 bg-white px-3.5 py-3 [@media(min-width:1024px)_and_(max-height:850px)]:py-2.5">
+    <div className="border-b border-[var(--calculator-border)] px-3.5 py-3 last:border-b-0 sm:border-b-0">
       <div className="flex min-h-11 items-center gap-1">
         <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[#71808b]">
           {label}

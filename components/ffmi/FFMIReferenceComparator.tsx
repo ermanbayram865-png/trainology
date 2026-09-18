@@ -78,20 +78,11 @@ export default function FFMIReferenceComparator({
     ffmi,
     fmi,
   });
-  const comparison =
-    interpretation.type === "SUCCESS" ? interpretation.comparison : null;
-
   return (
-    <section className="mt-3" aria-live="polite">
-      <div className="rounded-xl border border-[#9f7b38]/25 bg-[#efe5d0]/35 px-4 py-3.5 sm:px-5 sm:py-4 [@media(min-width:1024px)_and_(max-height:850px)]:px-3.5 [@media(min-width:1024px)_and_(max-height:850px)]:py-2">
-        <h3 className="text-sm font-bold text-[#102536]">Bu sayı ne anlama geliyor?</h3>
-        <p className="mt-1.5 max-w-3xl text-sm leading-6 text-[#5c6c78] [@media(min-width:1024px)_and_(max-height:850px)]:leading-4">
-          FFMI yükseldikçe boya göre yağsız kütle artar. Ancak daha yüksek FFMI tek
-          başına daha sağlıklı veya daha iyi anlamına gelmez.
-        </p>
-
+    <section className="mt-4 border-t border-[var(--calculator-border)] pt-4 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0" aria-live="polite">
+      <div className="border-l-2 border-[var(--calculator-gold)] pl-4 sm:pl-5 lg:border-l-0 lg:pl-0">
         {interpretation.type === "SUCCESS" ? (
-          <div className="mt-3 border-t border-[#9f7b38]/20 pt-3">
+          <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[#71808b]">
               {interpretation.confidence === "matched"
                 ? "Referans grubundaki konumun"
@@ -103,11 +94,6 @@ export default function FFMIReferenceComparator({
             <p className="mt-1.5 max-w-3xl text-xs leading-5 text-[#5c6c78]">
               Bu, sağlık veya “iyi/kötü” fizik değerlendirmesi değildir.
             </p>
-            {interpretation.confidence !== "matched" && (
-              <p className="mt-1 text-xs font-semibold leading-5 text-[#6a5429]">
-                Ölçüm yöntemin farklı olduğu için bu konum yaklaşık bir karşılaştırmadır.
-              </p>
-            )}
           </div>
         ) : (
           <UnavailableInterpretation
@@ -116,10 +102,46 @@ export default function FFMIReferenceComparator({
           />
         )}
       </div>
+    </section>
+  );
+}
 
+export function FFMIReferenceDetails({
+  ffmi,
+  fmi,
+  ageYears,
+  referenceSex,
+  measurementMethod,
+}: {
+  ffmi: number;
+  fmi: number;
+  ageYears: number;
+  referenceSex: FFMIReferenceSex | "";
+  measurementMethod: BodyFatMeasurementMethod;
+}) {
+  const interpretation = interpretWithFFMISourceReference({
+    ageYears,
+    sex: referenceSex,
+    measurementMethod,
+    ffmi,
+    fmi,
+  });
+  const comparison = interpretation.type === "SUCCESS" ? interpretation.comparison : null;
+
+  return (
+    <div data-result-order="technical-disclosures" className="mt-4">
+      <p className="text-xs leading-5 text-[#5c6c78]">
+        FFMI yükseldikçe boya göre yağsız kütle artar. Ancak daha yüksek FFMI tek
+        başına daha sağlıklı veya daha iyi anlamına gelmez.
+      </p>
+      {interpretation.type === "SUCCESS" && interpretation.confidence !== "matched" && (
+        <p className="mb-3 text-xs font-semibold leading-5 text-[#6a5429]">
+          Ölçüm yöntemin farklı olduğu için bu konum yaklaşık bir karşılaştırmadır.
+        </p>
+      )}
       <ReferenceDetailDisclosure comparison={comparison} />
       <ReferenceMethodologyDisclosure />
-    </section>
+    </div>
   );
 }
 
@@ -159,7 +181,7 @@ function UnavailableInterpretation({
 
 function ReferenceDetailDisclosure({ comparison }: { comparison: FFMIReferenceComparison | null }) {
   return (
-    <details className="border-t border-[#9f7b38]/20 px-4 py-0.5">
+    <details className="calculator-disclosure group mt-4 px-4 py-0.5">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-sm font-bold text-[#102536] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
         Referans karşılaştırmasının ayrıntıları
         <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[#8c6a2d] transition-transform group-open:rotate-180" />

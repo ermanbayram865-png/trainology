@@ -276,9 +276,8 @@ export default function EnergyLabExperience() {
   return (
     <section
       id="simulator"
-      className="relative isolate px-4 py-8 text-[#102536] sm:px-6 sm:py-12 lg:min-h-[calc(100svh-14.25rem)] lg:py-8"
+      className="relative px-4 py-[var(--space-section-compact)] text-[var(--calculator-text-primary)] sm:px-6 lg:py-8"
     >
-      <TechnicalGrid className="text-[#d0af69] opacity-[.025]" patternId="energy-form-grid" />
       <div className="calculator-content relative">
         {evaluation === null ? (
           <form
@@ -287,14 +286,14 @@ export default function EnergyLabExperience() {
             autoComplete="off"
             noValidate
             tabIndex={-1}
-            className="calculator-surface min-w-0 p-5 sm:p-8 lg:p-10"
+            className="calculator-surface calculator-compact-panel min-w-0 p-[var(--space-panel-compact)] sm:p-[var(--space-panel)]"
           >
             <WizardProgress step={step} />
 
             <div
               ref={activeStepRef}
               tabIndex={-1}
-              className="scroll-mt-28 pt-8 outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] sm:scroll-mt-32 sm:pt-10"
+              className="scroll-mt-28 pt-7 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:scroll-mt-32 sm:pt-8"
             >
               {step === 1 && (
                 <BasicInformationStep form={form} errors={errors} onChange={updateForm} />
@@ -319,7 +318,7 @@ export default function EnergyLabExperience() {
               )}
             </div>
 
-            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#11283a]/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-7 flex flex-col-reverse gap-3 border-t border-[var(--border-light)] pt-5 sm:flex-row sm:items-center sm:justify-between">
               {step > 1 ? (
                 <button
                   type="button"
@@ -374,7 +373,7 @@ export default function EnergyLabExperience() {
 
 function WizardProgress({ step }: { step: WizardStep }) {
   return (
-    <ol aria-label="Hesaplama adımları" className="grid grid-cols-3 gap-3 sm:gap-5">
+    <ol aria-label="Hesaplama adımları" className="grid grid-cols-3 gap-2 sm:gap-4">
       {wizardLabels.map((label, index) => {
         const itemStep = (index + 1) as WizardStep;
         const active = step === itemStep;
@@ -383,12 +382,12 @@ function WizardProgress({ step }: { step: WizardStep }) {
           <li
             key={label}
             aria-current={active ? "step" : undefined}
-            className={`border-t pt-3 text-left text-[10px] font-bold uppercase tracking-[0.08em] sm:text-xs sm:tracking-[0.14em] ${
+            className={`border-t pt-2.5 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.08em] sm:text-xs sm:tracking-[0.12em] ${
               active
-                ? "border-[#9f7b38] text-[#8c6a2d]"
+                ? "border-[var(--calculator-gold)] text-[var(--calculator-gold)]"
                 : complete
-                  ? "border-[#102536] text-[#102536]"
-                : "border-[#11283a]/12 text-[#7b8790]"
+                  ? "border-[var(--calculator-navy)] text-[var(--calculator-navy)]"
+                : "border-[var(--border-light)] text-[var(--calculator-text-secondary)]"
             }`}
           >
             <span className="mr-1 inline-flex min-w-5 items-center justify-center font-mono">{complete ? <Check aria-hidden="true" className="size-3.5" /> : String(index + 1).padStart(2, "0")}</span>
@@ -431,8 +430,8 @@ function BasicInformationStep({
           onChange={(value) => onChange("age", value)}
         />
         <fieldset>
-          <legend className="text-sm font-bold text-[#102536]">Cinsiyet</legend>
-          <p id="sex-helper" className="mt-1 text-xs leading-5 text-[#6b7883] lg:mt-0.5 lg:leading-4">
+          <legend className="calculator-label">Cinsiyet</legend>
+          <p id="sex-helper" className="calculator-helper">
             Enerji hesaplamasında kullanılan denklemin katsayısı için gereklidir.
           </p>
           <div
@@ -442,11 +441,8 @@ function BasicInformationStep({
             {(["female", "male"] as const).map((sex) => (
               <label
                 key={sex}
-                className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm font-semibold transition focus-within:ring-2 focus-within:ring-[#9f7b38] lg:min-h-13 lg:px-3 ${
-                  form.sex === sex
-                    ? "border-[#9f7b38] bg-[#d0af69]/[.08]"
-                    : "border-[#11283a]/15 bg-white hover:border-[#9f7b38]/60"
-                }`}
+                data-selected={form.sex === sex}
+                className="calculator-choice flex min-h-14 cursor-pointer items-center gap-3 px-4 text-sm font-semibold lg:min-h-13 lg:px-3"
               >
                 <input
                   type="radio"
@@ -529,11 +525,8 @@ function ActivityStep({
                 aria-checked={selected}
                 aria-invalid={Boolean(error)}
                 onClick={() => onToggle(option.value)}
-                className={`flex min-h-28 w-full items-start gap-4 rounded-2xl border p-5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] ${
-                  selected
-                    ? "border-[#9f7b38] bg-[#d0af69]/[.07]"
-                    : "border-[#11283a]/12 bg-white hover:border-[#9f7b38]/50"
-                }`}
+                data-selected={selected}
+                className="calculator-choice flex min-h-24 w-full items-start gap-4 p-4 text-left focus-visible:outline-none sm:p-5"
               >
                 <span
                   className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border ${
@@ -594,18 +587,14 @@ function GoalStep({
                 key={option.value}
                 data-goal-card={option.value}
                 data-selected={selected || undefined}
-                className={`overflow-hidden rounded-2xl border bg-white transition ${
-                  selected
-                    ? "border-[#9f7b38] bg-[#d0af69]/[.06]"
-                    : "border-[#11283a]/12 hover:border-[#9f7b38]/50"
-                }`}
+                className="calculator-choice overflow-hidden"
               >
                 <button
                   type="button"
                   data-field="goal"
                   aria-pressed={selected}
                   onClick={() => onGoalChange(option.value)}
-                  className="min-h-28 w-full p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#9f7b38]"
+                  className="min-h-24 w-full p-4 text-left focus-visible:outline-none sm:p-5"
                 >
                   <span className="flex items-center justify-between gap-3 font-bold text-[#102536]">
                     {option.title}
@@ -695,11 +684,8 @@ function GoalStep({
             ] as const).map(([value, label]) => (
               <label
                 key={value}
-                className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 text-sm font-semibold focus-within:ring-2 focus-within:ring-[#9f7b38] ${
-                  form.generalScope === value
-                    ? "border-[#9f7b38] bg-[#d0af69]/[.07]"
-                    : "border-[#11283a]/12"
-                }`}
+                data-selected={form.generalScope === value}
+                className="calculator-choice flex min-h-14 cursor-pointer items-start gap-3 p-4 text-sm font-semibold"
               >
                 <input
                   type="radio"
@@ -730,8 +716,7 @@ function BlockedResult({
   onReset: () => void;
 }) {
   return (
-    <section className="relative isolate overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#071523] p-6 text-white shadow-[0_28px_80px_rgba(7,21,35,.22)] sm:p-9">
-      <TechnicalGrid className="text-[#d0af69] opacity-[.045]" patternId="energy-blocked-grid" />
+    <section className="calculator-result calculator-compact-panel relative overflow-hidden p-6 sm:p-9">
       <div className="relative">
       <div className="flex size-12 items-center justify-center rounded-full border border-[#d0af69]/30 text-[#d0af69]">
         <ShieldCheck aria-hidden="true" className="size-5" />
@@ -742,9 +727,9 @@ function BlockedResult({
       <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.035em]">
         Bu bilgiler genel Energy Lab kapsamının dışında.
       </h2>
-      <div className="mt-6 space-y-3">
+      <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
         {evaluation.scope.reasons.map((reason) => (
-          <div key={reason.code} className="rounded-xl border border-white/10 bg-white/[.04] p-4">
+          <div key={reason.code} className="py-4">
             <p className="font-bold">{reason.title}</p>
             <p className="mt-1 text-sm leading-6 text-slate-300">{reason.message}</p>
           </div>
@@ -789,12 +774,12 @@ function ReadyResults({
   return (
     <section className="calculator-result relative isolate overflow-hidden">
       <TechnicalGrid className="text-[#d0af69] opacity-[.045]" patternId="energy-result-grid" />
-      <div className="relative p-6 sm:p-9 lg:p-11">
+      <div className="calculator-compact-panel relative flex flex-col p-6 sm:p-9 lg:p-11">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#d0af69]">
           Tahmini günlük enerji ihtiyacın
         </p>
         <p className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1">
-          <span className="text-[clamp(3rem,9vw,5.75rem)] font-semibold leading-[.9] tracking-[-0.055em]">
+          <span className="text-[clamp(2rem,6vw,3.5rem)] font-semibold leading-none tracking-[-0.045em]">
           {formatKcalNumber(
             evaluation.maintenance.displayMin,
             evaluation.maintenance.displayMax,
@@ -804,26 +789,25 @@ function ReadyResults({
             kcal / gün
           </span>
         </p>
-        <div aria-hidden="true" className="mt-6 h-px w-16 bg-[#d0af69]" />
-        <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
           Mevcut kilonu korumak için günlük yaklaşık enerji ihtiyacın.
         </p>
 
-        <div className="mt-8 border-y border-white/10 bg-white/[.025] px-5 py-6 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-8">
+        <div className="order-first mb-7 border-b border-white/10 pb-7 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-8">
           {targetScenario.status === "available" ? (
             <>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#d0af69]">
                   Günlük kalori hedefin
                 </p>
-                <p className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
+                <p className="mt-3 text-[clamp(3rem,9vw,5.75rem)] font-semibold leading-[.9] tracking-[-0.055em] text-white">
                   {formatKcalScenario(targetScenario.displayMin, targetScenario.displayMax)}
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[#ead5a8]">
                   {goalResultLabel(selection)}
                 </p>
               </div>
-              <p className="mt-4 border-t border-white/10 pt-4 text-sm text-slate-300 sm:mt-0 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0">
+              <p className="mt-5 border-t border-white/10 pt-4 text-sm text-slate-300 sm:mt-0 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0">
                 Günlük enerji ihtiyacından fark: {formatSignedKcalScenario(differenceValues)}
               </p>
             </>
@@ -842,7 +826,7 @@ function ReadyResults({
           )}
         </div>
 
-        <div className="mt-7 grid gap-5 border-b border-white/10 pb-8 sm:grid-cols-2 sm:gap-8">
+        <div className="mt-6 grid gap-5 border-b border-white/10 pb-7 sm:grid-cols-2 sm:gap-8">
           <ResultMini
             label="Aktivite Profili"
             value={evaluation.maintenance.points
@@ -910,7 +894,7 @@ function MethodDetails({
       : [];
 
   return (
-    <details className="group mt-6 rounded-2xl border border-white/10 bg-white/[.035] p-5 open:border-[#d0af69]/35">
+    <details className="group mt-6 rounded-[var(--radius-control)] border border-white/10 bg-white/[.025] p-4 open:border-[#d0af69]/35 sm:p-5">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
         Nasıl hesaplandı?
         <ChevronDown
@@ -972,7 +956,7 @@ function MacroPlannerLink({
     : null;
 
   return (
-    <div className="mt-6 rounded-2xl border border-[#d0af69]/25 bg-white/[.04] p-5 sm:p-6">
+    <div className="mt-6 border-y border-[#d0af69]/25 py-5 sm:py-6">
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d0af69]">
         Sıradaki adım
       </p>
@@ -1155,10 +1139,10 @@ function NumberField({
   const helperId = `${id}-helper`;
   const errorId = `${id}-error`;
   return (
-    <label htmlFor={id} className="block text-sm font-bold text-[#102536]">
+    <label htmlFor={id} className="calculator-label block">
       <span className="flex items-center justify-between gap-3">
         {label}
-        {unit && <span className="font-normal text-[#7b8790]">{unit}</span>}
+        {unit && <span className="font-normal text-[var(--calculator-text-secondary)]">{unit}</span>}
       </span>
       <input
         id={id}
@@ -1176,10 +1160,10 @@ function NumberField({
           [helper ? helperId : "", error ? errorId : ""].filter(Boolean).join(" ") ||
           undefined
         }
-        className="mt-2 min-h-14 w-full rounded-xl border border-[#11283a]/15 bg-white px-4 text-base font-normal text-[#102536] outline-none transition placeholder:text-[#9ba3a9] focus:border-[#9f7b38] focus:ring-2 focus:ring-[#9f7b38]/20 lg:mt-1.5 lg:min-h-13 [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11"
+        className="calculator-input mt-2 min-h-14 px-4 text-base font-normal placeholder:text-[#9ba3a9] lg:mt-1.5 lg:min-h-13 [@media(min-width:1024px)_and_(max-height:850px)]:min-h-11"
       />
       {helper && (
-        <span id={helperId} className="mt-2 block text-xs font-normal leading-5 text-[#6b7883] lg:mt-1 lg:leading-4">
+        <span id={helperId} className="calculator-helper mt-2 block font-normal lg:mt-1 lg:leading-4">
           {helper}
         </span>
       )}
@@ -1190,7 +1174,7 @@ function NumberField({
 
 function FieldError({ id, children }: { id?: string; children: React.ReactNode }) {
   return (
-    <span id={id} role="alert" className="mt-2 block text-xs font-semibold leading-5 text-[#9d322f]">
+    <span id={id} role="alert" className="calculator-error mt-2 block">
       {children}
     </span>
   );

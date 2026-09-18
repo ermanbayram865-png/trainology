@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { createElement, createRef } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+
+import { FFMIResultView } from "../components/ffmi/FFMIExperience";
 
 const page = readFileSync("app/calculators/ffmi/page.tsx", "utf8");
 const experience = readFileSync("components/ffmi/FFMIExperience.tsx", "utf8");
@@ -51,17 +55,41 @@ test("ölçüm yöntemi kartları anlaşılır Türkçe başlık ve kısa açık
 test("form aynı panel içinde sonuca dönüşür; düzenleme korur ve yeni hesaplama sıfırlar", () => {
   assert.match(experience, /result === null \? \(/);
   assert.match(experience, /<FFMIResultView/);
-  assert.match(experience, /onEdit=\{\(\) => setResult\(null\)\}/);
+  assert.match(experience, /onEdit=\{\(\) => \{[\s\S]*setResult\(null\);[\s\S]*setStep\(1\);/);
   assert.match(experience, /setForm\(initialForm\)/);
   assert.match(experience, /Değerleri Düzenle/);
   assert.match(experience, /Yeni Hesaplama/);
   assert.doesNotMatch(experience, /placeholder result|boş sonuç/i);
 });
 
-test("her geçerli sonuç sade FFMI anlamını, üç ikincil metriği ve ölçüm notunu gösterir", () => {
+test("FFMI premium akışı iki adımı, ileri-geri geçişi ve değer korumayı uygular", () => {
+  assert.match(experience, /useState<1 \| 2>\(1\)/);
+  assert.match(experience, /<FFMIStepIndicator step=\{step\}/);
+  assert.match(experience, /step === 1 \?/);
+  assert.match(experience, /Temel ölçümlerini gir/);
+  assert.match(experience, /Devam Et/);
+  assert.match(experience, /continueToReferenceStep/);
+  assert.match(experience, /setStep\(2\)/);
+  assert.match(experience, /Referans &amp; Kapsam/);
+  assert.match(experience, /onClick=\{\(\) => setStep\(1\)\}/);
+  assert.match(experience, /> Geri/);
+  assert.doesNotMatch(experience, /setForm\(initialForm\)[\s\S]{0,160}setStep\(2\)/);
+});
+
+test("Step 1 yalnız kendi alanlarını doğrular; referans girdileri opsiyonel kalır", () => {
+  assert.match(experience, /\["heightCm", "weightKg", "bodyFatPercentage", "measurementMethod"\]/);
+  assert.doesNotMatch(
+    experience.match(/function continueToReferenceStep[\s\S]*?\n  }/)?.[0] ?? "",
+    /ageYears|referenceSex|standardAdultScope/,
+  );
+  assert.match(experience, /required=\{false\}/);
+  assert.match(experience, /\(isteğe bağlı\)/);
+});
+
+test("her geçerli sonuç sade FFMI anlamını ve progressive disclosure içindeki teknik metrikleri gösterir", () => {
   assert.match(experience, /FFMI Sonucun/);
   assert.match(experience, /FFMI, boyuna göre yağsız vücut kütleni gösteren bir ölçüdür/);
-  assert.match(experience, /Değer[\s\S]*yükseldikçe boya göre yağsız kütle genel olarak artar/);
+  assert.match(comparator, /FFMI yükseldikçe boya göre yağsız kütle artar/);
   assert.match(experience, /Bu değer, girdiğin yağ oranına göre tahmini olarak hesaplandı/);
   assert.match(experience, /label="Yağsız Kütle"/);
   assert.match(experience, /label="Yağ İndeksi"/);
@@ -105,7 +133,8 @@ test("source-specific yorum form girdilerinden doğrudan üretilir ve erişilebi
   assert.match(experience, /Erkek referansı/);
   assert.match(experience, /Kadın referansı/);
   assert.match(experience, /type="radio"/);
-  assert.match(comparator, /Bu sayı ne anlama geliyor\?/);
+  assert.match(comparator, /Referans grubundaki konumun/);
+  assert.match(experience, /Sonucunu daha ayrıntılı incele/);
   assert.match(comparator, /interpretWithFFMISourceReference/);
   assert.match(comparator, /aria-live="polite"/);
   assert.doesNotMatch(comparator, /Benzer Kişilerle Karşılaştır|onClick|useState/);
@@ -173,7 +202,7 @@ test("measurement gate yalnız comparator'ı sınırlar; FFMI anlamı her sonuç
 test("teknik provenance tek ve varsayılan kapalı disclosure içinde kalır", () => {
   assert.equal((comparator.match(/Bilimsel kaynak ve yöntem/g) ?? []).length, 1);
   assert.doesNotMatch(comparator, /Neden\?|Karşılaştırma nasıl yapılıyor\?/);
-  assert.match(comparator, /<details className="border-t/);
+  assert.match(comparator, /<details className="calculator-disclosure group/);
   assert.match(comparator, /FFMI_REFERENCE_METADATA\.displayLabel/);
 });
 
@@ -205,17 +234,106 @@ test("FFMI aracı kullanıcı ölçümü veya sonucu kalıcı saklamaz", () => {
   );
 });
 
-test("1366×768 hedefi düşük-height spacing ile çözülür, ölçek hilesi kullanılmaz", () => {
-  assert.match(page, /max-height:850px/);
+test("FFMI sunumu ortak semantik viewport ve editorial sonuç sistemini kullanır", () => {
   assert.match(page, /max-w-6xl/);
-  assert.match(page, /max-height:850px\)\]:max-w-7xl/);
-  assert.match(page, /max-height:850px\)\]:!py-1/);
-  assert.match(experience, /max-height:850px\)\]:!px-4/);
-  assert.match(experience, /max-height:850px\)\]:!py-2/);
-  assert.match(experience, /max-height:850px\)\]:gap-2/);
+  assert.match(page, /space-section-compact/);
+  assert.match(page, /space-field-group/);
+  assert.match(experience, /calculator-label/);
+  assert.match(experience, /calculator-result-light/);
+  assert.match(experience, /type-technical-label-size/);
+  assert.match(experience, /text-\[clamp\(3rem,8vw,4\.5rem\)\]/);
+  assert.match(experience, /border-y border-\[var\(--calculator-border\)\]/);
+  assert.match(comparator, /border-l-2 border-\[var\(--calculator-gold\)\]/);
   assert.match(experience, /min-h-11/);
-  assert.match(comparator, /max-height:850px\)\]:leading-4/);
+  assert.doesNotMatch(`${page}\n${experience}\n${comparator}`, /max-height:850px/);
   assert.doesNotMatch(`${page}\n${experience}\n${comparator}`, /zoom:|transform:\s*scale|sticky|fixed|overflow-hidden/);
+});
+
+test("FFMI sonucu puanlaştırılmaz; referans konumu ikincil ve belirsizlik görünür kalır", () => {
+  assert.match(comparator, /Referans grubundaki konumun/);
+  assert.match(comparator, /Yaklaşık referans konumun/);
+  assert.match(comparator, /puan veya kalite derecesi değildir/);
+  assert.match(comparator, /daha yüksek FFMI tek[\s\S]*daha sağlıklı veya daha iyi anlamına gelmez/);
+  assert.doesNotMatch(`${experience}\n${comparator}`, /progress|gauge|speedometer|score out of|\/100/i);
+});
+
+test("FFMI fold düzeltmesi CTA'yı scope ile birleştirir ve metrikleri disclosure önüne taşır", () => {
+  assert.match(experience, /lg:grid-cols-\[minmax\(0,1fr\)_auto\]/);
+  assert.match(experience, /FFMI&apos;Yİ HESAPLA/);
+  assert.match(experience, /lg:grid-cols-\[minmax\(0,\.8fr\)_minmax\(0,1\.2fr\)\]/);
+
+  const metricIndex = experience.indexOf('label="Yağsız Kütle"');
+  const actionsIndex = experience.indexOf("Değerleri Düzenle");
+  const measurementContextIndex = experience.indexOf("Ölçüm yönteminin etkisi");
+  const methodologyIndex = experience.indexOf("FFMI ne anlatır?");
+
+  assert.ok(metricIndex > -1);
+  assert.ok(metricIndex < actionsIndex);
+  assert.ok(actionsIndex < measurementContextIndex);
+  assert.ok(measurementContextIndex < methodologyIndex);
+});
+
+test("render edilmiş FFMI DOM'u kullanıcı özetini tek teknik giriş noktasından önce tutar", () => {
+  const markup = renderToStaticMarkup(
+    createElement(
+      FFMIResultView,
+      {
+        form: {
+          heightCm: "175",
+          weightKg: "70",
+          bodyFatPercentage: "20",
+          ageYears: "35",
+          referenceSex: "men",
+          measurementMethod: "bia_smart_scale",
+          standardAdultScope: true,
+        },
+        result: {
+          type: "SUCCESS",
+          fatMassKg: 14,
+          fatFreeMassKg: 56,
+          ffmi: 19.5,
+          fmi: 4.8,
+          metadata: {
+            method: "standard_ffmi",
+            estimatedFromBodyFatInput: true,
+            bodyFatMeasurementMethod: "bia_smart_scale",
+            intermediateRounding: false,
+            classificationProduced: false,
+            normalizedFFMIProduced: false,
+          },
+        },
+        headingRef: createRef<HTMLHeadingElement>(),
+        onEdit: () => undefined,
+        onReset: () => undefined,
+      },
+    ),
+  );
+
+  const ffmiIndex = markup.indexOf("FFMI Sonucun");
+  const meaningIndex = markup.indexOf("boyuna göre yağsız vücut kütleni");
+  const referenceIndex = markup.indexOf("Referans grubundaki konumun");
+  const leanMassIndex = markup.indexOf("Yağsız Kütle");
+  const fatMassIndex = markup.indexOf("Yağ Kütlesi");
+  const actionsIndex = markup.indexOf("Değerleri Düzenle");
+  const detailsEntryIndex = markup.indexOf("Sonucunu daha ayrıntılı incele");
+  const fmiIndex = markup.indexOf("Yağ İndeksi");
+  const measurementIndex = markup.indexOf("Ölçüm yönteminin etkisi");
+  const referenceDetailsIndex = markup.indexOf("Referans karşılaştırmasının ayrıntıları");
+  const scientificMethodIndex = markup.indexOf("Bilimsel kaynak ve yöntem");
+
+  assert.ok(ffmiIndex < meaningIndex);
+  assert.ok(meaningIndex < referenceIndex);
+  assert.ok(referenceIndex < leanMassIndex);
+  assert.ok(leanMassIndex < fatMassIndex);
+  assert.ok(fatMassIndex < actionsIndex);
+  assert.ok(actionsIndex < detailsEntryIndex);
+  assert.ok(detailsEntryIndex < fmiIndex);
+  assert.ok(fmiIndex < measurementIndex);
+  assert.ok(measurementIndex < referenceDetailsIndex);
+  assert.ok(referenceDetailsIndex < scientificMethodIndex);
+  assert.match(markup, /data-result-order="details-entry"/);
+  assert.match(markup, /data-result-order="level-two-details"/);
+  assert.match(markup, /data-result-order="technical-disclosures"/);
 });
 
 test("ana sonuç aksiyonları teknik detaylardan önce gelir ve 44 px hedefleri korunur", () => {

@@ -9,8 +9,8 @@ type BadgeProps = {
 };
 
 const variantClasses: Record<BadgeVariant, string> = {
-  gold: "border-[#C9A14A]/30 bg-[#C9A14A]/10 text-[#C9A14A]",
-  neutral: "border-white/10 bg-white/5 text-neutral-300",
+  gold: "border-[var(--border-emphasis)] bg-[var(--brand-gold-muted)] text-[var(--brand-gold)]",
+  neutral: "border-[var(--border-dark)] bg-white/5 text-neutral-300",
   success: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
   warning: "border-amber-400/30 bg-amber-400/10 text-amber-300",
 };
@@ -22,7 +22,7 @@ export default function Badge({
 }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${variantClasses[variant]} ${className ?? ""}`}
+      className={`inline-flex items-center rounded-full border px-3 py-1 font-mono text-[var(--type-technical-label-size)] font-semibold uppercase leading-[var(--type-technical-label-leading)] tracking-[var(--type-technical-label-tracking)] ${variantClasses[variant]} ${className ?? ""}`}
     >
       {children}
     </span>

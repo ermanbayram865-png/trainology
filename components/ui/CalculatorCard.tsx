@@ -28,10 +28,10 @@ export default function CalculatorCard({
         href={href}
         onClick={onClick}
         childrenClassName="!mt-0"
-        className={`h-full !rounded-2xl !p-4 sm:!p-4 ${className ?? ""}`}
+        className={`h-full !rounded-[var(--radius-panel)] !p-4 sm:!p-4 ${className ?? ""}`}
       >
         <div className="flex h-full min-h-20 items-center gap-4">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#C9A14A]/30 bg-[#C9A14A]/10 text-[#C9A14A] shadow-[0_8px_20px_rgba(0,0,0,.25)] [&>svg]:size-5">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-control)] border border-[var(--border-emphasis)] bg-[var(--brand-gold-muted)] text-[var(--brand-gold)] shadow-[var(--shadow-subtle)] [&>svg]:size-5">
             {icon}
           </div>
 
@@ -46,7 +46,7 @@ export default function CalculatorCard({
 
           <ArrowRight
             aria-hidden="true"
-            className="size-4 shrink-0 text-neutral-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#C9A14A]"
+            className="size-4 shrink-0 text-neutral-500 transition-colors duration-200 group-hover:text-[var(--brand-gold)]"
           />
         </div>
       </Card>
@@ -58,10 +58,10 @@ export default function CalculatorCard({
       title={title}
       description={description}
       media={
-        <div className="relative flex aspect-[16/9] items-end overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_25%_15%,rgba(201,161,74,.2),transparent_40%),linear-gradient(135deg,#121212,#070707)] p-5">
+        <div className="relative flex aspect-[16/9] items-end overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-dark)] bg-[radial-gradient(circle_at_25%_15%,rgba(201,161,74,.2),transparent_40%),linear-gradient(135deg,#121212,#070707)] p-5">
           <div className="absolute -right-8 -top-8 size-28 rounded-full border border-[#C9A14A]/15" />
           <div className="absolute -bottom-12 right-10 size-24 rounded-full border border-white/10" />
-          <div className="relative flex size-14 items-center justify-center rounded-xl border border-[#C9A14A]/30 bg-[#C9A14A]/10 text-xl text-[#C9A14A] shadow-[0_10px_28px_rgba(0,0,0,.3)]">
+          <div className="relative flex size-14 items-center justify-center rounded-[var(--radius-control)] border border-[var(--border-emphasis)] bg-[var(--brand-gold-muted)] text-xl text-[var(--brand-gold)] shadow-[var(--shadow-subtle)]">
             {icon}
           </div>
         </div>

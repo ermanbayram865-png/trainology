@@ -93,10 +93,10 @@ export default function EnergyLabMethodology() {
     <section
       id="bilimsel-kaynaklar"
       aria-labelledby="methodology-title"
-      className="border-t border-white/10 px-5 py-10 text-[#102536] sm:px-6 sm:py-14"
+      className="border-t border-[var(--border-dark)] px-5 py-[var(--space-section-compact)] text-[var(--calculator-text-primary)] sm:px-6"
     >
       <div className="calculator-content">
-        <details className="calculator-surface group p-5 open:border-[#9f7b38]/30 sm:p-7">
+        <details className="calculator-surface group p-[var(--space-panel-compact)] open:border-[#9f7b38]/30 sm:p-[var(--space-panel)]">
           <summary className="cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
             <div className="flex items-center gap-4">
               <div className="flex size-12 items-center justify-center rounded-2xl border border-[#9f7b38]/25 bg-[#efe5d0] text-[#8c6a2d]">
@@ -117,7 +117,7 @@ export default function EnergyLabMethodology() {
           </summary>
 
           <div className="mt-6 border-t border-[#11283a]/10 pt-6">
-            <div className="flex items-start gap-3 rounded-2xl border border-[#11283a]/10 bg-white p-5">
+            <div className="flex items-start gap-3 border-l-2 border-[var(--border-emphasis)] pl-4">
               <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#8c6a2d]" />
               <p className="text-sm leading-7 text-[#596a77]">
                 Form girdileri yalnız bu sayfadaki geçici hesap için kullanılır; URL&apos;ye,
@@ -127,11 +127,11 @@ export default function EnergyLabMethodology() {
               </p>
             </div>
 
-            <div className="mt-5 space-y-3">
+            <div className="mt-6 border-b border-[var(--border-light)]">
               {methodItems.map((item) => (
                 <details
                   key={item.title}
-                  className="group rounded-2xl border border-[#11283a]/10 bg-white p-5 open:border-[#9f7b38]/30 sm:p-6"
+                  className="group border-t border-[var(--border-light)] py-5"
                 >
                   <summary className="cursor-pointer list-none font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9f7b38] [&::-webkit-details-marker]:hidden">
                     <span className="flex items-center justify-between gap-4">
@@ -148,7 +148,7 @@ export default function EnergyLabMethodology() {
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-[#9f7b38]/20 bg-[#efe5d0]/55 p-5 sm:p-6">
+            <div className="mt-7 border-y border-[#9f7b38]/20 bg-[#efe5d0]/35 py-5 sm:px-5">
               <div className="flex items-start gap-3">
                 <BookOpen aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#8c6a2d]" />
                 <div>
@@ -159,9 +159,9 @@ export default function EnergyLabMethodology() {
                   </p>
                 </div>
               </div>
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-4 divide-y divide-[#9f7b38]/15 border-y border-[#9f7b38]/15">
                 {ENERGY_SCIENTIFIC_DECISIONS.map((item) => (
-                  <li key={item.id} className="rounded-xl border border-[#9f7b38]/15 bg-white/70 p-4 text-sm">
+                  <li key={item.id} className="py-4 text-sm">
                     <p className="font-bold text-[#102536]">{item.rule}</p>
                     <p className="mt-1 text-xs leading-5 text-[#665330]">
                       {evidenceLabels[item.evidence]} · {decisionLabels[item.decision]}

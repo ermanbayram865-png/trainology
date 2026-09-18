@@ -27,7 +27,10 @@ test("Energy Lab presents the required three-step wizard and guarded navigation"
   assert.match(source, /changeStep\(step === 3 \? 2 : 1\)/);
   assert.match(source, /aria-current=\{active \? "step" : undefined\}/);
   assert.match(source, /String\(index \+ 1\)\.padStart\(2, "0"\)/);
-  assert.match(source, /active[\s\S]*?border-\[#9f7b38\][\s\S]*?complete[\s\S]*?border-\[#102536\]/);
+  assert.match(
+    source,
+    /active[\s\S]*?border-\[var\(--calculator-gold\)\][\s\S]*?complete[\s\S]*?border-\[var\(--calculator-navy\)\]/,
+  );
 });
 
 test("Energy Lab removes unused personalization and performance-priority inputs", () => {

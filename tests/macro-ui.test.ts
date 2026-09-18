@@ -117,14 +117,14 @@ test("metodoloji accordion ve kaynaklar erişilebilir biçimde sunulur", () => {
   assert.match(source, /Weijs — Obezitede protein gereksinimi ve kanıt sınırları/);
 });
 
-test("wizard düşük yükseklikli gerçek desktop viewport için kompaktlaşır", () => {
-  assert.match(source, /max-height:850px/);
-  assert.match(source, /sectionClassName="!py-5 sm:!py-7 lg:!py-7/);
-  assert.match(source, /contentClassName="space-y-4 lg:space-y-3\.5/);
+test("wizard foundation spacing ile responsive ve kompakt kalır", () => {
+  assert.match(source, /sectionClassName="!py-\[var\(--space-section-compact\)\] sm:!py-8 lg:!py-8/);
+  assert.match(source, /contentClassName="space-y-5 lg:space-y-6/);
+  assert.match(source, /p-\[var\(--space-panel-compact\)\] sm:p-\[var\(--space-panel\)\]/);
   assert.match(source, /max-w-5xl/);
   assert.match(source, /md:grid-cols-3/);
-  assert.match(source, /\[@media\(min-width:1024px\)_and_\(max-height:850px\)\]:!py-2\.5/);
-  assert.match(source, /min-h-12/);
+  assert.match(source, /sm:grid-cols-3/);
+  assert.match(source, /min-h-13/);
   assert.match(source, /min-h-11/);
   assert.doesNotMatch(source, /!min-h-10/);
   assert.doesNotMatch(source, /transform:\s*scale|zoom:|overflow-hidden/);

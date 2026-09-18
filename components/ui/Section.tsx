@@ -18,10 +18,10 @@ export default function Section({
   contentClassName,
 }: SectionProps) {
   return (
-    <section className={`px-6 py-20 sm:py-24 lg:py-28 ${className ?? ""}`}>
+    <section className={`site-section px-6 py-20 sm:py-24 lg:py-28 ${className ?? ""}`}>
       <div className="mx-auto max-w-7xl">
         {(title || subtitle || description) && (
-          <header className="mb-12 max-w-3xl sm:mb-16">
+          <header className="site-section-header mb-12 max-w-3xl sm:mb-16">
             {subtitle && (
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#C9A14A]">
                 {subtitle}
