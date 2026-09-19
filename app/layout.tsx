@@ -61,7 +61,7 @@ export default function RootLayout({
       <body className="min-h-full bg-black text-white">
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-0 bg-[url('/images/backgrounds/site-bg.png')] bg-cover bg-[center_top] bg-no-repeat"
+          className="fixed inset-0 z-0 bg-[url('/images/backgrounds/site-bg.webp')] bg-cover bg-[center_top] bg-no-repeat"
         />
         <div aria-hidden="true" className="fixed inset-0 z-[1] bg-black/55" />
 

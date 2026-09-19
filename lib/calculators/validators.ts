@@ -5,6 +5,7 @@ export type NumberValidationOptions = {
   required?: boolean;
   min?: number;
   max?: number;
+  integer?: boolean;
 };
 
 export function validateRequired(
@@ -34,6 +35,10 @@ export function validateNumber(
 
   const numericValue = Number(value);
 
+  if (options.integer && !Number.isInteger(numericValue)) {
+    return `${label} tam sayı olmalıdır.`;
+  }
+
   if (options.min !== undefined && numericValue < options.min) {
     return `${label} en az ${options.min} olmalıdır.`;
   }
@@ -55,6 +60,7 @@ export function validateCalculatorField(
       required: field.required,
       min: field.min,
       max: field.max,
+      integer: field.integer,
     });
   }
 

@@ -46,6 +46,26 @@ test("sitemap lists the canonical Energy Lab route once and omits /analysis", ()
   assert.equal(paths.some((path) => path.startsWith("/movements")), false);
 });
 
+test("sitemap and route Open Graph metadata follow the canonical trailing-slash convention", () => {
+  assert.equal(
+    sitemap().every(({ url }) => {
+      const pathname = new URL(url).pathname;
+      return pathname === "/" || pathname.endsWith("/");
+    }),
+    true,
+  );
+
+  for (const [relativePath, route] of [
+    ["app/calculators/layout.tsx", "/calculators/"],
+    ["app/calculators/macro/layout.tsx", "/calculators/macro/"],
+    ["app/calculators/protein/layout.tsx", "/calculators/protein/"],
+    ["app/calculators/ffmi/layout.tsx", "/calculators/ffmi/"],
+  ] as const) {
+    const source = readSource(relativePath);
+    assert.match(source, new RegExp(`url: ["']${route.replaceAll("/", "\\/")}["']`));
+  }
+});
+
 test("movement library routes and public entry points have been removed", () => {
   for (const relativePath of [
     "app/movements/page.tsx",

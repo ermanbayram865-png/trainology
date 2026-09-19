@@ -40,7 +40,7 @@ const scopeOptions = [
 const macroFields: readonly CalculatorField[] = [
   { name: "weight", label: "Vücut ağırlığın", type: "number", required: true, min: 25, max: 400 },
   { name: "height", label: "Boyun", type: "number", required: true, min: 100, max: 250 },
-  { name: "calories", label: "Günlük kalori hedefin", type: "number", required: true, min: 1000, max: 8000 },
+  { name: "calories", label: "Günlük kalori hedefin", type: "number", required: true, min: 1000, max: 8000, integer: true },
   { name: "goal", label: "Hedefin", type: "radio", options: CALORIE_GOALS, required: true },
   { name: "resistanceTraining", label: "Direnç antrenmanı", type: "radio", options: resistanceOptions, required: true },
   { name: "scope", label: "Kapsam", type: "radio", options: scopeOptions, required: true },

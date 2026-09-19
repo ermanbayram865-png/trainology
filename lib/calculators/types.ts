@@ -43,6 +43,7 @@ export type CalculatorField = {
   min?: number;
   max?: number;
   step?: number;
+  integer?: boolean;
   options?: readonly CalculatorOption[];
 };
 

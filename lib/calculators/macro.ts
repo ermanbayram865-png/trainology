@@ -58,6 +58,7 @@ const MACRO_INPUT_LIMITS = {
 function validateInput(input: MacroInput) {
   if (
     !Number.isFinite(input.calories) ||
+    !Number.isInteger(input.calories) ||
     input.calories < MACRO_INPUT_LIMITS.calories.min ||
     input.calories > MACRO_INPUT_LIMITS.calories.max
   ) {

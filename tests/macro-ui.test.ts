@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
+import { validateCalculatorField } from "../lib/calculators/index";
+
 const source = readFileSync(
   new URL("../app/calculators/macro/page.tsx", import.meta.url),
   "utf8",
@@ -24,11 +26,29 @@ test("Makro Planlayıcı iki adımlı wizard, geri ve sonuç akışını korur",
 test("ağırlık, boy ve kalori teknik validasyonları inline çalışır", () => {
   assert.match(source, /name: "weight"[\s\S]+?min: 25, max: 400/);
   assert.match(source, /name: "height"[\s\S]+?min: 100, max: 250/);
-  assert.match(source, /name: "calories"[\s\S]+?min: 1000, max: 8000/);
+  assert.match(source, /name: "calories"[\s\S]+?min: 1000, max: 8000, integer: true/);
   assert.match(source, /validateCalculatorField\(field, values\[field\.name\]\)/);
   assert.match(source, /id="macro-height"/);
   assert.match(source, /role="alert"/);
   assert.match(source, /aria-invalid/);
+});
+
+test("manuel kalori alanı ondalık değerleri ortak validasyonda reddeder", () => {
+  const calorieField = {
+    name: "calories",
+    label: "Günlük kalori hedefin",
+    type: "number" as const,
+    required: true,
+    min: 1000,
+    max: 8000,
+    integer: true,
+  };
+
+  assert.equal(
+    validateCalculatorField(calorieField, "3150.5"),
+    "Günlük kalori hedefin tam sayı olmalıdır.",
+  );
+  assert.equal(validateCalculatorField(calorieField, "3150"), undefined);
 });
 
 test("manuel kalori ve güvenli Energy Lab prefill akışları birlikte çalışır", () => {

@@ -177,6 +177,16 @@ test("motor UI ile aynı ağırlık, boy ve kalori sınırlarında fail-closed d
   assert.doesNotThrow(() => getDistribution({ weight: 400, height: 250, calories: 8000 }));
 });
 
+test("kalori hedefi yalnız 1000–8000 aralığındaki tam sayıları kabul eder", () => {
+  for (const calories of [999, 3150.5, 8001, Number.NaN, Number.POSITIVE_INFINITY]) {
+    assert.throws(() => calculateMacroDistribution({ ...baseInput, calories }), RangeError);
+  }
+
+  for (const calories of [1000, 3150, 8000]) {
+    assert.doesNotThrow(() => calculateMacroDistribution({ ...baseInput, calories }));
+  }
+});
+
 test("legacy aktivite protein ve yağ tabloları motordan kaldırılmıştır", () => {
   const source = readFileSync(
     new URL("../lib/calculators/macro.ts", import.meta.url),
